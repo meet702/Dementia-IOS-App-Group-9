@@ -77,7 +77,7 @@ class CaregiverViewController: UIViewController {
         DispatchQueue.main.async {
             // If DataStore sends a "dateKey" in userInfo you can check it here and only reload when it matches.
             // For simplicity we reload only the "My Routine" section (section index 2).
-            let sectionIndex = 2
+            let sectionIndex = 0
             let indexSet = IndexSet(integer: sectionIndex)
             self.caregiverCollectionView.reloadSections(indexSet)
         }
@@ -173,7 +173,7 @@ extension CaregiverViewController: UICollectionViewDataSource {
         // Create the header view
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
         if indexPath.section == 0 {
-            headerView.configureHeaderCell(text: "My Routine",
+            headerView.configureHeaderCell(text: "Arjun's Routine",
                                            showChevron: true,
                                            isTappable: true,
                                            onTap: { [weak self] in

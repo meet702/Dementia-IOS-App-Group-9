@@ -283,13 +283,9 @@ extension HomeViewController: UICollectionViewDelegate {
         if segue.identifier == "showMemoryRecap" {
             // Example destination handling: adjust to your real VC class
             if let recapVC = segue.destination as? BaseViewController {
-                // pass data if needed:
-                // recapVC.someProperty = ...
                 print("Preparing Memory Recap (direct)")
             } else if let nav = segue.destination as? UINavigationController,
                       let recapVC = nav.topViewController as? BaseViewController {
-                // If you embed recap in a nav controller in storyboard
-                // recapVC.someProperty = ...
                 print("Preparing Memory Recap (in nav)")
             } else {
                 // If you're using a storyboard reference, the destination may be a different type.

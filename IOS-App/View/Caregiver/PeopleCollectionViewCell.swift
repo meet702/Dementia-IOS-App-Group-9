@@ -37,7 +37,7 @@ class PeopleCollectionViewCell: UICollectionViewCell {
     
     func configurePeopleCell(person: PeopleModel) {
         peopleNameLabel.text = person.personName
-        imageView.image = UIImage(named: person.personImage)
+        imageView.image = person.personImage
         
     }
     

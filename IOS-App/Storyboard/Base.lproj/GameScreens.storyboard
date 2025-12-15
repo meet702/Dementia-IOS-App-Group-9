@@ -12,7 +12,7 @@
         <!--Match the Pairs-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="match" id="BYZ-38-t0r" customClass="MatchThePairsInstructionsViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="match" id="BYZ-38-t0r" customClass="MatchThePairsInstructionsViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -292,7 +292,7 @@
         <!--Crossword-->
         <scene sceneID="xxu-lz-x4b">
             <objects>
-                <viewController storyboardIdentifier="crossword" id="ky7-tn-sih" customClass="CrosswordInstructionsViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="crossword" id="ky7-tn-sih" customClass="CrosswordInstructionsViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4Jk-vL-rIk">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -301,7 +301,7 @@
                                 <rect key="frame" x="0.0" y="172" width="393" height="612"/>
                                 <subviews>
                                     <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="abJ-qs-kKw">
-                                        <rect key="frame" x="8" y="8" width="377" height="596"/>
+                                        <rect key="frame" x="8" y="8" width="377" height="634"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="FZU-rP-T7F">
@@ -343,6 +343,9 @@
                                                             <constraint firstAttribute="bottom" secondItem="K75-Dp-74N" secondAttribute="bottom" id="eb9-Tz-ykY"/>
                                                             <constraint firstItem="K75-Dp-74N" firstAttribute="leading" secondItem="8ke-Iq-7OK" secondAttribute="leading" constant="16" id="z10-7d-cUs"/>
                                                         </constraints>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="I9L-vk-FFv" appends="YES" id="jUY-fb-gbZ"/>
+                                                        </connections>
                                                     </view>
                                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="33L-Bu-coH">
                                                         <rect key="frame" x="0.0" y="72" width="377" height="32"/>
@@ -419,6 +422,9 @@ From Flags</string>
                                                                             <constraint firstAttribute="trailing" secondItem="OeP-dO-muc" secondAttribute="trailing" constant="16" id="m5o-Jy-83b"/>
                                                                             <constraint firstAttribute="bottom" secondItem="OeP-dO-muc" secondAttribute="bottom" constant="16" id="nMz-ry-AbX"/>
                                                                         </constraints>
+                                                                        <connections>
+                                                                            <outletCollection property="gestureRecognizers" destination="ccZ-c0-ouy" appends="YES" id="MEH-bi-0JM"/>
+                                                                        </connections>
                                                                     </view>
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mk6-LG-MxU">
                                                                         <rect key="frame" x="196.66666666666663" y="0.0" width="180.33333333333337" height="150"/>
@@ -459,6 +465,9 @@ From Flags</string>
                                                                             <constraint firstAttribute="bottom" secondItem="Y0e-vW-PkM" secondAttribute="bottom" constant="16" id="uTI-D8-PqT"/>
                                                                             <constraint firstItem="Y0e-vW-PkM" firstAttribute="top" secondItem="mk6-LG-MxU" secondAttribute="top" constant="16" id="vdc-j0-FE9"/>
                                                                         </constraints>
+                                                                        <connections>
+                                                                            <outletCollection property="gestureRecognizers" destination="mCZ-th-Xsk" appends="YES" id="GAM-nZ-DXf"/>
+                                                                        </connections>
                                                                     </view>
                                                                 </subviews>
                                                             </stackView>
@@ -501,6 +510,9 @@ From Flags</string>
                                                                             <constraint firstAttribute="height" constant="150" id="Q7j-6G-0bN"/>
                                                                             <constraint firstAttribute="bottom" secondItem="tDO-8H-rXL" secondAttribute="bottom" constant="16" id="nUe-Dk-ZrC"/>
                                                                         </constraints>
+                                                                        <connections>
+                                                                            <outletCollection property="gestureRecognizers" destination="UfS-6C-8Hx" appends="YES" id="Nl0-47-mqX"/>
+                                                                        </connections>
                                                                     </view>
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CCt-Nb-VgE">
                                                                         <rect key="frame" x="196.66666666666663" y="0.0" width="180.33333333333337" height="150"/>
@@ -538,6 +550,9 @@ From Flags</string>
                                                                             <constraint firstItem="1R4-mF-4EW" firstAttribute="leading" secondItem="CCt-Nb-VgE" secondAttribute="leading" constant="16" id="WNy-aw-y8Y"/>
                                                                             <constraint firstAttribute="height" constant="150" id="vvO-Xf-fzh"/>
                                                                         </constraints>
+                                                                        <connections>
+                                                                            <outletCollection property="gestureRecognizers" destination="uoq-Qq-Y97" appends="YES" id="d8d-2x-iJ2"/>
+                                                                        </connections>
                                                                     </view>
                                                                 </subviews>
                                                             </stackView>
@@ -578,6 +593,9 @@ From Flags</string>
                                                             <constraint firstItem="KHv-fU-20A" firstAttribute="centerY" secondItem="gal-T2-hoZ" secondAttribute="centerY" id="LVf-An-asc"/>
                                                             <constraint firstItem="KHv-fU-20A" firstAttribute="centerX" secondItem="gal-T2-hoZ" secondAttribute="centerX" id="Syd-aA-Urm"/>
                                                         </constraints>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="59N-Mz-Z38" appends="YES" id="xPu-HB-SF9"/>
+                                                        </connections>
                                                     </view>
                                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="e5v-w3-7PQ">
                                                         <rect key="frame" x="0.0" y="553.66666666666663" width="377" height="60"/>
@@ -635,8 +653,38 @@ From Flags</string>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bg7-Vv-Yn9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="ccZ-c0-ouy">
+                    <connections>
+                        <action selector="countriesTapped:" destination="ky7-tn-sih" id="BUt-d2-hfo"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="mCZ-th-Xsk">
+                    <connections>
+                        <action selector="dailyObjectsTapped:" destination="ky7-tn-sih" id="phe-mg-qN6"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="UfS-6C-8Hx">
+                    <connections>
+                        <action selector="gkTapped:" destination="ky7-tn-sih" id="VPq-8G-YXj"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="uoq-Qq-Y97">
+                    <connections>
+                        <action selector="foodTapped:" destination="ky7-tn-sih" id="HPH-9x-yh6"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="59N-Mz-Z38">
+                    <connections>
+                        <action selector="randomCategoryTapped:" destination="ky7-tn-sih" id="GOi-Lh-mNR"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="I9L-vk-FFv">
+                    <connections>
+                        <action selector="howToPlayTapped:" destination="ky7-tn-sih" id="ejA-uB-iEr"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="1204" y="111"/>
+            <point key="canvasLocation" x="1203.8167938931297" y="110.56338028169014"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="FKO-qD-uHx">
@@ -691,7 +739,7 @@ From Flags</string>
         <!--Sudoku-->
         <scene sceneID="SUl-BW-ZOd">
             <objects>
-                <viewController storyboardIdentifier="sudoku" id="2Or-0I-xLa" customClass="SudokuInstructionsViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="sudoku" id="2Or-0I-xLa" customClass="SudokuInstructionsViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="OGQ-pz-oCQ">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -952,7 +1000,7 @@ From Flags</string>
         <!--Sudoku-->
         <scene sceneID="XNI-EZ-7p4">
             <objects>
-                <viewController id="Ku4-ZF-txd" customClass="SudokuViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Ku4-ZF-txd" customClass="SudokuViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Zhw-ms-zP3">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -970,7 +1018,7 @@ From Flags</string>
                                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         </collectionViewFlowLayout>
                                         <cells>
-                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SudokuCell" id="goe-9k-LLD" customClass="SudokuCollectionViewCell" customModule="Match_the_Pairs_Test" customModuleProvider="target">
+                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SudokuCell" id="goe-9k-LLD" customClass="SudokuCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="fPy-bz-jpt">
@@ -1179,7 +1227,7 @@ From Flags</string>
         <!--Match the Pairs-->
         <scene sceneID="L4s-6U-KLg">
             <objects>
-                <viewController id="bQ0-Tc-AqL" customClass="MatchThePairsViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="bQ0-Tc-AqL" customClass="MatchThePairsViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="1gN-nP-llz">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1194,7 +1242,7 @@ From Flags</string>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CardCell" id="s6f-ge-sev" customClass="MatchThePairsCollectionViewCell" customModule="Match_the_Pairs_Test" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CardCell" id="s6f-ge-sev" customClass="MatchThePairsCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="162" height="147"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="6JO-WM-SOs">
