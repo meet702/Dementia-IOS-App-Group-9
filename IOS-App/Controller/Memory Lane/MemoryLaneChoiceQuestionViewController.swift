@@ -9,10 +9,12 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
     @IBOutlet weak var nextButton: UIButton!
     @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var progressView: UIProgressView!
+
     var personImage: UIImage?
     var personName: String = ""
     var relation: String = ""
     var groupImage: UIImage?
+
     // MCQ data
     var mcqQuestions: [Question] = []
     var currentMCQIndex: Int = 0
@@ -25,15 +27,12 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
         setupUI()
         setupTableView()
         loadMCQ()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
 
-        let progress = MemorySessionManager.shared.advanceProgress()
-        progressView.setProgress(progress, animated: true)
+        
+        progressView.progress = MemorySessionManager.shared.currentProgress()
     }
+
     private func setupUI() {
-
         backgroundView.layer.cornerRadius = 35
 
         personNameLabel.text = personName
@@ -80,6 +79,10 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
             selected: selectedOptions.joined(separator: ", ")
         )
 
+        // ✅ ADVANCE PROGRESS ONLY AFTER ANSWERING
+        let progress = MemorySessionManager.shared.advanceProgress()
+        progressView.setProgress(progress, animated: false)
+
         if currentMCQIndex < mcqQuestions.count - 1 {
             currentMCQIndex += 1
             loadMCQ()
@@ -89,7 +92,7 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
     }
 
     private func goToEmotionScreen() {
-        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
 
         if let vc =
             sb.instantiateViewController(

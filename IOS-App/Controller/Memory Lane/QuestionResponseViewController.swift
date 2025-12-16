@@ -8,7 +8,6 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
     @IBOutlet weak var responseTextView: UITextView!
     @IBOutlet weak var nextButton: UIButton!
     @IBOutlet weak var backgroundView: UIView!
-
     @IBOutlet weak var progressView: UIProgressView!
     
     var questions: [Question] = []
@@ -24,8 +23,7 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
         super.viewDidLoad()
 
         personImageView.image = personImage
-        personImageView.clipsToBounds = true   
-
+        personImageView.clipsToBounds = true
         personNameLabel.text = personName
 
         MemorySessionManager.shared.beginSession(
@@ -36,12 +34,8 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
         responseTextView.delegate = self
         setupUI()
         loadQuestion()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
 
-        let progress = MemorySessionManager.shared.advanceProgress()
-        progressView.setProgress(progress, animated: true)
+        progressView.progress = MemorySessionManager.shared.currentProgress()
     }
 
     private func setupUI() {
@@ -76,6 +70,10 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
             answer: rawText
         )
 
+        
+        let progress = MemorySessionManager.shared.advanceProgress()
+        progressView.setProgress(progress, animated: false)
+
         currentIndex += 1
 
         if currentIndex < questions.count {
@@ -86,7 +84,7 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
     }
 
     private func goToMCQScreen() {
-        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
 
         if let mcqVC =
             sb.instantiateViewController(withIdentifier: "mcqVC")
@@ -101,7 +99,6 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
         }
     }
 
-
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == .lightGray {
             textView.text = ""
@@ -110,7 +107,9 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if textView.text
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty {
             textView.text = "Add response"
             textView.textColor = .lightGray
         }

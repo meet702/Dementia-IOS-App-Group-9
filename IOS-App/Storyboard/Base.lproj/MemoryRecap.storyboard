@@ -11,7 +11,7 @@
         <!--Base View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="memory_recap" id="BYZ-38-t0r" customClass="BaseViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="memory_recap" id="BYZ-38-t0r" customClass="BaseViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -50,7 +50,7 @@
         <!--Memory Recap-->
         <scene sceneID="gnR-F9-xcO">
             <objects>
-                <viewController id="MRJ-Pz-i0s" customClass="FirstMemoryViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="MRJ-Pz-i0s" customClass="FirstMemoryViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="HPh-AM-dlg">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -116,7 +116,7 @@
         <!--Memory Recap-->
         <scene sceneID="JFb-OY-fJ9">
             <objects>
-                <viewController id="A9T-nF-r1b" customClass="WellDoneViewController" customModule="Match_the_Pairs_Test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="A9T-nF-r1b" customClass="WellDoneViewController" customModule="IOS_App" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="k0k-bb-tF7">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

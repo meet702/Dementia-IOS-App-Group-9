@@ -7,56 +7,83 @@
 
 import UIKit
 
-class PeopleCollectionViewCell: UICollectionViewCell {
+class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
 
-    
     @IBOutlet weak var imageView: UIImageView!
-    
     @IBOutlet weak var peopleNameLabel: UILabel!
-    
     @IBOutlet weak var editButton: UIButton!
-    
+    @IBOutlet weak var nameTextField: UITextField!   // ✅ fixed naming
+
+    // Callback to notify ViewController
+    var onNameUpdated: ((String) -> Void)?
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+
         imageView.contentMode = .scaleAspectFill
-        
         imageView.clipsToBounds = true
         imageView.layer.masksToBounds = true
 
         peopleNameLabel.textAlignment = .center
         peopleNameLabel.numberOfLines = 1
+        peopleNameLabel.isUserInteractionEnabled = true
+
         editButton.layer.cornerRadius = 18
         editButton.clipsToBounds = true
+
+        // Text field setup
+        nameTextField.isHidden = true
+        nameTextField.delegate = self
+        nameTextField.returnKeyType = .done
+        nameTextField.textAlignment = .center
+
+        // Double-tap gesture on label
+        let doubleTap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleDoubleTap)
+        )
+        doubleTap.numberOfTapsRequired = 2
+        peopleNameLabel.addGestureRecognizer(doubleTap)
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
         imageView.layer.cornerRadius = 50
     }
-    
+
     func configurePeopleCell(person: PeopleModel) {
         peopleNameLabel.text = person.personName
+        nameTextField.text = person.personName
         imageView.image = person.personImage
-        
     }
-    
-    @IBAction func editDetailsButtonTapped(_ sender: UIButton) {
-        guard let parentVC = self.findViewController() as? PeopleViewController else {
-            print("Parent VC not found or is not PeopleViewController")
-            return
+
+    @objc private func handleDoubleTap() {
+        peopleNameLabel.isHidden = true
+        nameTextField.isHidden = false
+        nameTextField.becomeFirstResponder()
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        finishEditing()
+        return true
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        finishEditing()
+    }
+
+    private func finishEditing() {
+        nameTextField.resignFirstResponder()
+
+        let newName = nameTextField.text?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let newName = newName, !newName.isEmpty {
+            peopleNameLabel.text = newName
+            onNameUpdated?(newName)
         }
 
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let detailsVC = storyboard.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController else { return }
-
-        let presenter = EdgeModalPresenter()
-        presenter.heightFraction = 0.55 // adjust: 0.40 = 40% height, set to 0.45 to be taller
-        presenter.cornerRadius = 22
-        presenter.setContent(detailsVC) // embed your details VC
-
-        // present
-        presenter.presentAnimated(from: parentVC)
+        nameTextField.isHidden = true
+        peopleNameLabel.isHidden = false
     }
-    
 }

@@ -37,7 +37,7 @@ class MemoryLanePictureIntroViewController: UIViewController {
     }
 
     private func goToNextScreen() {
-        let story = UIStoryboard(name: "Main", bundle: nil)
+        let story = UIStoryboard(name: "MemoryLane", bundle: nil)
         let nextVC = story.instantiateViewController(
             withIdentifier: "MemoryLaneIdentifyPersonVC"
         )

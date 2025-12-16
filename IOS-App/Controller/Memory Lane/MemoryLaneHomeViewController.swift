@@ -23,7 +23,7 @@ class MemoryLaneHomeViewController: UIViewController {
     
 
     private func navigateToPictureIntro() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let storyboard = UIStoryboard(name: "MemoryLane", bundle: nil)
         let nextVC = storyboard.instantiateViewController(withIdentifier: "MemoryLanePictureIntroVC")
         navigationController?.pushViewController(nextVC, animated: false)
     }

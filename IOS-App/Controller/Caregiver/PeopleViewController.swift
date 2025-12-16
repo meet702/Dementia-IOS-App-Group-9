@@ -17,7 +17,7 @@ class PeopleViewController: UIViewController,
 
     // MARK: - Data
     var people: [PeopleModel] = []
-
+    private var selectedPerson: PeopleModel?   // ✅ ADDED
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -35,77 +35,16 @@ class PeopleViewController: UIViewController,
         super.viewWillAppear(animated)
         loadPeople()
     }
-    
-//    private func addLongPressGesture() {
-//        let longPress = UILongPressGestureRecognizer(
-//            target: self,
-//            action: #selector(handleLongPress(_:))
-//        )
-//        longPress.minimumPressDuration = 0.5
-//        PeoplecollectionView.addGestureRecognizer(longPress)
-//    }
-//    
-//    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-//
-//        guard gesture.state == .began else { return }
-//        
-//        let feedback = UIImpactFeedbackGenerator(style: .medium)
-//        feedback.prepare()
-//        feedback.impactOccurred()
-//
-//
-//        let point = gesture.location(in: PeoplecollectionView)
-//
-//        guard let indexPath = PeoplecollectionView.indexPathForItem(at: point) else {
-//            return
-//        }
-//
-//        let model = people[indexPath.item]
-//        let context = PersistenceController.shared.context
-//        let person = context.object(with: model.objectID) as! PersonEntity
-//
-//        showDeleteConfirmation(for: person)
-//    }
-//
-//    private func showDeleteConfirmation(for person: PersonEntity) {
-//
-//        let alert = UIAlertController(
-//            title: "Delete Person?",
-//            message: "This will permanently remove this person.",
-//            preferredStyle: .alert
-//        )
-//
-//        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
-//            self.deletePerson(person)
-//        })
-//
-//        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-//
-//        // iPad safety
-//        if let popover = alert.popoverPresentationController {
-//            popover.sourceView = self.view
-//            popover.sourceRect = CGRect(
-//                x: self.view.bounds.midX,
-//                y: self.view.bounds.midY,
-//                width: 1,
-//                height: 1
-//            )
-//        }
-//
-//        present(alert, animated: true)
-//    }
 
-
+    // MARK: - Delete Person
     func deletePerson(_ person: PersonEntity) {
 
         let context = PersistenceController.shared.context
 
-        // 1️⃣ Delete image file
         if let imagePath = person.imagePath {
             ImageStorageManager.shared.deleteImage(named: imagePath)
         }
 
-        // 2️⃣ Delete Core Data object
         context.delete(person)
 
         do {
@@ -115,11 +54,8 @@ class PeopleViewController: UIViewController,
             print("❌ Failed to delete person:", error)
         }
 
-        // 3️⃣ Reload UI
         loadPeople()
     }
-
-
 
     // MARK: - Layout
     func generateLayout() -> UICollectionViewLayout {
@@ -160,6 +96,7 @@ class PeopleViewController: UIViewController,
         )
     }
 
+    // MARK: - Load People
     func loadPeople() {
 
         let context = PersistenceController.shared.context
@@ -188,8 +125,7 @@ class PeopleViewController: UIViewController,
         }
     }
 
-
-    
+    // MARK: - Save Person
     func savePerson(faceImage: UIImage) {
 
         let context = PersistenceController.shared.context
@@ -212,7 +148,6 @@ class PeopleViewController: UIViewController,
         }
     }
 
-    
     // MARK: - Add Photos Button
     @IBAction func addPhotosButton(_ sender: UIBarButtonItem) {
 
@@ -225,9 +160,7 @@ class PeopleViewController: UIViewController,
             preferredStyle: .actionSheet
         )
 
-        alertController.addAction(
-            UIAlertAction(title: "Cancel", style: .cancel)
-        )
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             alertController.addAction(
@@ -257,9 +190,7 @@ class PeopleViewController: UIViewController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
     ) {
         picker.dismiss(animated: true)
-
         guard let image = info[.originalImage] as? UIImage else { return }
-
         handleUploadedImage(image)
     }
 
@@ -267,17 +198,35 @@ class PeopleViewController: UIViewController,
     private func handleUploadedImage(_ image: UIImage) {
 
         FaceDetectionManager.shared.detectFaces(in: image) { faceImages in
-
             for face in faceImages {
                 self.savePerson(faceImage: face)
             }
-
             self.loadPeople()
         }
     }
 
+    // MARK: - EDIT BUTTON ACTION (✅ ADDED)
+    @objc private func editButtonTapped(_ sender: UIButton) {
 
+        let index = sender.tag
+        guard index >= 0, index < people.count else { return }
+
+        selectedPerson = people[index]
+        performSegue(withIdentifier: "showEditPerson", sender: selectedPerson)
+    }
+
+    // MARK: - PREPARE FOR SEGUE (✅ ADDED)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == "showEditPerson",
+           let detailsVC = segue.destination as? DetailsTableViewController,
+           let person = sender as? PeopleModel {
+
+            detailsVC.person = person
+        }
+    }
 }
+
 
 // MARK: - UICollectionViewDataSource
 extension PeopleViewController: UICollectionViewDataSource {
@@ -303,10 +252,34 @@ extension PeopleViewController: UICollectionViewDataSource {
         let person = people[indexPath.item]
         cell.configurePeopleCell(person: person)
 
+        // 🔹 Existing edit button logic (unchanged)
+        cell.editButton.tag = indexPath.item
+        cell.editButton.removeTarget(nil, action: nil, for: .allEvents)
+        cell.editButton.addTarget(
+            self,
+            action: #selector(editButtonTapped(_:)),
+            for: .touchUpInside
+        )
+
+        cell.onNameUpdated = { newName in
+            let model = self.people[indexPath.item]
+            let context = PersistenceController.shared.context
+            let personEntity = context.object(with: model.objectID) as! PersonEntity
+
+            personEntity.name = newName
+            try? context.save()
+
+            self.loadPeople()
+        }
+
+
         return cell
     }
+
+    
 }
 
+// MARK: - UICollectionViewDelegate
 extension PeopleViewController: UICollectionViewDelegate {
 
     func collectionView(

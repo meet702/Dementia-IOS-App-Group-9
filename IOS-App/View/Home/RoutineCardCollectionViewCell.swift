@@ -57,50 +57,55 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Public configure
-
-    /// Configure a single cell using the full list of TaskModel for a date.
-    /// The cell will group by time-of-day and display only the current period on the Home card.
     func configureRoutineCell(tasks: [TaskModel], date: Date = Date()) {
-        // defensive clear
+
+        // clear old UI
         stackView.arrangedSubviews.forEach {
             stackView.removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
 
-        // sort tasks by time ascending
-        let sorted = tasks.sorted { $0.time < $1.time }
+        // STEP 1: sort tasks
+        let sortedTasks = sortTasksByTime(tasks)
 
-        // split to pending/completed
-        let pending = sorted.filter { !$0.isCompleted }
-        let completed = sorted.filter { $0.isCompleted }
+        // STEP 2: split pending / completed
+        let pending = pendingTasks(from: sortedTasks)
+        let completed = completedTasks(from: sortedTasks)
 
-        // group by time of day
-        let morning = (pending + completed).filter { Self.isInMorning($0.time) }
-        let afternoon = (pending + completed).filter { Self.isInAfternoon($0.time) }
-        let evening = (pending + completed).filter { Self.isInEvening($0.time) }
+        // STEP 3: combine for time-of-day grouping
+        var allTasks: [TaskModel] = []
+        allTasks.append(contentsOf: pending)
+        allTasks.append(contentsOf: completed)
 
-        // pick which period to show based on "date" (usually now)
-        let currentPeriod = Self.currentPeriod(for: date)
+        let morning = morningTasks(from: allTasks)
+        let afternoon = afternoonTasks(from: allTasks)
+        let evening = eveningTasks(from: allTasks)
 
-        // show only current period - split into upcoming/completed within that period
+        // STEP 4: decide current period
+        let period = Self.currentPeriod(for: date)
+
         var periodTasks: [TaskModel] = []
-        switch currentPeriod {
-        case .morning: periodTasks = morning
-        case .afternoon: periodTasks = afternoon
-        case .evening: periodTasks = evening
+
+        switch period {
+        case .morning:
+            periodTasks = morning
+        case .afternoon:
+            periodTasks = afternoon
+        case .evening:
+            periodTasks = evening
         }
 
-        let periodPending = periodTasks.filter { !$0.isCompleted }.sorted { $0.time < $1.time }
-        let periodCompleted = periodTasks.filter { $0.isCompleted }.sorted { $0.time < $1.time }
+        // STEP 5: split again for UI
+        let periodPending = pendingTasks(from: periodTasks)
+        let periodCompleted = completedTasks(from: periodTasks)
 
-        // If you want: if there are no tasks in current period, fall back to nearest future period.
-        // For now we strictly show the current period (per your request).
+        // STEP 6: build UI
         addSection(title: "Upcoming", items: periodPending, placeholder: "No pending tasks")
         addSection(title: "Completed", items: periodCompleted, placeholder: "No tasks completed yet")
 
         removeTrailingDividerIfNeeded()
     }
+
 
     // MARK: - Section builder
 
@@ -173,9 +178,6 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
                 }
             }
         }
-
-        // IMPORTANT: do NOT add an explicit width constraint to container.
-        // Let the stack view size managed by its own constraints to avoid distortion.
         stackView.addArrangedSubview(container)
     }
 
@@ -188,12 +190,14 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         let titleLabel = UILabel()
         titleLabel.font = UIFont.systemFont(ofSize: 15)
         titleLabel.text = item.title
+        titleLabel.textColor = .black
         titleLabel.numberOfLines = 1
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         // Time
         let timeLabel = UILabel()
         timeLabel.font = UIFont.systemFont(ofSize: 14)
+        timeLabel.textColor = .black
         timeLabel.text = timeFormatter.string(from: item.time)
         timeLabel.textAlignment = .right
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -258,9 +262,6 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
                 row.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
             ])
         }
-
-        // visual: dim completed title
-        titleLabel.textColor = item.isCompleted ? UIColor(white: 0.55, alpha: 1) : .black
 
         // Make the row resist vertical compression relative to other content
         row.setContentHuggingPriority(.defaultHigh, for: .vertical)
@@ -336,6 +337,74 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         return .evening
     }
 
+    private func morningTasks(from tasks: [TaskModel]) -> [TaskModel] {
+        var result: [TaskModel] = []
+        for task in tasks {
+            if Self.isInMorning(task.time) {
+                result.append(task)
+            }
+        }
+        return result
+    }
+
+    private func afternoonTasks(from tasks: [TaskModel]) -> [TaskModel] {
+        var result: [TaskModel] = []
+        for task in tasks {
+            if Self.isInAfternoon(task.time) {
+                result.append(task)
+            }
+        }
+        return result
+    }
+
+    private func eveningTasks(from tasks: [TaskModel]) -> [TaskModel] {
+        var result: [TaskModel] = []
+        for task in tasks {
+            if Self.isInEvening(task.time) {
+                result.append(task)
+            }
+        }
+        return result
+    }
+
+    private func pendingTasks(from tasks: [TaskModel]) -> [TaskModel] {
+        var pending: [TaskModel] = []
+
+        for task in tasks {
+            if task.isCompleted == false {
+                pending.append(task)
+            }
+        }
+        return pending
+    }
+
+    private func completedTasks(from tasks: [TaskModel]) -> [TaskModel] {
+        var completed: [TaskModel] = []
+
+        for task in tasks {
+            if task.isCompleted == true {
+                completed.append(task)
+            }
+        }
+        return completed
+    }
+
+    private func sortTasksByTime(_ tasks: [TaskModel]) -> [TaskModel] {
+        var result = tasks
+
+        for i in 0..<result.count {
+            for j in 0..<result.count - i - 1 {
+                if result[j].time > result[j + 1].time {
+                    let temp = result[j]
+                    result[j] = result[j + 1]
+                    result[j + 1] = temp
+                }
+            }
+        }
+        return result
+    }
+
+    
     // MARK: - auto-sizing for compositional layout
 
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

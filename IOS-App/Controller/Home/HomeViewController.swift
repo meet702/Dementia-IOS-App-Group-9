@@ -14,9 +14,9 @@ class HomeViewController: UIViewController {
     private var selectedDate: Date = Date()
     
     var brainBoosters: [BrainBoostersCardModel] = [
-        BrainBoostersCardModel(gameName: "Crossword", gameImage: "Group 353"),
+        BrainBoostersCardModel(gameName: "Match the Pairs", gameImage: "Group 355"),
         BrainBoostersCardModel(gameName: "Sudoku", gameImage: "Group 354"),
-        BrainBoostersCardModel(gameName: "Match the Pairs", gameImage: "Group 355")
+        BrainBoostersCardModel(gameName: "Crossword", gameImage: "Group 353")
     ]
     
     override func viewDidLoad() {
@@ -186,7 +186,7 @@ extension HomeViewController: UICollectionViewDataSource {
         }
         
         else if indexPath.section == 2 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as! RoutineCardCaregiver
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as! RoutineCardCollectionViewCell
             let tasks = DataStore.shared.getRoutines(for: selectedDate)
             cell.configureRoutineCell(tasks: tasks, date: Date())
             return cell
@@ -230,6 +230,10 @@ extension HomeViewController: UICollectionViewDataSource {
 extension HomeViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            performSegue(withIdentifier: "showMemoryLane", sender: nil)
+            return
+        }
         if indexPath.section == 1 {
             performSegue(withIdentifier: "showMemoryRecap", sender: nil)
             return
@@ -246,7 +250,7 @@ extension HomeViewController: UICollectionViewDelegate {
                 return
             }
 
-            if name.contains("match the pairs") || name.contains("match") {
+            if name.contains("match the pairs") {
                 performSegue(withIdentifier: "showMatchThePairsInstructions", sender: model)
                 return
             }
@@ -259,37 +263,36 @@ extension HomeViewController: UICollectionViewDelegate {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Brain boosters segues (unchanged)
-        if let model = sender as? BrainBoostersCardModel {
+        if let _ = sender as? BrainBoostersCardModel {
             if segue.identifier == "showSudokuInstructions",
                let _ = segue.destination as? MatchThePairsInstructionsViewController {
 
-                print("prepare for Sudoku, model:", model.gameName)
+                print("Navigated to sudoku instructions screen")
             }
             else if segue.identifier == "showMatchThePairsInstructions",
                 let _ = segue.destination as? MatchThePairsInstructionsViewController {
 
-                print("prepare for Match the Pairs, model:", model.gameName)
+                print("Navigated to match the pairs instructions screen")
             }
             else if segue.identifier == "showCrosswordInstructions",
                 let _ = segue.destination as? MatchThePairsInstructionsViewController {
 
-                print("prepare for Crossword, model:", model.gameName)
+                print("Navigated to crossword instructions screen")
             }
             return
         }
 
-        // Memory Recap segue
         if segue.identifier == "showMemoryRecap" {
             // Example destination handling: adjust to your real VC class
-            if let recapVC = segue.destination as? BaseViewController {
+            if let _ = segue.destination as? BaseViewController {
                 print("Preparing Memory Recap (direct)")
-            } else if let nav = segue.destination as? UINavigationController,
-                      let recapVC = nav.topViewController as? BaseViewController {
-                print("Preparing Memory Recap (in nav)")
-            } else {
-                // If you're using a storyboard reference, the destination may be a different type.
-                print("prepare: showMemoryRecap destination is \(type(of: segue.destination))")
+            }
+        }
+        
+        if segue.identifier == "showMemoryLane" {
+            // Example destination handling: adjust to your real VC class
+            if let _ = segue.destination as? MemoryLaneHomeViewController {
+                print("Preparing Memory Lane (direct)")
             }
         }
     }

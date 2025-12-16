@@ -62,11 +62,22 @@
                         <segue destination="sTO-m0-1ML" kind="show" identifier="showCrosswordInstructions" id="0Pi-0I-DDY"/>
                         <segue destination="RLB-Og-J7n" kind="show" identifier="showMemoryRecap" id="F2B-qq-tNP"/>
                         <segue destination="6ML-I5-3rj" kind="show" identifier="showRoutine" id="HWk-Of-2fe"/>
+                        <segue destination="Tci-gx-M3G" kind="show" identifier="showMemoryLane" id="kxe-In-UhC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1064.885496183206" y="130.98591549295776"/>
+        </scene>
+        <!--MemoryVC-->
+        <scene sceneID="mPc-vh-mGI">
+            <objects>
+                <viewControllerPlaceholder storyboardName="MemoryLane" referencedIdentifier="MemoryVC" id="Tci-gx-M3G" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="7og-QN-GWh"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mCb-lF-O9u" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1782" y="26"/>
         </scene>
         <!--sudoku-->
         <scene sceneID="QOt-YN-cKM">
@@ -355,7 +366,7 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Patient" id="eLs-Zc-01I">
+                            <tableViewSection headerTitle="Caregiver" id="eLs-Zc-01I">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="ST0-7H-Xa5">
                                         <rect key="frame" x="20" y="681" width="353" height="60"/>

@@ -243,7 +243,8 @@
                         <outlet property="easyCard" destination="Efo-Bw-jbM" id="lZs-9m-7z2"/>
                         <outlet property="hardCard" destination="uDa-XU-d1a" id="wYf-Py-n5A"/>
                         <outlet property="howToPlayChevronButton" destination="MhY-Im-KZr" id="GlU-RA-fTC"/>
-                        <outlet property="instructionsCard" destination="Ohf-Xr-CxL" id="7MQ-0f-3EB"/>
+                        <outlet property="howToPlayView" destination="Ghw-qa-iZS" id="hxM-ne-wGa"/>
+                        <outlet property="instructionsCard" destination="Ohf-Xr-CxL" id="veK-aX-37W"/>
                         <outlet property="mediumCard" destination="qkm-Vf-3qS" id="WV0-19-4at"/>
                     </connections>
                 </viewController>
@@ -300,18 +301,17 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dcV-e6-N3Z">
                                 <rect key="frame" x="0.0" y="172" width="393" height="612"/>
                                 <subviews>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="abJ-qs-kKw">
-                                        <rect key="frame" x="8" y="8" width="377" height="634"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="abJ-qs-kKw">
+                                        <rect key="frame" x="24" y="8" width="345" height="634"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="FZU-rP-T7F">
-                                                <rect key="frame" x="0.0" y="0.0" width="377" height="613.66666666666663"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="345" height="613.66666666666663"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8ke-Iq-7OK">
-                                                        <rect key="frame" x="0.0" y="0.0" width="377" height="60"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="345" height="60"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="K75-Dp-74N">
-                                                                <rect key="frame" x="16" y="0.0" width="345" height="60"/>
+                                                                <rect key="frame" x="16" y="0.0" width="313" height="60"/>
                                                                 <subviews>
                                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lightbulb" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="1ih-iY-0zC">
                                                                         <rect key="frame" x="0.0" y="19.333333333333332" width="15.333333333333334" height="21.333333333333339"/>
@@ -324,7 +324,7 @@
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d6E-RQ-jW5">
-                                                                        <rect key="frame" x="119" y="13" width="226" height="34.333333333333336"/>
+                                                                        <rect key="frame" x="119" y="13" width="194" height="34.333333333333336"/>
                                                                         <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                         <state key="normal" title="Button"/>
                                                                         <buttonConfiguration key="configuration" style="plain" image="chevron.down" catalog="system"/>
@@ -348,10 +348,10 @@
                                                         </connections>
                                                     </view>
                                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="33L-Bu-coH">
-                                                        <rect key="frame" x="0.0" y="72" width="377" height="32"/>
+                                                        <rect key="frame" x="0.0" y="72" width="345" height="32"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gOu-0l-ROt">
-                                                                <rect key="frame" x="16" y="16" width="345" height="0.0"/>
+                                                                <rect key="frame" x="16" y="16" width="313" height="0.0"/>
                                                                 <string key="text">1. Find and fill words in the crossword grid by identifying the pictures.
 2. Tap letters to select and form words.
 3. Use "Hint" if needed.
@@ -370,22 +370,22 @@
                                                         </constraints>
                                                     </view>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose a category" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iSA-fd-c6e">
-                                                        <rect key="frame" x="0.0" y="84" width="377" height="21.666666666666671"/>
+                                                        <rect key="frame" x="0.0" y="84" width="345" height="21.666666666666671"/>
                                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Hvf-Zk-ncu">
-                                                        <rect key="frame" x="0.0" y="129.66666666666669" width="377" height="316"/>
+                                                        <rect key="frame" x="0.0" y="129.66666666666669" width="345" height="316"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Yh8-q2-0WW">
-                                                                <rect key="frame" x="0.0" y="0.0" width="377" height="150"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="345" height="150"/>
                                                                 <subviews>
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qvm-OW-hc6">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="180.66666666666666" height="150"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="164.66666666666666" height="150"/>
                                                                         <subviews>
                                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="OeP-dO-muc">
-                                                                                <rect key="frame" x="16" y="16" width="148.66666666666666" height="118"/>
+                                                                                <rect key="frame" x="16" y="16" width="132.66666666666666" height="118"/>
                                                                                 <subviews>
                                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="🇮🇳" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TiY-nV-nYn">
                                                                                         <rect key="frame" x="0.0" y="0.0" width="65" height="52.333333333333336"/>
@@ -427,10 +427,10 @@ From Flags</string>
                                                                         </connections>
                                                                     </view>
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mk6-LG-MxU">
-                                                                        <rect key="frame" x="196.66666666666663" y="0.0" width="180.33333333333337" height="150"/>
+                                                                        <rect key="frame" x="180.66666666666663" y="0.0" width="164.33333333333337" height="150"/>
                                                                         <subviews>
                                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Y0e-vW-PkM">
-                                                                                <rect key="frame" x="16" y="16" width="148.33333333333334" height="118"/>
+                                                                                <rect key="frame" x="16" y="16" width="132.33333333333334" height="118"/>
                                                                                 <subviews>
                                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="🪥" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Oil-FC-kzS">
                                                                                         <rect key="frame" x="0.0" y="0.0" width="50" height="52.333333333333336"/>
@@ -445,7 +445,7 @@ From Flags</string>
                                                                                         <nil key="highlightedColor"/>
                                                                                     </label>
                                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Identify Daily Life Objects" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uwU-2e-SnK">
-                                                                                        <rect key="frame" x="0.0" y="79.666666666666629" width="145.33333333333334" height="38.333333333333343"/>
+                                                                                        <rect key="frame" x="0.0" y="79.666666666666629" width="77.333333333333329" height="38.333333333333343"/>
                                                                                         <constraints>
                                                                                             <constraint firstAttribute="height" constant="38.329999999999998" id="ias-yM-pkf"/>
                                                                                         </constraints>
@@ -472,13 +472,13 @@ From Flags</string>
                                                                 </subviews>
                                                             </stackView>
                                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="raF-n5-Yf7">
-                                                                <rect key="frame" x="0.0" y="166" width="377" height="150"/>
+                                                                <rect key="frame" x="0.0" y="166" width="345" height="150"/>
                                                                 <subviews>
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qm9-k1-jfm">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="180.66666666666666" height="150"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="164.66666666666666" height="150"/>
                                                                         <subviews>
                                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="tDO-8H-rXL">
-                                                                                <rect key="frame" x="16" y="16" width="148.66666666666666" height="118"/>
+                                                                                <rect key="frame" x="16" y="16" width="132.66666666666666" height="118"/>
                                                                                 <subviews>
                                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🧠" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fft-dp-H50">
                                                                                         <rect key="frame" x="0.0" y="0.0" width="54" height="60"/>
@@ -515,10 +515,10 @@ From Flags</string>
                                                                         </connections>
                                                                     </view>
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CCt-Nb-VgE">
-                                                                        <rect key="frame" x="196.66666666666663" y="0.0" width="180.33333333333337" height="150"/>
+                                                                        <rect key="frame" x="180.66666666666663" y="0.0" width="164.33333333333337" height="150"/>
                                                                         <subviews>
                                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="1R4-mF-4EW">
-                                                                                <rect key="frame" x="16" y="16" width="148.33333333333334" height="118"/>
+                                                                                <rect key="frame" x="16" y="16" width="132.33333333333334" height="118"/>
                                                                                 <subviews>
                                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🥗" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SZ1-bo-o8x">
                                                                                         <rect key="frame" x="0.0" y="0.0" width="50" height="55"/>
@@ -559,10 +559,10 @@ From Flags</string>
                                                         </subviews>
                                                     </stackView>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gal-T2-hoZ">
-                                                        <rect key="frame" x="0.0" y="469.66666666666663" width="377" height="60"/>
+                                                        <rect key="frame" x="0.0" y="469.66666666666663" width="345" height="60"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="KHv-fU-20A">
-                                                                <rect key="frame" x="99.333333333333329" y="20" width="178.33333333333337" height="20.333333333333329"/>
+                                                                <rect key="frame" x="83.333333333333329" y="20" width="178.33333333333337" height="20.333333333333329"/>
                                                                 <subviews>
                                                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="QhW-qJ-3Fd">
                                                                         <rect key="frame" x="0.0" y="0.0" width="178.33333333333334" height="20.333333333333332"/>
@@ -598,10 +598,10 @@ From Flags</string>
                                                         </connections>
                                                     </view>
                                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="e5v-w3-7PQ">
-                                                        <rect key="frame" x="0.0" y="553.66666666666663" width="377" height="60"/>
+                                                        <rect key="frame" x="0.0" y="553.66666666666663" width="345" height="60"/>
                                                         <subviews>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lp4-tU-2YV">
-                                                                <rect key="frame" x="0.0" y="0.0" width="377" height="60"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="345" height="60"/>
                                                                 <constraints>
                                                                     <constraint firstAttribute="height" constant="60" id="fbl-xZ-8pq"/>
                                                                 </constraints>
@@ -630,6 +630,12 @@ From Flags</string>
                                     </scrollView>
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="0.97254901959999995" blue="0.92156862750000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="abJ-qs-kKw" secondAttribute="bottom" constant="-30" id="K0b-kI-Nr8"/>
+                                    <constraint firstAttribute="trailing" secondItem="abJ-qs-kKw" secondAttribute="trailing" constant="24" id="Lwv-Kf-CfN"/>
+                                    <constraint firstItem="abJ-qs-kKw" firstAttribute="top" secondItem="dcV-e6-N3Z" secondAttribute="topMargin" id="T5J-us-wji"/>
+                                    <constraint firstItem="abJ-qs-kKw" firstAttribute="leading" secondItem="dcV-e6-N3Z" secondAttribute="leading" constant="24" id="mU8-4I-iEm"/>
+                                </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="FXf-rS-8Dp"/>
@@ -648,6 +654,7 @@ From Flags</string>
                         <outlet property="foodCard" destination="CCt-Nb-VgE" id="nmJ-u2-BCA"/>
                         <outlet property="gkCard" destination="Qm9-k1-jfm" id="CXp-hB-2WS"/>
                         <outlet property="howToPlayChevronButton" destination="d6E-RQ-jW5" id="H0f-RQ-jgA"/>
+                        <outlet property="howToPlayView" destination="8ke-Iq-7OK" id="Yur-as-xhM"/>
                         <outlet property="instructionsCard" destination="33L-Bu-coH" id="oz0-m7-Uir"/>
                         <outlet property="randomCategoryCard" destination="gal-T2-hoZ" id="lV0-gL-Uo1"/>
                     </connections>
@@ -791,13 +798,14 @@ From Flags</string>
                                                 </connections>
                                             </view>
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8Zo-d5-Vdj">
-                                                <rect key="frame" x="0.0" y="72" width="345" height="32"/>
+                                                <rect key="frame" x="0.0" y="72" width="345" height="16"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nrb-xj-ATK">
-                                                        <rect key="frame" x="16" y="16" width="313" height="0.0"/>
-                                                        <string key="text">1.Select a cell where you want to add number.
-2.Tap a number below the grid to fill the selected cell.
-3.Use "Undo" to remove the last number if it was wrong.</string>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nrb-xj-ATK">
+                                                        <rect key="frame" x="16" y="8" width="313" height="0.0"/>
+                                                        <string key="text">1. Select a cell
+2. Tap a number to fill it
+3. Use Undo to remove the last entry
+4. Use Hint if you’re stuck</string>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -807,8 +815,8 @@ From Flags</string>
                                                 <constraints>
                                                     <constraint firstAttribute="trailing" secondItem="nrb-xj-ATK" secondAttribute="trailing" constant="16" id="5A0-sm-mIy"/>
                                                     <constraint firstItem="nrb-xj-ATK" firstAttribute="leading" secondItem="8Zo-d5-Vdj" secondAttribute="leading" constant="16" id="7Nl-jt-paI"/>
-                                                    <constraint firstItem="nrb-xj-ATK" firstAttribute="top" secondItem="8Zo-d5-Vdj" secondAttribute="top" constant="16" id="SHP-VP-GVf"/>
-                                                    <constraint firstAttribute="bottom" secondItem="nrb-xj-ATK" secondAttribute="bottom" constant="16" id="tLI-Z6-OY1"/>
+                                                    <constraint firstItem="nrb-xj-ATK" firstAttribute="top" secondItem="8Zo-d5-Vdj" secondAttribute="top" constant="8" id="SHP-VP-GVf"/>
+                                                    <constraint firstAttribute="bottom" secondItem="nrb-xj-ATK" secondAttribute="bottom" constant="8" id="tLI-Z6-OY1"/>
                                                 </constraints>
                                             </view>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select difficulty" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uNg-Y5-8ZN">
@@ -926,6 +934,10 @@ From Flags</string>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             </stackView>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="8Zo-d5-Vdj" secondAttribute="trailing" id="5ad-Ad-bTt"/>
+                                            <constraint firstItem="8Zo-d5-Vdj" firstAttribute="leading" secondItem="JF4-XU-dD1" secondAttribute="leading" id="btD-n2-n0F"/>
+                                        </constraints>
                                     </stackView>
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="0.97254901959999995" blue="0.92156862750000001" alpha="1" colorSpace="calibratedRGB"/>
@@ -951,6 +963,7 @@ From Flags</string>
                         <outlet property="easyCard" destination="agE-E6-Nvd" id="aqk-CA-Mo1"/>
                         <outlet property="hardCard" destination="p6Q-fM-mOm" id="pq0-g2-M1k"/>
                         <outlet property="howToPlayChevronButton" destination="37R-3D-gO1" id="lrQ-2Y-4V0"/>
+                        <outlet property="howToPlayView" destination="qlz-pr-s5J" id="MTN-VN-Kvg"/>
                         <outlet property="instructionsCard" destination="8Zo-d5-Vdj" id="5hh-Py-1Y1"/>
                         <outlet property="mediumCard" destination="pwd-3Y-KNT" id="s5e-yK-iqG"/>
                     </connections>
@@ -977,7 +990,7 @@ From Flags</string>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="-1637" y="111"/>
+            <point key="canvasLocation" x="-1637.4045801526718" y="110.56338028169014"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="7oQ-Ln-M5s">

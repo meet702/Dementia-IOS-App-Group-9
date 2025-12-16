@@ -8,8 +8,8 @@ class MemoryLaneEmotionMcqViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var nextButton: UIButton!
     @IBOutlet weak var backgroundView: UIView!
-
     @IBOutlet weak var progressView: UIProgressView!
+
     var personImage: UIImage?
     var personName: String = ""
     var groupImage: UIImage?
@@ -21,15 +21,12 @@ class MemoryLaneEmotionMcqViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupTable()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
 
-        let progress = MemorySessionManager.shared.advanceProgress()
-        progressView.setProgress(progress, animated: true)
+        // ✅ Show current progress WITHOUT advancing
+        progressView.progress = MemorySessionManager.shared.currentProgress()
     }
+
     private func setupUI() {
-
         backgroundView.layer.cornerRadius = 35
 
         personImageView.image = personImage
@@ -61,11 +58,15 @@ class MemoryLaneEmotionMcqViewController: UIViewController {
         let selectedEmotion = emotions[selectedIndex]
         MemorySessionManager.shared.setEmotion(selectedEmotion)
 
+        // ✅ ADVANCE PROGRESS ONLY AFTER ANSWERING
+        let progress = MemorySessionManager.shared.advanceProgress()
+        progressView.setProgress(progress, animated: false)
+
         goToFinalQuestion()
     }
 
     private func goToFinalQuestion() {
-        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
 
         if let finalVC = sb.instantiateViewController(
             withIdentifier: "MemoryLaneFinalQuestion"
@@ -73,14 +74,13 @@ class MemoryLaneEmotionMcqViewController: UIViewController {
 
             // Final question uses GROUP image
             finalVC.groupImageData = groupImage
-
             navigationController?.pushViewController(finalVC, animated: false)
         }
     }
 }
 
-
-extension MemoryLaneEmotionMcqViewController: UITableViewDataSource, UITableViewDelegate {
+extension MemoryLaneEmotionMcqViewController:
+    UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
@@ -88,7 +88,8 @@ extension MemoryLaneEmotionMcqViewController: UITableViewDataSource, UITableView
     }
 
     func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+                   cellForRowAt indexPath: IndexPath)
+        -> UITableViewCell {
 
         let cell = tableView.dequeueReusableCell(
             withIdentifier: "OptionCell",

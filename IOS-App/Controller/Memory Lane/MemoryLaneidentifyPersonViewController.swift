@@ -12,14 +12,12 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     
     @IBOutlet weak var backGroundView: UIView!
     @IBOutlet weak var guessButton: UIButton!
-
     @IBOutlet weak var progressView: UIProgressView!
+
     var correctAnswer = "Priyamani"
     var selectedAnswer = ""
     var relation: String = "Family"
 
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -29,15 +27,11 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
         optionTwoButton.setTitle(options[1], for: .normal)
         optionThreeButton.setTitle(options[2], for: .normal)
         optionFourButton.setTitle(options[3], for: .normal)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
 
-        let progress = MemorySessionManager.shared.advanceProgress()
-        progressView.setProgress(progress, animated: true)
+        // ✅ SHOW CURRENT PROGRESS (DO NOT ADVANCE)
+        progressView.progress = MemorySessionManager.shared.currentProgress()
     }
-    
+
     private func setupUI() {
         [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
             $0?.layer.cornerRadius = 20
@@ -45,11 +39,9 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             $0?.layer.borderWidth = 0
         }
         
-        // ✅ SET IMAGES
         characterImageView.image = UIImage(named: "image 41")
         groupImageView.image = UIImage(named: "image 40")
         
- 
         characterImageView.clipsToBounds = true
         groupImageView.clipsToBounds = true
        
@@ -58,8 +50,6 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
     
     @IBAction func optionTapped(_ sender: UIButton) {
-       
-        
         [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
             $0?.backgroundColor = UIColor(white: 0.95, alpha: 1)
             $0?.layer.borderWidth = 0
@@ -88,9 +78,12 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             highlightWrong()
         }
 
+        // ✅ ADVANCE PROGRESS ON ANSWER SUBMIT
+        let progress = MemorySessionManager.shared.advanceProgress()
+        progressView.setProgress(progress, animated: false)
+
         guessButton.setTitle("Next", for: .normal)
     }
-    
     
     private func highlightCorrect() {
         MemorySessionManager.shared.setIdentificationResult(correct: true)
@@ -98,10 +91,10 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             if $0?.title(for: .normal) == correctAnswer {
                 $0?.layer.borderWidth = 3
                 $0?.layer.borderColor = UIColor.green.cgColor
-                $0?.backgroundColor = UIColor(red: 0.78, green: 1.0, blue: 0.78, alpha: 1)
+                $0?.backgroundColor =
+                    UIColor(red: 0.78, green: 1.0, blue: 0.78, alpha: 1)
             }
         }
-        guessButton.setTitle("Next", for: .normal)
     }
     
     private func highlightWrong() {
@@ -110,12 +103,12 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             if $0?.title(for: .normal) == selectedAnswer {
                 $0?.layer.borderWidth = 3
                 $0?.layer.borderColor = UIColor.red.cgColor
-                $0?.backgroundColor = UIColor(red: 1.0, green: 0.75, blue: 0.75, alpha: 1)
+                $0?.backgroundColor =
+                    UIColor(red: 1.0, green: 0.75, blue: 0.75, alpha: 1)
             }
         }
         
-        highlightCorrect()  // show correct also
-        guessButton.setTitle("Next", for: .normal)
+        highlightCorrect()
     }
     
     @IBAction func hintButtonTapped(_ sender: UIButton) {
@@ -134,12 +127,12 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             for: correctAnswer,
             relation: relation
         )
-        let sb = UIStoryboard(name: "Main", bundle: nil)
+
+        let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
         if let nextVC =
             sb.instantiateViewController(
                 withIdentifier: "TextQuestion"
             ) as? QuestionResponseViewController {
-            
             
             nextVC.personImage = characterImageView.image
             nextVC.groupImage = groupImageView.image
@@ -153,9 +146,8 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
 
             navigationController?.pushViewController(
                 nextVC,
-                animated: true
+                animated: false
             )
         }
     }
-
 }

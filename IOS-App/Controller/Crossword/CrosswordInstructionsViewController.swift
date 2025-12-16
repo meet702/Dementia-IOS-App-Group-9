@@ -17,6 +17,7 @@ class CrosswordInstructionsViewController: UIViewController {
 
     @IBOutlet weak var howToPlayChevronButton: UIButton!
     
+    @IBOutlet weak var howToPlayView: UIView!
     @IBOutlet weak var instructionsCard: UIView!
     
     var isHowToPlayOpen = false
@@ -40,7 +41,7 @@ class CrosswordInstructionsViewController: UIViewController {
 
        // Helper to access all category cards at once
        private var allCards: [UIView] {
-           return [countriesCard, dailyObjectsCard, gkCard, foodCard, randomCategoryCard]
+           return [countriesCard, dailyObjectsCard, gkCard, foodCard, randomCategoryCard, instructionsCard, howToPlayView]
        }
     
     override func viewDidLoad() {

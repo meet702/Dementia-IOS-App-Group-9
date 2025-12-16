@@ -65,7 +65,11 @@ class MemoryLanePersonOverviewViewController: UIViewController {
     func registerCell() {
         memoryLaneCollectionView.register(UINib(nibName: "MemoryLanePersonOverviewCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "memoryLanePersonOverviewCollectionViewCell")
     }
-
+    
+    @IBAction func donePressed(_ sender: UIButton) {
+        navigationController?.popToRootViewController(animated: false)
+    }
+    
 }
 
 extension MemoryLanePersonOverviewViewController: UICollectionViewDataSource {
@@ -83,4 +87,6 @@ extension MemoryLanePersonOverviewViewController: UICollectionViewDataSource {
         cell.configurePersonOverview(person: person)
         return cell
     }
+    
+    
 }

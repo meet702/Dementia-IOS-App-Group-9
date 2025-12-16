@@ -9,6 +9,7 @@ import UIKit
 
 class MatchThePairsInstructionsViewController: UIViewController {
 
+    @IBOutlet weak var howToPlayView: UIView!
     @IBOutlet weak var instructionsCard: UIView!
     @IBOutlet weak var howToPlayChevronButton: UIButton!
     @IBOutlet weak var easyCard: UIView!
@@ -33,7 +34,7 @@ class MatchThePairsInstructionsViewController: UIViewController {
         instructionsCard.isHidden = true  // start closed
         howToPlayChevronButton.isUserInteractionEnabled = false
 
-        let cards = [easyCard, mediumCard, hardCard]
+        let cards = [easyCard, mediumCard, hardCard, howToPlayView, instructionsCard]
         for card in cards {
             card?.backgroundColor = UIColor.white
             card?.layer.cornerRadius = 20

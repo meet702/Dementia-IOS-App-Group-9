@@ -6,7 +6,6 @@ class MemorySessionManager {
     static let shared = MemorySessionManager()
     private init() {}
 
-
     var sessionInProgress: Bool = false
 
     enum SessionStep {
@@ -19,16 +18,14 @@ class MemorySessionManager {
 
     var lastStep: SessionStep = .pictureIntro
 
-
     var currentSession: MemorySessionData?
     var currentImageSession: MemoryImageSession?
     var completedImageSessions: [MemoryImageSession] = []
 
-
     private(set) var totalSteps: Int = 0
     private(set) var currentStep: Int = 0
 
-    let stepsPerPerson: Int = 4
+    let stepsPerPerson: Int = 2
 
 
     func startImageSession(image: UIImage, peopleShown: [String]) {
@@ -48,6 +45,7 @@ class MemorySessionManager {
         print("Image session started for imageId:", currentImageSession?.imageId ?? "nil")
         print("Progress initialized:", currentStep, "/", totalSteps)
     }
+
 
 
     func beginSession(for person: String, relation: String) {
@@ -90,7 +88,6 @@ class MemorySessionManager {
         currentSession?.finalReflection = text
     }
 
-
     func completeSession() {
         guard let personSession = currentSession else {
             print("Tried to complete session but currentSession is nil.")
@@ -106,7 +103,6 @@ class MemorySessionManager {
         lastStep = .completed
     }
 
-
     func finishImageSession(overallReflection: String?) {
         print("Saving final image reflection:", overallReflection ?? "nil")
 
@@ -120,9 +116,14 @@ class MemorySessionManager {
         currentImageSession = nil
     }
 
+
     func advanceProgress() -> Float {
         guard totalSteps > 0 else { return 0 }
-        currentStep += 1
+
+        if currentStep < totalSteps {
+            currentStep += 1
+        }
+
         return Float(currentStep) / Float(totalSteps)
     }
 
