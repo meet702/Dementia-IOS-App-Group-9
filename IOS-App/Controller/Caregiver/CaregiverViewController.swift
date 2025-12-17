@@ -22,38 +22,13 @@ class CaregiverViewController: UIViewController {
         albumButton.layer.masksToBounds = false
     }
     
-    
+    var todaysSessions: [ImageSession] {
+        ResponseDataStore.shared.imageSession
+    }
+
     
     @IBOutlet weak var caregiverCollectionView: UICollectionView!
     
-    var completedTask: [RoutineCardModel] = [
-        RoutineCardModel(title: "Brush teeth", subtitle: "", timeText: "7:45 AM"),
-        RoutineCardModel(title: "Have Breakfast", subtitle: "", timeText: "8:00 AM")
-    ]
-    var pendingTask: [RoutineCardModel] = [
-        RoutineCardModel(title: "Take meds", subtitle: "Vitamin B12 - 1 capsule", timeText: "8:45 AM")
-    ]
-    
-    var todaysSessions: [TodaysSessionCardModel] = [
-        TodaysSessionCardModel(date: "3 Oct, 2025",
-                               time: "8:05 AM"
-                              ,imageName: "image 42"),
-        TodaysSessionCardModel(date: "3 Oct, 2025",
-                               time: "8:25 AM",
-                              imageName: "image 43"),
-        TodaysSessionCardModel(date: "2 Oct, 2025",
-                               time: "6:23 PM"
-                              ,imageName: "image 67"),
-        TodaysSessionCardModel(date: "2 Oct, 2025",
-                               time: "10:15 AM",
-                              imageName: "image 68"),
-        TodaysSessionCardModel(date: "31 Sept, 2025",
-                               time: "4:46 PM",
-                              imageName: "image 69"),
-        TodaysSessionCardModel(date: "30 Sept, 2025",
-                               time: "9:07 AM",
-                              imageName: "image 70")
-    ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +38,15 @@ class CaregiverViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dataStoreUpdated(_:)), name: .DataStoreDidUpdateRoutines, object: nil)
         let layout = generateLayout()
         caregiverCollectionView.setCollectionViewLayout(layout, animated: true)
+        
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleCollectionTap(_:))
+        )
+
+        tapGesture.cancelsTouchesInView = false   // ✅ allows scrolling
+        caregiverCollectionView.addGestureRecognizer(tapGesture)
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -85,6 +69,35 @@ class CaregiverViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    @objc private func handleCollectionTap(_ gesture: UITapGestureRecognizer) {
+
+        let location = gesture.location(in: caregiverCollectionView)
+
+        guard let indexPath = caregiverCollectionView.indexPathForItem(at: location) else {
+            return
+        }
+
+        guard indexPath.section == 1 else { return }
+
+        let selectedSession = todaysSessions[indexPath.item]
+
+        ResponseDataStore.shared.currentImageSession = selectedSession
+
+        performSegue(withIdentifier: "showMemoryResponse", sender: nil)
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        guard segue.identifier == "showMemoryResponse" else { return }
+
+        if let destination = segue.destination as? ResponseViewController {
+            destination.session = ResponseDataStore.shared.currentImageSession
+            print("Prepared Memory Response via segue")
+        }
+    }
+
+
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout(sectionProvider: {section, env in
@@ -188,3 +201,47 @@ extension CaregiverViewController: UICollectionViewDataSource {
     }
     
 }
+
+//extension CaregiverViewController: UICollectionViewDelegate {
+//    
+//    func collectionView(_ collectionView: UICollectionView,
+//                        shouldSelectItemAt indexPath: IndexPath) -> Bool {
+//        print("🟢 shouldSelectItemAt")
+//        return true
+//    }
+//    
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        print("✅ didSelectItemAt called")
+//
+//        guard indexPath.section == 2 else { return }
+//
+//        let selectedSession = todaysSessions[indexPath.item]
+//        ResponseDataStore.shared.currentImageSession = selectedSession
+//
+//        // 🔴 TEMPORARY TEST (replace performSegue)
+//        let vc = storyboard?.instantiateViewController(
+//            withIdentifier: "ResponseViewController"
+//        ) as! ResponseViewController
+//
+//        navigationController?.pushViewController(vc, animated: true)
+//    }
+    
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        guard segue.identifier == "showMemoryResponse" else { return }
+//
+//        guard let destination = segue.destination as? ResponseViewController else {
+//            assertionFailure("Destination is not ResponseViewController")
+//            return
+//        }
+//
+//        guard let session = ResponseDataStore.shared.currentImageSession else {
+//            assertionFailure("currentImageSession is nil before navigation")
+//            return
+//        }
+//
+//        // Optional: assign explicitly (you already read it in viewDidLoad)
+//        destination.session = session
+//
+//        print("Prepared Memory Response for session at:", session.timestamp)
+//    }
+//}

@@ -1,3 +1,11 @@
+//
+//  MemoryImageSession.swift
+//  MemoryLane
+//
+//  Created by SDC-User on 17/12/25.
+//
+
+import Foundation
 import UIKit
 
 struct MemoryImageSession {

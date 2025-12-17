@@ -317,7 +317,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4By-xY-cwr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1876" y="-554"/>
+            <point key="canvasLocation" x="1876" y="-570"/>
         </scene>
         <!--Hello Aayudh-->
         <scene sceneID="s0d-6b-0kx">
@@ -386,11 +386,22 @@
                         <outlet property="albumButton" destination="eZT-DC-gAJ" id="NnA-RH-MOl"/>
                         <outlet property="caregiverCollectionView" destination="QDH-hS-ZiU" id="413-MF-ntB"/>
                         <segue destination="oBE-L2-d20" kind="show" identifier="showRoutine" id="xI2-ic-3M4"/>
+                        <segue destination="E8Z-VQ-wN3" kind="show" identifier="showMemoryResponse" id="Aey-Bq-POh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1074" y="92"/>
+            <point key="canvasLocation" x="993" y="92"/>
+        </scene>
+        <!--memory_response-->
+        <scene sceneID="drs-4u-DN8">
+            <objects>
+                <viewControllerPlaceholder storyboardName="MemoryResponse" referencedIdentifier="memory_response" id="E8Z-VQ-wN3" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="P6d-Qr-Fim"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kD5-Ty-w1R" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1319" y="611"/>
         </scene>
         <!--routine_screen-->
         <scene sceneID="LD2-m7-2vg">
@@ -400,7 +411,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gbg-pc-6ln" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1073" y="492"/>
+            <point key="canvasLocation" x="992" y="611"/>
         </scene>
         <!--Details Table View Controller-->
         <scene sceneID="yVZ-Le-5fG">
@@ -446,8 +457,8 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aGe-ad-4Wv">
-                                                    <rect key="frame" x="8" y="8" width="43.666666666666671" height="35.333333333333336"/>
-                                                    <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <rect key="frame" x="8" y="8" width="43.666666666666664" height="35.333333333333336"/>
+                                                    <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <state key="normal" title="Button"/>
                                                     <buttonConfiguration key="configuration" style="plain" image="chevron.up.chevron.down" catalog="system"/>
                                                 </button>

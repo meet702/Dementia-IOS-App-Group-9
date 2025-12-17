@@ -14,21 +14,52 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     @IBOutlet weak var guessButton: UIButton!
     @IBOutlet weak var progressView: UIProgressView!
 
-    var correctAnswer = "Priyamani"
+    var correctAnswer: String = ""
     var selectedAnswer = ""
     var relation: String = "Family"
+    var personIndex: Int = 0
+
+    private let relationByPerson: [String: String] = [
+        "Priyamani": "Family",
+        "Priyadarshan": "Friends",
+        "Priya": "Work"
+    ]
+
+    private let imageByPerson: [String: String] = [
+        "Priyamani": "image_41",
+        "Priyadarshan": "image_39",
+        "Priya": "image_42"
+    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        var options: [String] = []
+
+        if let imageSession = MemorySessionManager.shared.currentImageSession {
+            let people = imageSession.peopleShown
+
+            if personIndex < people.count {
+                correctAnswer = people[personIndex]
+                relation = relationByPerson[correctAnswer] ?? "Family"
+            }
+
+            options = people.shuffled()
+        }
+
+        if options.count < 4 {
+            options.append(contentsOf: ["Harshita", "Aayushi", "Purvi"])
+            options = Array(options.prefix(4))
+        }
+
         setupUI()
-        
-        let options = ["Harshita", "Aayushi", "Priyamani", "Purvi"]
+
         optionOneButton.setTitle(options[0], for: .normal)
         optionTwoButton.setTitle(options[1], for: .normal)
         optionThreeButton.setTitle(options[2], for: .normal)
         optionFourButton.setTitle(options[3], for: .normal)
 
-        // ✅ SHOW CURRENT PROGRESS (DO NOT ADVANCE)
+        selectedAnswer = ""
         progressView.progress = MemorySessionManager.shared.currentProgress()
     }
 
@@ -38,13 +69,16 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             $0?.backgroundColor = UIColor(white: 0.95, alpha: 1)
             $0?.layer.borderWidth = 0
         }
-        
-        characterImageView.image = UIImage(named: "image 41")
-        groupImageView.image = UIImage(named: "image 40")
-        
+
+        if let imageName = imageByPerson[correctAnswer] {
+            characterImageView.image = UIImage(named: imageName)
+        }
+
+        groupImageView.image = UIImage(named: "image_40")
+
         characterImageView.clipsToBounds = true
         groupImageView.clipsToBounds = true
-       
+
         backGroundView.layer.cornerRadius = 35
         guessButton.setTitle("Guess", for: .normal)
     }
@@ -64,7 +98,6 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
     
     @IBAction func guessButtonTapped(_ sender: UIButton) {
-        
         guard selectedAnswer != "" else { return }
         
         if guessButton.title(for: .normal) == "Next" {
@@ -78,7 +111,6 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             highlightWrong()
         }
 
-        // ✅ ADVANCE PROGRESS ON ANSWER SUBMIT
         let progress = MemorySessionManager.shared.advanceProgress()
         progressView.setProgress(progress, animated: false)
 
@@ -112,11 +144,29 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
     
     @IBAction func hintButtonTapped(_ sender: UIButton) {
+        let hintsByPerson: [String: [String]] = [
+            "Priyamani": [
+                "She is a close family member.",
+                "You meet her during family occasions."
+            ],
+            "Priyadarshan": [
+                "You’ve had friendly conversations with him.",
+                "He is not from your workplace."
+            ],
+            "Priya": [
+                "You know her through work.",
+                "You’ve collaborated on tasks together."
+            ]
+        ]
+
+        let hints = hintsByPerson[correctAnswer] ?? ["Think about your relationship with them."]
+        let randomHint = hints.randomElement() ?? ""
+
         let popup = MemoryLaneHintViewController(
             nibName: "MemoryLaneHintViewController",
             bundle: nil
         )
-        popup.hintText = "She worked on the Infosys project with you."
+        popup.hintText = randomHint
         popup.modalPresentationStyle = .overFullScreen
         popup.modalTransitionStyle = .crossDissolve
         present(popup, animated: false)
@@ -133,12 +183,13 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             sb.instantiateViewController(
                 withIdentifier: "TextQuestion"
             ) as? QuestionResponseViewController {
-            
+
             nextVC.personImage = characterImageView.image
             nextVC.groupImage = groupImageView.image
             nextVC.personName = correctAnswer
             nextVC.relation = relation
-            
+            nextVC.personIndex = personIndex
+
             let selected =
                 QuestionBank.shared.getQuestions(for: relation)
             nextVC.questions = selected.text

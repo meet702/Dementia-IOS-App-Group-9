@@ -14,21 +14,21 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
     var personName: String = ""
     var relation: String = ""
     var groupImage: UIImage?
+    var personIndex: Int = 0
 
-    // MCQ data
     var mcqQuestions: [Question] = []
-    var currentMCQIndex: Int = 0
+    private var currentMCQIndex: Int = 0
 
     private var selectedIndexes = Set<Int>()
     private var options: [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         setupUI()
         setupTableView()
         loadMCQ()
 
-        
         progressView.progress = MemorySessionManager.shared.currentProgress()
     }
 
@@ -36,10 +36,8 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
         backgroundView.layer.cornerRadius = 35
 
         personNameLabel.text = personName
-
         personImageView.image = personImage
-        personImageView.layer.cornerRadius =
-            personImageView.frame.width / 2
+        personImageView.layer.cornerRadius = personImageView.frame.width / 2
         personImageView.clipsToBounds = true
 
         nextButton.layer.cornerRadius = 26
@@ -54,6 +52,12 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
     }
 
     private func loadMCQ() {
+        guard currentMCQIndex < mcqQuestions.count else {
+            nextButton.isEnabled = false
+            nextButton.alpha = 0.4
+            return
+        }
+
         let q = mcqQuestions[currentMCQIndex]
         questionLabel.text = q.question
         options = q.options ?? []
@@ -69,22 +73,27 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
     }
 
     @IBAction func nextButtonTapped(_ sender: UIButton) {
+        guard currentMCQIndex < mcqQuestions.count else { return }
 
         let q = mcqQuestions[currentMCQIndex]
+
         let selectedOptions =
-            selectedIndexes.sorted().map { options[$0] }
+            selectedIndexes
+                .filter { $0 < options.count }
+                .sorted()
+                .map { options[$0] }
 
         MemorySessionManager.shared.addMCQAnswer(
             question: q.question,
             selected: selectedOptions.joined(separator: ", ")
         )
 
-        // ✅ ADVANCE PROGRESS ONLY AFTER ANSWERING
         let progress = MemorySessionManager.shared.advanceProgress()
         progressView.setProgress(progress, animated: false)
 
-        if currentMCQIndex < mcqQuestions.count - 1 {
-            currentMCQIndex += 1
+        currentMCQIndex += 1
+
+        if currentMCQIndex < mcqQuestions.count {
             loadMCQ()
         } else {
             goToEmotionScreen()
@@ -94,16 +103,15 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
     private func goToEmotionScreen() {
         let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
 
-        if let vc =
-            sb.instantiateViewController(
-                withIdentifier: "mcqEmotionVC"
-            ) as? MemoryLaneEmotionMcqViewController {
+        guard let vc =
+            sb.instantiateViewController(withIdentifier: "mcqEmotionVC")
+                as? MemoryLaneEmotionMcqViewController else { return }
 
-            vc.personImage = personImage
-            vc.personName = personName
-            vc.groupImage = groupImage
-            navigationController?.pushViewController(vc, animated: false)
-        }
+        vc.personImage = personImage
+        vc.personName = personName
+        vc.groupImage = groupImage
+
+        navigationController?.pushViewController(vc, animated: false)
     }
 }
 
@@ -124,8 +132,7 @@ extension MemoryLaneChoiceQuestionViewController:
             for: indexPath
         ) as! OptionTableViewCell
 
-        let isSelected =
-            selectedIndexes.contains(indexPath.row)
+        let isSelected = selectedIndexes.contains(indexPath.row)
 
         cell.configure(
             title: options[indexPath.row],

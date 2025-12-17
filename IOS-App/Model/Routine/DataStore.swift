@@ -112,7 +112,12 @@ class DataStore {
 
         if let index = tasks.firstIndex(where: { $0.id == task.id }) {
             tasks[index] = task
-            tasks.sort { $0.time < $1.time }
+            tasks.sort { t1, t2 in
+                let c1 = Calendar.current.dateComponents([.hour, .minute], from: t1.time)
+                let c2 = Calendar.current.dateComponents([.hour, .minute], from: t2.time)
+
+                return (c1.hour ?? 0, c1.minute ?? 0) < (c2.hour ?? 0, c2.minute ?? 0)
+            }
             routinesByDate[key] = tasks
             NotificationCenter.default.post(name: .DataStoreDidUpdateRoutines, object: nil, userInfo: ["dateKey": key])
         }
@@ -126,7 +131,12 @@ class DataStore {
             routinesByDate[key] = []
         }
         routinesByDate[key]!.append(task)
-        routinesByDate[key]?.sort { $0.time < $1.time }
+        routinesByDate[key]?.sort { t1, t2 in
+            let c1 = Calendar.current.dateComponents([.hour, .minute], from: t1.time)
+            let c2 = Calendar.current.dateComponents([.hour, .minute], from: t2.time)
+            
+            return (c1.hour ?? 0, c1.minute ?? 0) < (c2.hour ?? 0, c2.minute ?? 0)
+        }
         NotificationCenter.default.post(name: .DataStoreDidUpdateRoutines, object: nil, userInfo: ["dateKey": key])
     }
 

@@ -22,7 +22,7 @@ class MemoryLaneEmotionMcqViewController: UIViewController {
         setupUI()
         setupTable()
 
-        // ✅ Show current progress WITHOUT advancing
+       
         progressView.progress = MemorySessionManager.shared.currentProgress()
     }
 
@@ -53,30 +53,55 @@ class MemoryLaneEmotionMcqViewController: UIViewController {
     }
 
     @IBAction func nextButtonTapped(_ sender: UIButton) {
-        guard let selectedIndex = selectedIndex else { return }
+            guard let selectedIndex = selectedIndex else { return }
 
-        let selectedEmotion = emotions[selectedIndex]
-        MemorySessionManager.shared.setEmotion(selectedEmotion)
+            let selectedEmotion = emotions[selectedIndex]
+            MemorySessionManager.shared.setEmotion(selectedEmotion)
 
-        // ✅ ADVANCE PROGRESS ONLY AFTER ANSWERING
-        let progress = MemorySessionManager.shared.advanceProgress()
-        progressView.setProgress(progress, animated: false)
+            let progress = MemorySessionManager.shared.advanceProgress()
+            progressView.setProgress(progress, animated: false)
 
-        goToFinalQuestion()
+            MemorySessionManager.shared.completeSession()
+
+            goToFinalQuestion()
+        
+
+
     }
 
     private func goToFinalQuestion() {
-        let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
 
-        if let finalVC = sb.instantiateViewController(
-            withIdentifier: "MemoryLaneFinalQuestion"
-        ) as? MemoryLaneFinalQuestionViewController {
+        guard let imageSession = MemorySessionManager.shared.currentImageSession,
+              let nav = navigationController else { return }
 
-            // Final question uses GROUP image
+        let completedCount = imageSession.personSessions.count
+        let totalPeople = imageSession.peopleShown.count
+
+        
+        if completedCount < totalPeople {
+
+            let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
+            let identifyVC =
+                sb.instantiateViewController(
+                    withIdentifier: "MemoryLaneIdentifyPersonVC"
+                ) as! MemoryLaneidentifyPersonViewController
+
+            identifyVC.personIndex = completedCount
+            nav.pushViewController(identifyVC, animated: false)
+
+        } else {
+            
+            let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
+            let finalVC =
+                sb.instantiateViewController(
+                    withIdentifier: "MemoryLaneFinalQuestion"
+                ) as! MemoryLaneFinalQuestionViewController
+
             finalVC.groupImageData = groupImage
-            navigationController?.pushViewController(finalVC, animated: false)
+            nav.pushViewController(finalVC, animated: false)
         }
     }
+
 }
 
 extension MemoryLaneEmotionMcqViewController:

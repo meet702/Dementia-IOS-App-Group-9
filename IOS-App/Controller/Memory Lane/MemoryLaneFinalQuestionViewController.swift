@@ -75,7 +75,9 @@ class MemoryLaneFinalQuestionViewController: UIViewController, UITextViewDelegat
         MemorySessionManager.shared.finishImageSession(
             overallReflection: finalText
         )
-        
+
+        progressView.setProgress(1.0, animated: false)
+
         goToCompletionScreen()
     }
 

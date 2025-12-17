@@ -15,16 +15,8 @@ class MatchThePairsCollectionViewCell: UICollectionViewCell {
        }
 
        private func setupAppearance() {
-           // If you have a containerView in storyboard, use that for corner radius and clipping.
-           let cornerRadius: CGFloat = 18
-           if let c = containerView {
-               c.layer.cornerRadius = cornerRadius
-               c.clipsToBounds = true
-           } else {
-               // fallback - apply to contentView
-               contentView.layer.cornerRadius = cornerRadius
-               contentView.clipsToBounds = true
-           }
+           containerView.layer.cornerRadius = 18
+           containerView.clipsToBounds = true
 
            // image view content mode
            imageView.contentMode = .scaleAspectFill

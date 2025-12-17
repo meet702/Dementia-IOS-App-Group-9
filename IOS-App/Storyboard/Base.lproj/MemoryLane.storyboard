@@ -286,6 +286,7 @@
                                     <constraint firstItem="mxm-fA-u9U" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="7ke-4q-uNn" secondAttribute="trailing" constant="8" symbolic="YES" id="QFS-VS-Q8y"/>
                                     <constraint firstItem="6tw-uB-ogy" firstAttribute="leading" secondItem="0i9-WH-hYQ" secondAttribute="leading" constant="8" id="Qfv-Xk-WGa"/>
                                     <constraint firstAttribute="trailing" secondItem="Eg5-Vh-evn" secondAttribute="trailing" constant="8" id="TOa-kX-Lkd"/>
+                                    <constraint firstItem="mxm-fA-u9U" firstAttribute="top" secondItem="Eg5-Vh-evn" secondAttribute="bottom" constant="13.67" id="YhJ-Ss-EAF"/>
                                     <constraint firstAttribute="bottom" secondItem="6tw-uB-ogy" secondAttribute="bottom" constant="27" id="ZyN-k4-77D"/>
                                     <constraint firstAttribute="trailing" secondItem="6tw-uB-ogy" secondAttribute="trailing" constant="8" id="aHZ-pC-F3J"/>
                                     <constraint firstItem="u9K-eT-b4X" firstAttribute="top" secondItem="7ke-4q-uNn" secondAttribute="bottom" constant="32.666666666666629" id="bH5-21-Fuy"/>
@@ -469,7 +470,7 @@
                                     <color key="baseBackgroundColor" red="0.8980392157" green="0.54117647059999996" blue="0.098039215690000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="donePressed:" destination="dmU-cz-wh2" eventType="touchUpInside" id="JXs-gI-3Ws"/>
+                                    <action selector="doneButtonTapped:" destination="dmU-cz-wh2" eventType="touchUpInside" id="tPo-2c-Ydm"/>
                                     <action selector="guessButtonTapped:" destination="nwh-iT-bKD" eventType="touchUpInside" id="tYC-CH-qcl"/>
                                 </connections>
                             </button>
@@ -543,14 +544,14 @@
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="OptionCell" id="RAi-r0-3rp" customClass="OptionTableViewCell" customModule="IOS_App" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="50" width="321" height="52.333332061767578"/>
+                                                <rect key="frame" x="0.0" y="50" width="321" height="51.333332061767578"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="RAi-r0-3rp" id="Fdt-6G-aP5">
-                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="52.333332061767578"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="51.333332061767578"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L6A-uH-pyj">
-                                                            <rect key="frame" x="47" y="14.999999999999998" width="258" height="22.333333333333329"/>
+                                                            <rect key="frame" x="47" y="14.999999999999998" width="258" height="21.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>

@@ -27,24 +27,7 @@ class MemoryLaneHomeViewController: UIViewController {
         let nextVC = storyboard.instantiateViewController(withIdentifier: "MemoryLanePictureIntroVC")
         navigationController?.pushViewController(nextVC, animated: false)
     }
-//    private func navigateToLastPlayedStep() {
-//        let session = MemorySessionManager.shared
-//
-//        switch session.lastStep {
-//        case .pictureIntro:
-//            navigateToPictureIntro()
-//        case .identifyPerson:
-//            let vc = storyboard?.instantiateViewController(withIdentifier: "MemoryLaneIdentifyPersonVC")
-//            navigationController?.pushViewController(vc, animated: true)
-//        case .followup:
-//            let vc = storyboard?.instantiateViewController(withIdentifier: "MemoryLaneFollowUpVC")
-//            navigationController?.pushViewController(vc, animated: true)
-//        case .finalQuestion:
-//            let vc = storyboard?.instantiateViewController(withIdentifier: "MemoryLaneFinalVC")
-//            navigationController?.pushViewController(vc, animated: true)
-//        case .completed:
-//            navigateToPictureIntro()   // restart if finished
-//        }
+
 
 
     

@@ -1,3 +1,10 @@
+//
+//  MemorySessionManager.swift
+//  MemoryLane
+//
+//  Created by SDC-User on 17/12/25.
+//
+
 import Foundation
 import UIKit
 
@@ -25,7 +32,7 @@ class MemorySessionManager {
     private(set) var totalSteps: Int = 0
     private(set) var currentStep: Int = 0
 
-    let stepsPerPerson: Int = 2
+    let stepsPerPerson: Int = 4
 
 
     func startImageSession(image: UIImage, peopleShown: [String]) {
@@ -39,13 +46,12 @@ class MemorySessionManager {
             timestamp: Date()
         )
 
-        totalSteps = (peopleShown.count * stepsPerPerson) + 1   // + final group question
+        totalSteps = (peopleShown.count * stepsPerPerson) + 1
         currentStep = 0
 
         print("Image session started for imageId:", currentImageSession?.imageId ?? "nil")
         print("Progress initialized:", currentStep, "/", totalSteps)
     }
-
 
 
     func beginSession(for person: String, relation: String) {
@@ -58,7 +64,6 @@ class MemorySessionManager {
             textAnswers: [],
             mcqAnswers: [],
             emotion: nil,
-            finalReflection: nil,
             wasIdentifiedCorrectly: nil,
             timestamp: Date()
         )
@@ -84,9 +89,6 @@ class MemorySessionManager {
         currentSession?.emotion = emotion
     }
 
-    func setFinalReflection(_ text: String) {
-        currentSession?.finalReflection = text
-    }
 
     func completeSession() {
         guard let personSession = currentSession else {
@@ -103,18 +105,59 @@ class MemorySessionManager {
         lastStep = .completed
     }
 
+
     func finishImageSession(overallReflection: String?) {
-        print("Saving final image reflection:", overallReflection ?? "nil")
+        print("\n===== MEMORY LANE SESSION SUMMARY =====\n")
+
+        if let imageSession = currentImageSession {
+
+            for (index, personSession) in imageSession.personSessions.enumerated() {
+
+                print("Person \(index + 1): \(personSession.personName)")
+                print("Relation: \(personSession.relation)")
+                print("Identified correctly: \(personSession.wasIdentifiedCorrectly ?? false)")
+
+                print("\nText Answers:")
+                if personSession.textAnswers.isEmpty {
+                    print("  None")
+                } else {
+                    for answer in personSession.textAnswers {
+                        print("  Q: \(answer.question)")
+                        print("  A: \(answer.answer)")
+                    }
+                }
+
+                print("\nMCQ Answers:")
+                if personSession.mcqAnswers.isEmpty {
+                    print("  None")
+                } else {
+                    for answer in personSession.mcqAnswers {
+                        print("  Q: \(answer.question)")
+                        print("  Selected: \(answer.selectedOption)")
+                    }
+                }
+
+                print("\nEmotion:")
+                print("  \(personSession.emotion ?? "Not answered")")
+
+                print("\n------------------------------------\n")
+            }
+
+            print("FINAL GROUP REFLECTION:")
+            print(overallReflection ?? "No final reflection")
+
+            print("\n=====================================\n")
+        }
 
         currentImageSession?.overallReflection = overallReflection
 
         if let finished = currentImageSession {
             completedImageSessions.append(finished)
-            print("Saved completed image session with \(finished.personSessions.count) person responses.")
         }
 
         currentImageSession = nil
     }
+
 
 
     func advanceProgress() -> Float {

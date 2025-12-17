@@ -21,6 +21,7 @@ class TodaySessionsCard: UICollectionViewCell {
         super.awakeFromNib()
         // Initialization code
         
+        
         backgroundColor = .clear
         contentView.backgroundColor = .clear
 
@@ -37,10 +38,10 @@ class TodaySessionsCard: UICollectionViewCell {
         layer.masksToBounds = false
     }
     
-    func configureTodaysSession(todaysSession: TodaysSessionCardModel) {
-        dateLabel.text = todaysSession.date
-        timeLabel.text = todaysSession.time
-        imageView.image = UIImage(named: todaysSession.imageName)
+    func configureTodaysSession(todaysSession: ImageSession) {
+        dateLabel.text = todaysSession.timestamp.formattedDate()
+        timeLabel.text = todaysSession.timestamp.formattedTime()
+        imageView.image = UIImage(named: todaysSession.image)
         imageView.layer.cornerRadius = 18
         imageView.clipsToBounds = true
     }

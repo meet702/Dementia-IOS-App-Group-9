@@ -9,15 +9,16 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
     @IBOutlet weak var nextButton: UIButton!
     @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var progressView: UIProgressView!
-    
+
     var questions: [Question] = []
     var mcqQuestions: [Question] = []
-    var currentIndex: Int = 0
+    private var currentIndex: Int = 0
 
     var groupImage: UIImage?
     var personImage: UIImage?
     var personName: String = ""
     var relation: String = ""
+    var personIndex: Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,15 +27,11 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
         personImageView.clipsToBounds = true
         personNameLabel.text = personName
 
-        MemorySessionManager.shared.beginSession(
-            for: personName,
-            relation: relation
-        )
-
         responseTextView.delegate = self
         setupUI()
-        loadQuestion()
 
+
+        loadQuestion()
         progressView.progress = MemorySessionManager.shared.currentProgress()
     }
 
@@ -48,9 +45,17 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
 
         responseTextView.textContainerInset =
             UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
+
+        nextButton.layer.cornerRadius = 26
+        
+        nextButton.isEnabled = false
+        nextButton.alpha = 0.4
+
     }
 
     private func loadQuestion() {
+        guard currentIndex < questions.count else { return }
+
         let q = questions[currentIndex]
         questionLabel.text = q.question
         responseTextView.text = q.placeholder ?? "Add response"
@@ -60,8 +65,13 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
 
     @IBAction func nextButtonTapped(_ sender: UIButton) {
 
+        guard currentIndex < questions.count else {
+            goToMCQScreen()
+            return
+        }
+
         let rawText =
-            (responseTextView.textColor == .lightGray)
+            responseTextView.textColor == .lightGray
             ? ""
             : (responseTextView.text ?? "")
 
@@ -70,7 +80,6 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
             answer: rawText
         )
 
-        
         let progress = MemorySessionManager.shared.advanceProgress()
         progressView.setProgress(progress, animated: false)
 
@@ -86,17 +95,18 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
     private func goToMCQScreen() {
         let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
 
-        if let mcqVC =
+        guard let mcqVC =
             sb.instantiateViewController(withIdentifier: "mcqVC")
-                as? MemoryLaneChoiceQuestionViewController {
+                as? MemoryLaneChoiceQuestionViewController else { return }
 
-            mcqVC.personImage = personImage
-            mcqVC.personName = personName
-            mcqVC.relation = relation
-            mcqVC.mcqQuestions = mcqQuestions
-            mcqVC.groupImage = groupImage
-            navigationController?.pushViewController(mcqVC, animated: false)
-        }
+        mcqVC.personImage = personImage
+        mcqVC.personName = personName
+        mcqVC.relation = relation
+        mcqVC.mcqQuestions = mcqQuestions
+        mcqVC.groupImage = groupImage
+        mcqVC.personIndex = personIndex
+
+        navigationController?.pushViewController(mcqVC, animated: false)
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -114,4 +124,13 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
             textView.textColor = .lightGray
         }
     }
+    func textViewDidChange(_ textView: UITextView) {
+        let hasText =
+            !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            textView.textColor != .lightGray
+
+        nextButton.isEnabled = hasText
+        nextButton.alpha = hasText ? 1.0 : 0.4
+    }
+
 }

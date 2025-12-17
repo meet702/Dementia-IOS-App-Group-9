@@ -13,7 +13,7 @@ class MemoryLanePictureIntroViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        mainImageView.image = UIImage(named: "image 40")
+        mainImageView.image = UIImage(named: "image_40")
     }
 
     @IBAction func screenTapped(_ sender: UIButton) {

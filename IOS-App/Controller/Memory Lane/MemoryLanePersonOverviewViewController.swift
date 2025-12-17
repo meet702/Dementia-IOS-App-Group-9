@@ -13,9 +13,11 @@ class MemoryLanePersonOverviewViewController: UIViewController {
     
     @IBOutlet weak var finishButton: UIButton!
     let personOverview: [MemoryLanePersonOverviewModel] = [
-        MemoryLanePersonOverviewModel(name: "Priyamani", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", personImage: "image 38"),
-        MemoryLanePersonOverviewModel(name: "Priyadarshan", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", personImage: "image 39"),
-        MemoryLanePersonOverviewModel(name: "Priya", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", personImage: "image 42")
+        MemoryLanePersonOverviewModel(name: "Priyamani", summary: "Priyamani has been like family to you for years. Her warmth, understanding, and quiet support make every moment with her feel comforting and familiar.", personImage: "image_38"),
+        
+        MemoryLanePersonOverviewModel(name: "Priyadarshan", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", personImage: "image_39"),
+        
+        MemoryLanePersonOverviewModel(name: "Priya", summary: "Priya feels more like family than a friend. Her energy, laughter, and easy conversations always brighten your day.", personImage: "image_42")
     ]
     
     override func viewDidLoad() {
@@ -66,7 +68,8 @@ class MemoryLanePersonOverviewViewController: UIViewController {
         memoryLaneCollectionView.register(UINib(nibName: "MemoryLanePersonOverviewCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "memoryLanePersonOverviewCollectionViewCell")
     }
     
-    @IBAction func donePressed(_ sender: UIButton) {
+    
+    @IBAction func doneButtonTapped(_ sender: UIButton) {
         navigationController?.popToRootViewController(animated: false)
     }
     
@@ -87,6 +90,4 @@ extension MemoryLanePersonOverviewViewController: UICollectionViewDataSource {
         cell.configurePersonOverview(person: person)
         return cell
     }
-    
-    
 }

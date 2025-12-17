@@ -33,10 +33,6 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         matchedLabel.text = "Matched: 0"
         difficultyLabel.text = "Difficulty: " + difficultyName()
 
-        // If you accidentally registered the cell class earlier, remove that registration
-        // because we're using a storyboard prototype cell.
-        // collectionView.register(CardCollectionViewCell.self, forCellWithReuseIdentifier: CardCollectionViewCell.reuseId)
-
         startGame()
     }
 

@@ -1,3 +1,10 @@
+//
+//  MemorySessionData.swift
+//  MemoryLane
+//
+//  Created by SDC-User on 17/12/25.
+//
+
 import Foundation
 
 struct TextAnswer {
@@ -18,7 +25,6 @@ struct MemorySessionData {
     var mcqAnswers: [MCQAnswer] = []
     
     var emotion: String?
-    var finalReflection: String?
     
     var wasIdentifiedCorrectly: Bool?
     

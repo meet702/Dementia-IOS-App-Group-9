@@ -73,20 +73,29 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
 
     func splitTasksByTime() {
         let tasks = DataStore.shared.getRoutines(for: selectedDate)
+        
+        func timeSort(_ t1: TaskModel, _ t2: TaskModel) -> Bool {
+            let c1 = Calendar.current.dateComponents([.hour, .minute], from: t1.time)
+            let c2 = Calendar.current.dateComponents([.hour, .minute], from: t2.time)
+
+            return (c1.hour ?? 0, c1.minute ?? 0) <
+                   (c2.hour ?? 0, c2.minute ?? 0)
+        }
+        
         morningTasks = tasks.filter { task in
             let hour = Calendar.current.component(.hour, from: task.time)
             return hour >= 5 && hour < 12
-        }.sorted { $0.time < $1.time }
+        }.sorted(by: timeSort)
         
         afternoonTasks = tasks.filter { task in
             let hour = Calendar.current.component(.hour, from: task.time)
             return hour >= 12 && hour < 17
-        }.sorted { $0.time < $1.time }
+        }.sorted(by: timeSort)
         
         eveningTasks = tasks.filter { task in
             let hour = Calendar.current.component(.hour, from: task.time)
             return hour >= 17 || hour < 5
-        }.sorted { $0.time < $1.time }
+        }.sorted(by: timeSort)
     }
 
     func autoSelectToday() {

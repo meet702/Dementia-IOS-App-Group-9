@@ -10,7 +10,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="MemoryLanePersonOverviewCollectionViewCell" customModule="MemoryLane" customModuleProvider="target">
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="MemoryLanePersonOverviewCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="272" height="200"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
@@ -21,9 +21,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="272" height="200"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qPf-MI-YRW">
-                                <rect key="frame" x="103" y="37" width="50" height="17"/>
+                                <rect key="frame" x="103" y="29" width="50" height="25"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="17" id="ZCb-sf-hJl"/>
+                                    <constraint firstAttribute="height" constant="25" id="ZCb-sf-hJl"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                 <nil key="textColor"/>
@@ -48,7 +48,7 @@
                             <constraint firstItem="vyr-QI-YbA" firstAttribute="top" secondItem="ort-Pf-s40" secondAttribute="top" constant="16" id="1CC-16-tdz"/>
                             <constraint firstItem="qPf-MI-YRW" firstAttribute="leading" secondItem="vyr-QI-YbA" secondAttribute="trailing" constant="25" id="Aod-Yt-ldh"/>
                             <constraint firstItem="jSe-l1-C2T" firstAttribute="centerX" secondItem="ort-Pf-s40" secondAttribute="centerX" id="DGP-o6-MeO"/>
-                            <constraint firstItem="jSe-l1-C2T" firstAttribute="top" secondItem="qPf-MI-YRW" secondAttribute="bottom" constant="40" id="XvU-cq-JGN"/>
+                            <constraint firstItem="jSe-l1-C2T" firstAttribute="top" secondItem="qPf-MI-YRW" secondAttribute="bottom" constant="40" id="W5z-Mj-crF"/>
                             <constraint firstItem="jSe-l1-C2T" firstAttribute="top" secondItem="vyr-QI-YbA" secondAttribute="bottom" constant="16" id="bHb-DK-Qpd"/>
                             <constraint firstAttribute="bottom" secondItem="jSe-l1-C2T" secondAttribute="bottom" constant="16" id="bhn-nZ-QN9"/>
                             <constraint firstItem="jSe-l1-C2T" firstAttribute="leading" secondItem="vyr-QI-YbA" secondAttribute="leading" id="epw-WI-pbx"/>

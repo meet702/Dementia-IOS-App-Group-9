@@ -19,6 +19,8 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        isUserInteractionEnabled = true
+        contentView.isUserInteractionEnabled = true
 
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
