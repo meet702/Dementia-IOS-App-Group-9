@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="U6F-l6-T9n">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
@@ -238,7 +238,7 @@
                             <constraint firstItem="Fgl-m7-rcA" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="zcA-fb-XSW"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Match the Pairs" id="e4h-nZ-4HP"/>
+                    <navigationItem key="navigationItem" title="Match the Pairs" largeTitleDisplayMode="never" id="e4h-nZ-4HP"/>
                     <connections>
                         <outlet property="easyCard" destination="Efo-Bw-jbM" id="lZs-9m-7z2"/>
                         <outlet property="hardCard" destination="uDa-XU-d1a" id="wYf-Py-n5A"/>
@@ -270,25 +270,7 @@
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="-1637" y="849"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="VON-ye-rdF">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="rfz-1Z-rqk" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="nkD-BB-OCL">
-                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="3qW-Y7-3Mq"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="oK2-Yz-ZZZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-2437" y="849"/>
+            <point key="canvasLocation" x="-710.68702290076328" y="848.59154929577471"/>
         </scene>
         <!--Crossword-->
         <scene sceneID="xxu-lz-x4b">
@@ -693,38 +675,6 @@ From Flags</string>
             </objects>
             <point key="canvasLocation" x="1203.8167938931297" y="110.56338028169014"/>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="FKO-qD-uHx">
-            <objects>
-                <viewController id="UGd-SL-5uH" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="50r-4J-xvJ">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="GUx-zP-NQ4">
-                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
-                                <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f6J-n8-v7K">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="666"/>
-                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                    </view>
-                                </subviews>
-                            </stackView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="VXS-jk-yYF"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="GUx-zP-NQ4" firstAttribute="top" secondItem="VXS-jk-yYF" secondAttribute="top" id="5FI-5K-tm4"/>
-                            <constraint firstItem="GUx-zP-NQ4" firstAttribute="trailing" secondItem="VXS-jk-yYF" secondAttribute="trailing" id="6wt-Gf-mEY"/>
-                            <constraint firstItem="GUx-zP-NQ4" firstAttribute="bottom" secondItem="VXS-jk-yYF" secondAttribute="bottom" id="Lny-DJ-8sy"/>
-                            <constraint firstItem="GUx-zP-NQ4" firstAttribute="leading" secondItem="VXS-jk-yYF" secondAttribute="leading" id="TyJ-lb-MH5"/>
-                        </constraints>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3GD-5i-CU1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2019" y="111"/>
-        </scene>
         <!--Navigation Controller-->
         <scene sceneID="nl0-9z-qwE">
             <objects>
@@ -768,13 +718,13 @@ From Flags</string>
                                                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             </imageView>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="How to Play" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w95-pS-HPt">
-                                                                <rect key="frame" x="23.333333333333336" y="20.333333333333343" width="87.666666666666657" height="19.333333333333329"/>
-                                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                                                                <rect key="frame" x="23.333333333333343" y="20" width="90" height="20.333333333333329"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="37R-3D-gO1">
-                                                                <rect key="frame" x="119" y="13" width="194" height="34.333333333333336"/>
+                                                                <rect key="frame" x="121.33333333333336" y="13" width="191.66666666666663" height="34.333333333333336"/>
                                                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <state key="normal" title="Button"/>
                                                                 <buttonConfiguration key="configuration" style="plain" image="chevron.down" catalog="system"/>
@@ -833,7 +783,7 @@ From Flags</string>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Easy" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L9T-LU-QHM">
                                                                 <rect key="frame" x="0.0" y="25" width="313" height="20.333333333333329"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -863,7 +813,7 @@ From Flags</string>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Medium" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NBg-f4-mdA">
                                                                 <rect key="frame" x="0.0" y="25" width="313" height="20.333333333333329"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -893,7 +843,7 @@ From Flags</string>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Hard" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vd6-8M-nxN">
                                                                 <rect key="frame" x="0.0" y="25.000000000000057" width="313" height="20.333333333333329"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -958,7 +908,7 @@ From Flags</string>
                             <constraint firstItem="aVD-Pa-dJC" firstAttribute="leading" secondItem="xVb-Jr-81s" secondAttribute="leading" id="Vbu-4w-EUY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Sudoku" id="aHJ-oB-Oga"/>
+                    <navigationItem key="navigationItem" title="Sudoku" largeTitleDisplayMode="never" id="aHJ-oB-Oga"/>
                     <connections>
                         <outlet property="easyCard" destination="agE-E6-Nvd" id="aqk-CA-Mo1"/>
                         <outlet property="hardCard" destination="p6Q-fM-mOm" id="pq0-g2-M1k"/>
@@ -995,6 +945,7 @@ From Flags</string>
         <!--Navigation Controller-->
         <scene sceneID="7oQ-Ln-M5s">
             <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="N97-Qr-h0w" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="U6F-l6-T9n" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="U3K-dJ-zoN">
@@ -1006,7 +957,6 @@ From Flags</string>
                         <segue destination="2Or-0I-xLa" kind="relationship" relationship="rootViewController" id="69z-yW-g2u"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="N97-Qr-h0w" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-2436" y="111"/>
         </scene>
@@ -1022,7 +972,7 @@ From Flags</string>
                                 <rect key="frame" x="0.0" y="160" width="393" height="617"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="ZhG-MK-dB0">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="426.66666666666669"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="472.33333333333331"/>
                                         <color key="backgroundColor" red="0.99607843139999996" green="0.97254901959999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="fcp-l5-Mib">
                                             <size key="itemSize" width="128" height="128"/>
@@ -1070,13 +1020,13 @@ From Flags</string>
                                         </cells>
                                     </collectionView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="CEL-Lp-u4H">
-                                        <rect key="frame" x="0.0" y="432.66666666666657" width="393" height="184.33333333333331"/>
+                                        <rect key="frame" x="0.0" y="478.33333333333343" width="393" height="138.66666666666669"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="4Sz-2h-kvi">
-                                                <rect key="frame" x="135.66666666666666" y="0.0" width="121.66666666666666" height="85.666666666666671"/>
+                                                <rect key="frame" x="135.66666666666666" y="0.0" width="121.66666666666666" height="40"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Q1I-Kz-wNg">
-                                                        <rect key="frame" x="0.0" y="25.666666666666746" width="54" height="34.333333333333343"/>
+                                                        <rect key="frame" x="0.0" y="3" width="54" height="34.333333333333336"/>
                                                         <state key="normal" title="Button"/>
                                                         <buttonConfiguration key="configuration" style="tinted" image="lightbulb.max.fill" catalog="system" title=""/>
                                                         <connections>
@@ -1084,7 +1034,7 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wFl-me-Lmw">
-                                                        <rect key="frame" x="72" y="25.666666666666746" width="49.666666666666657" height="34.333333333333343"/>
+                                                        <rect key="frame" x="72" y="3" width="49.666666666666657" height="34.333333333333336"/>
                                                         <state key="normal" title="Button"/>
                                                         <buttonConfiguration key="configuration" style="tinted" image="arrow.uturn.backward" catalog="system"/>
                                                         <connections>
@@ -1094,7 +1044,7 @@ From Flags</string>
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleAspectFill" alignment="center" spacing="35" translatesAutoresizingMaskIntoConstraints="NO" id="ZmB-Ip-DoI">
-                                                <rect key="frame" x="40" y="100.66666666666674" width="313.33333333333331" height="34.333333333333343"/>
+                                                <rect key="frame" x="40" y="55" width="313.33333333333331" height="34.333333333333343"/>
                                                 <subviews>
                                                     <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="imG-h6-2at">
                                                         <rect key="frame" x="0.0" y="0.0" width="34.666666666666664" height="34.333333333333336"/>
@@ -1151,9 +1101,12 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                 </subviews>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="40" id="F7N-W4-33z"/>
+                                                </constraints>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="34" translatesAutoresizingMaskIntoConstraints="NO" id="MLh-7H-Co8">
-                                                <rect key="frame" x="76.333333333333329" y="150" width="240.66666666666669" height="34.333333333333343"/>
+                                                <rect key="frame" x="76.333333333333329" y="104.33333333333326" width="240.66666666666669" height="34.333333333333343"/>
                                                 <subviews>
                                                     <button opaque="NO" tag="6" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KIL-05-vfo">
                                                         <rect key="frame" x="0.0" y="0.0" width="34.666666666666664" height="34.333333333333336"/>
@@ -1269,7 +1222,7 @@ From Flags</string>
                                                             <rect key="frame" x="0.0" y="0.0" width="162" height="147"/>
                                                         </imageView>
                                                     </subviews>
-                                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                    <color key="backgroundColor" red="0.99607843137254903" green="0.97254901960784312" blue="0.93725490196078431" alpha="1" colorSpace="calibratedRGB"/>
                                                     <constraints>
                                                         <constraint firstItem="pLo-55-bKq" firstAttribute="top" secondItem="hcQ-CW-Apr" secondAttribute="top" id="1QQ-ec-Ffw"/>
                                                         <constraint firstAttribute="trailing" secondItem="pLo-55-bKq" secondAttribute="trailing" id="GQS-ee-6HK"/>
@@ -1319,7 +1272,13 @@ From Flags</string>
                             <constraint firstItem="JaR-GR-ye7" firstAttribute="leading" secondItem="X3n-gB-ziE" secondAttribute="leading" constant="20" id="vWR-gm-myh"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Match the Pairs" largeTitleDisplayMode="never" id="raG-0L-WeY"/>
+                    <navigationItem key="navigationItem" title="Match the Pairs" largeTitleDisplayMode="never" id="raG-0L-WeY">
+                        <barButtonItem key="leftBarButtonItem" title="Item" image="pause" catalog="system" id="o0C-Nu-UMY">
+                            <connections>
+                                <action selector="pauseTapped:" destination="bQ0-Tc-AqL" id="Pzi-um-CVC"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="vOb-ol-ubd" id="FfB-oi-7hM"/>
                         <outlet property="difficultyLabel" destination="ljS-Bf-9gz" id="AF8-lZ-XYW"/>
@@ -1328,7 +1287,25 @@ From Flags</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FCs-RA-dzF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-830" y="849"/>
+            <point key="canvasLocation" x="95.419847328244273" y="848.59154929577471"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="X18-ou-Gyj">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="mcw-yh-XSq" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="ywn-VW-QXj">
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="eHw-nl-Xrx"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="zbC-2w-tSQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1637.4045801526718" y="848.59154929577471"/>
         </scene>
     </scenes>
     <resources>

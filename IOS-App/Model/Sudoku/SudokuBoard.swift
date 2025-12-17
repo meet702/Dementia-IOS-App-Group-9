@@ -18,7 +18,7 @@ struct SudokuBoard {
 
     subscript(row: Int, col: Int) -> SudokuCellModel {
         get { cells[index(row: row, col: col)] }
-        set { /* not used via subscript for mutation; use setValue() */ }
+        set { }
     }
 
     mutating func setValue(_ value: Int?, atRow row: Int, col: Int, isGiven: Bool = false) {
@@ -30,7 +30,6 @@ struct SudokuBoard {
 
     func valueAt(_ row: Int, _ col: Int) -> Int? { cells[index(row: row, col: col)].value }
 
-    // helpers for validation
     func rowValues(_ row: Int) -> [Int] {
         (0..<SudokuBoard.size).compactMap { valueAt(row, $0) }
     }

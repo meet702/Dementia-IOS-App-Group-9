@@ -15,11 +15,19 @@ class PeopleViewController: UIViewController,
 
     @IBOutlet weak var PeoplecollectionView: UICollectionView!
 
-    // MARK: - Data
     var people: [PeopleModel] = []
-    private var selectedPerson: PeopleModel?   // ✅ ADDED
+    private var selectedPerson: PeopleModel?
 
-    // MARK: - Lifecycle
+    
+    @IBOutlet weak var emptyStateView: UIView!
+    
+    private func updateEmptyState() {
+        let hasPeople = !people.isEmpty
+        emptyStateView.isHidden = hasPeople
+        PeoplecollectionView.isHidden = !hasPeople
+    }
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -29,6 +37,7 @@ class PeopleViewController: UIViewController,
         
         let layout = generateLayout()
         PeoplecollectionView.setCollectionViewLayout(layout, animated: false)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -36,7 +45,6 @@ class PeopleViewController: UIViewController,
         loadPeople()
     }
 
-    // MARK: - Delete Person
     func deletePerson(_ person: PersonEntity) {
 
         let context = PersistenceController.shared.context
@@ -49,15 +57,14 @@ class PeopleViewController: UIViewController,
 
         do {
             try context.save()
-            print("🗑 Person deleted")
+            print("Person deleted")
         } catch {
-            print("❌ Failed to delete person:", error)
+            print("Failed to delete person:", error)
         }
 
         loadPeople()
     }
 
-    // MARK: - Layout
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { _, _ -> NSCollectionLayoutSection? in
 
@@ -68,15 +75,9 @@ class PeopleViewController: UIViewController,
                 )
             )
             item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-
-            let group = NSCollectionLayoutGroup.horizontal(
-                layoutSize: NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .absolute(190)
-                ),
-                subitem: item,
-                count: 3
-            )
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(190))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             section.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20)
@@ -88,7 +89,6 @@ class PeopleViewController: UIViewController,
         return layout
     }
 
-    // MARK: - Register Cell
     func registerCell() {
         PeoplecollectionView.register(
             UINib(nibName: "PeopleCollectionViewCell", bundle: nil),
@@ -96,7 +96,6 @@ class PeopleViewController: UIViewController,
         )
     }
 
-    // MARK: - Load People
     func loadPeople() {
 
         let context = PersistenceController.shared.context
@@ -119,13 +118,13 @@ class PeopleViewController: UIViewController,
             }
 
             PeoplecollectionView.reloadData()
+            updateEmptyState()
 
         } catch {
-            print("❌ Failed to fetch people:", error)
+            print("Failed to fetch people:", error)
         }
     }
 
-    // MARK: - Save Person
     func savePerson(faceImage: UIImage) {
 
         let context = PersistenceController.shared.context
@@ -142,13 +141,12 @@ class PeopleViewController: UIViewController,
 
         do {
             try context.save()
-            print("✅ Person saved")
+            print("Person saved")
         } catch {
-            print("❌ Failed to save person:", error)
+            print("Failed to save person:", error)
         }
     }
 
-    // MARK: - Add Photos Button
     @IBAction func addPhotosButton(_ sender: UIBarButtonItem) {
 
         let imagePicker = UIImagePickerController()
@@ -184,7 +182,6 @@ class PeopleViewController: UIViewController,
         present(alertController, animated: true)
     }
 
-    // MARK: - Image Picker Delegate
     func imagePickerController(
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
@@ -194,7 +191,6 @@ class PeopleViewController: UIViewController,
         handleUploadedImage(image)
     }
 
-    // MARK: - Face Segregation Logic
     private func handleUploadedImage(_ image: UIImage) {
 
         FaceDetectionManager.shared.detectFaces(in: image) { faceImages in
@@ -205,7 +201,6 @@ class PeopleViewController: UIViewController,
         }
     }
 
-    // MARK: - EDIT BUTTON ACTION (✅ ADDED)
     @objc private func editButtonTapped(_ sender: UIButton) {
 
         let index = sender.tag
@@ -215,7 +210,6 @@ class PeopleViewController: UIViewController,
         performSegue(withIdentifier: "showEditPerson", sender: selectedPerson)
     }
 
-    // MARK: - PREPARE FOR SEGUE (✅ ADDED)
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 
         if segue.identifier == "showEditPerson",
@@ -228,7 +222,6 @@ class PeopleViewController: UIViewController,
 }
 
 
-// MARK: - UICollectionViewDataSource
 extension PeopleViewController: UICollectionViewDataSource {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -252,7 +245,6 @@ extension PeopleViewController: UICollectionViewDataSource {
         let person = people[indexPath.item]
         cell.configurePeopleCell(person: person)
 
-        // 🔹 Existing edit button logic (unchanged)
         cell.editButton.tag = indexPath.item
         cell.editButton.removeTarget(nil, action: nil, for: .allEvents)
         cell.editButton.addTarget(
@@ -271,15 +263,10 @@ extension PeopleViewController: UICollectionViewDataSource {
 
             self.loadPeople()
         }
-
-
         return cell
     }
-
-    
 }
 
-// MARK: - UICollectionViewDelegate
 extension PeopleViewController: UICollectionViewDelegate {
 
     func collectionView(

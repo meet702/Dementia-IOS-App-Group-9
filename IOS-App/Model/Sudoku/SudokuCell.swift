@@ -7,9 +7,9 @@
 import Foundation
 
 struct SudokuCellModel {
-    var value: Int?        // 1..9 or nil
-    var isGiven: Bool      // initial clue (not editable)
-    var isConflict: Bool   // for UI (if you detect conflicts)
+    var value: Int?
+    var isGiven: Bool
+    var isConflict: Bool  
     init(value: Int? = nil, isGiven: Bool = false) {
         self.value = value
         self.isGiven = isGiven

@@ -64,11 +64,6 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
 
     private func setupUI() {
-        [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
-            $0?.layer.cornerRadius = 20
-            $0?.backgroundColor = UIColor(white: 0.95, alpha: 1)
-            $0?.layer.borderWidth = 0
-        }
 
         if let imageName = imageByPerson[correctAnswer] {
             characterImageView.image = UIImage(named: imageName)
@@ -146,15 +141,12 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     @IBAction func hintButtonTapped(_ sender: UIButton) {
         let hintsByPerson: [String: [String]] = [
             "Priyamani": [
-                "She is a close family member.",
                 "You meet her during family occasions."
             ],
             "Priyadarshan": [
                 "You’ve had friendly conversations with him.",
-                "He is not from your workplace."
             ],
             "Priya": [
-                "You know her through work.",
                 "You’ve collaborated on tasks together."
             ]
         ]

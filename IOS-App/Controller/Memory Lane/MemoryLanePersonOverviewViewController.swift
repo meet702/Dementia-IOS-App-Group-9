@@ -70,7 +70,14 @@ class MemoryLanePersonOverviewViewController: UIViewController {
     
     
     @IBAction func doneButtonTapped(_ sender: UIButton) {
-        navigationController?.popToRootViewController(animated: false)
+        guard let nav = navigationController else { return }
+
+        for vc in nav.viewControllers {
+            if vc is HomeViewController {
+                nav.popToViewController(vc, animated: false)
+                return
+            }
+        }
     }
     
 }

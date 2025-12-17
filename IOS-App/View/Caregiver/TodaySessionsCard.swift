@@ -20,17 +20,12 @@ class TodaySessionsCard: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        
-        
         backgroundColor = .clear
         contentView.backgroundColor = .clear
-
-        // card rounded and clipping
         cardView.layer.cornerRadius = 18
         cardView.clipsToBounds = true
         cardView.backgroundColor = .white
 
-        // cell shadow (drawn by cell's layer)
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.12
         layer.shadowOffset = CGSize(width: 0, height: 4)

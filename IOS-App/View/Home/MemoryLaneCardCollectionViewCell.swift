@@ -68,16 +68,14 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        // clean up overlay and image
         overlayView?.removeFromSuperview()
         overlayView = nil
         imageView.image = nil
     }
 
-    // Public configure
     func configureMemoryLaneCell(imageName: String? = "image 102",
-                                 title: String = "Visit the memory",
-                                 subtitle: String = "Let’s take a walk down memory lane") {
+                                 title: String = "Memory Lane",
+                                 subtitle: String = "Recall moments through guided questions") {
         cardTextLabel.text = title
         subtitleLabel.text = subtitle
 
@@ -86,35 +84,25 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         } else {
             imageView.image = nil
         }
-
-        // Ensure layout is valid so label frames are measurable
-        // We need to wait until AutoLayout laid out the labels; forcing layoutIfNeeded here helps when cell is being configured in data source callback.
         contentView.layoutIfNeeded()
         cardView.layoutIfNeeded()
         imageView.layoutIfNeeded()
 
-        // Add/update overlay positioned to start just above the top of the text
         addOrUpdateOverlayPinnedToText()
     }
 
     // MARK: - Overlay logic
 
     private func addOrUpdateOverlayPinnedToText() {
-        // Remove existing overlay (safe)
         overlayView?.removeFromSuperview()
         overlayView = nil
 
-        // Compute top of text relative to cardView
-        // Convert label bounds to cardView coordinate space
         let titleRectInCard = cardTextLabel.convert(cardTextLabel.bounds, to: cardView)
         let subtitleRectInCard = subtitleLabel.convert(subtitleLabel.bounds, to: cardView)
 
-        // pick top-most (smallest y) of the two labels
         var topOfTextY = min(titleRectInCard.minY, subtitleRectInCard.minY)
 
-        // If conversion produced values outside card (or 0), fallback to measuring from bottom using default ratio
         if topOfTextY.isNaN || topOfTextY < -cardView.bounds.height || topOfTextY > cardView.bounds.height {
-            // fallback: place overlay to cover bottom area (fallback height)
             let overlay = makeOverlayView()
             cardView.addSubview(overlay)
             overlay.translatesAutoresizingMaskIntoConstraints = false
@@ -125,22 +113,18 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
                 overlay.heightAnchor.constraint(equalToConstant: fallbackGradientHeight)
             ])
             overlayView = overlay
-            // ensure gradient fills overlay (layoutSubviews will set layer.frame)
             setNeedsLayout()
             layoutIfNeeded()
             bringLabelsAboveOverlay()
             return
         }
 
-        // Subtract small padding so gradient starts slightly above the text
         topOfTextY = max(0, topOfTextY - gradientTopPadding)
 
-        // Create overlay and pin its top to that position and bottom to cardView bottom
         let overlay = makeOverlayView()
         cardView.addSubview(overlay)
         overlay.translatesAutoresizingMaskIntoConstraints = false
 
-        // We set top constraint relative to cardView.top + topOfTextY
         let topConstraint = overlay.topAnchor.constraint(equalTo: cardView.topAnchor, constant: topOfTextY)
         NSLayoutConstraint.activate([
             overlay.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
@@ -151,7 +135,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
 
         overlayView = overlay
 
-        // Force layout so the gradient layer gets a correct frame immediately
         overlay.layoutIfNeeded()
         setNeedsLayout()
         layoutIfNeeded()
@@ -165,7 +148,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         overlay.isUserInteractionEnabled = false
         overlay.tag = gradientOverlayTag
 
-        // create gradient layer
         let g = CAGradientLayer()
         g.colors = [
             UIColor.black.withAlphaComponent(0.30).cgColor,
@@ -175,7 +157,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         g.endPoint = CGPoint(x: 0.5, y: 0.0)
         g.locations = [0.0, 1.0]
 
-        // initial frame is zero; it will be sized in layoutSubviews or immediately after constraints applied
         g.frame = overlay.bounds
         overlay.layer.addSublayer(g)
         overlay.layer.masksToBounds = true
@@ -184,7 +165,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
     }
 
     private func bringLabelsAboveOverlay() {
-        // ensure labels are on top
         cardView.bringSubviewToFront(cardTextLabel)
         cardView.bringSubviewToFront(subtitleLabel)
         cardTextLabel.layer.zPosition = 100

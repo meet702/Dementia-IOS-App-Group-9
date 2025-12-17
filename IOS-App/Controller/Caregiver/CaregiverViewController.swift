@@ -44,23 +44,19 @@ class CaregiverViewController: UIViewController {
             action: #selector(handleCollectionTap(_:))
         )
 
-        tapGesture.cancelsTouchesInView = false   // ✅ allows scrolling
+        tapGesture.cancelsTouchesInView = false
         caregiverCollectionView.addGestureRecognizer(tapGesture)
 
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // ensure the Home card shows today's tasks by default
         selectedDate = Date()
-        // refresh the layout/data so the Routine card reads the correct date
         caregiverCollectionView.reloadData()
     }
 
     @objc private func dataStoreUpdated(_ n: Notification) {
         DispatchQueue.main.async {
-            // If DataStore sends a "dateKey" in userInfo you can check it here and only reload when it matches.
-            // For simplicity we reload only the "My Routine" section (section index 2).
             let sectionIndex = 0
             let indexSet = IndexSet(integer: sectionIndex)
             self.caregiverCollectionView.reloadSections(indexSet)
@@ -201,47 +197,3 @@ extension CaregiverViewController: UICollectionViewDataSource {
     }
     
 }
-
-//extension CaregiverViewController: UICollectionViewDelegate {
-//    
-//    func collectionView(_ collectionView: UICollectionView,
-//                        shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        print("🟢 shouldSelectItemAt")
-//        return true
-//    }
-//    
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        print("✅ didSelectItemAt called")
-//
-//        guard indexPath.section == 2 else { return }
-//
-//        let selectedSession = todaysSessions[indexPath.item]
-//        ResponseDataStore.shared.currentImageSession = selectedSession
-//
-//        // 🔴 TEMPORARY TEST (replace performSegue)
-//        let vc = storyboard?.instantiateViewController(
-//            withIdentifier: "ResponseViewController"
-//        ) as! ResponseViewController
-//
-//        navigationController?.pushViewController(vc, animated: true)
-//    }
-    
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        guard segue.identifier == "showMemoryResponse" else { return }
-//
-//        guard let destination = segue.destination as? ResponseViewController else {
-//            assertionFailure("Destination is not ResponseViewController")
-//            return
-//        }
-//
-//        guard let session = ResponseDataStore.shared.currentImageSession else {
-//            assertionFailure("currentImageSession is nil before navigation")
-//            return
-//        }
-//
-//        // Optional: assign explicitly (you already read it in viewDidLoad)
-//        destination.session = session
-//
-//        print("Prepared Memory Response for session at:", session.timestamp)
-//    }
-//}

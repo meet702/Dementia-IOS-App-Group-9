@@ -8,10 +8,8 @@
 import Foundation
 
 struct SudokuSolver {
-    // solve in-place given board (81 Int?); returns true if solvable and fills the board
-    // board is array of 81 Int? in row-major order
     static func solve(_ board: inout [Int?]) -> Bool {
-        guard let emptyIndex = board.firstIndex(where: { $0 == nil }) else { return true } // filled
+        guard let emptyIndex = board.firstIndex(where: { $0 == nil }) else { return true }
         let row = emptyIndex / 9, col = emptyIndex % 9
 
         let used = usedNumbers(board, row: row, col: col)
@@ -25,7 +23,6 @@ struct SudokuSolver {
         return false
     }
 
-    // count solutions up to a limit (stop if >= limit)
     static func countSolutions(_ board: [Int?], limit: Int = 2) -> Int {
         var count = 0
         var b = board
@@ -50,7 +47,6 @@ struct SudokuSolver {
         return count
     }
 
-    // helper: numbers used in row/col/block
     private static func usedNumbers(_ board: [Int?], row: Int, col: Int) -> Set<Int> {
         var s = Set<Int>()
         for c in 0..<9 { if let v = board[row*9 + c] { s.insert(v) } }

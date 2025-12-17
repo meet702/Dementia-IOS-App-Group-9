@@ -9,7 +9,6 @@ import UIKit
 
 extension UIImage {
 
-    /// Returns a new image with orientation `.up`
     func normalizedOrientation() -> UIImage {
         if imageOrientation == .up {
             return self

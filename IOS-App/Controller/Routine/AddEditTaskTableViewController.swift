@@ -44,11 +44,6 @@ class AddEditTaskTableViewController: UITableViewController {
     var selectedDateValue: Date = Date()
     var selectedTimeValue: Date = Date()
     
-//    var isEditingTask: Bool {
-//        if case .edit = mode { return true }
-//        return false
-//    }
-
     weak var delegate: AddEditTaskDelegate?
 
     override func viewDidLoad() {
@@ -58,9 +53,7 @@ class AddEditTaskTableViewController: UITableViewController {
         repeatCell.onSwitchChanged = { [weak self] isOn in
             self?.shouldRepeatDaily = isOn
         }
-
-//        navigationItem.rightBarButtonItem?.tintColor = .systemOrange
-
+        
         switch mode {
         case .add:
             self.navigationItem.title = "Add Task"
@@ -73,7 +66,6 @@ class AddEditTaskTableViewController: UITableViewController {
             selectedDateValue = combine(date: originalTaskDate, time: task.time)
             selectedTimeValue = task.time
             shouldRepeatDaily = task.isRecurring
-            //dateCell.datePicker.isUserInteractionEnabled = false
             dateCell.datePicker.isEnabled = false
 
 
@@ -200,74 +192,5 @@ class AddEditTaskTableViewController: UITableViewController {
             fatalError("Unexpected section")
         }
     }
-
-    
-    /*
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-
-        // Section 1, Row 0 = DATE PICKER
-        if indexPath.section == 1 && indexPath.row == 0 {
-            return isEditingTask ? 0 : UITableView.automaticDimension
-        }
-
-        return UITableView.automaticDimension
-    }
-    
-    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        if isEditingTask && indexPath.section == 1 && indexPath.row == 0 {
-            return nil   // can't select hidden date cell
-        }
-        return indexPath
-    }
-     */
-
-
-    
-
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

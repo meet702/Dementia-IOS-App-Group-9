@@ -22,11 +22,11 @@ class DataStore {
     }()
 
     private init() {
-        generate7DayCalendar()
+        generateCalendar()
         loadSampleRoutineData()
     }
 
-    private func generate7DayCalendar() {
+    private func generateCalendar() {
         let formatterDay = DateFormatter()
         formatterDay.dateFormat = "EEEEE"
 
@@ -36,7 +36,7 @@ class DataStore {
         var tempDates: [DateModel] = []
         let today = Date()
 
-        for diff in (-7...7) {
+        for diff in (-10...10) {
             let day = Calendar.current.date(byAdding: .day, value: diff, to: today)!
             tempDates.append(
                 DateModel(

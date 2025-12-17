@@ -40,7 +40,7 @@
                                 </cells>
                             </collectionView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="vo0-hi-PLB">
-                                <rect key="frame" x="0.0" y="288" width="393" height="564"/>
+                                <rect key="frame" x="0.0" y="272" width="393" height="580"/>
                                 <color key="backgroundColor" red="0.99607843137254903" green="0.97254901960784312" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="task_cell" rowHeight="70" id="0l4-iO-szF" customClass="TaskTableViewCell" customModule="IOS_App" customModuleProvider="target">
@@ -135,7 +135,7 @@
                             <constraint firstItem="vo0-hi-PLB" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="i0Y-iH-ROI"/>
                             <constraint firstItem="hQB-Hg-0Cg" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="kA6-md-cDz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="O32-VN-JCP" secondAttribute="trailing" id="oet-L8-Chr"/>
-                            <constraint firstItem="vo0-hi-PLB" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="116" id="rnf-Mw-ZK1"/>
+                            <constraint firstItem="vo0-hi-PLB" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="100" id="rnf-Mw-ZK1"/>
                             <constraint firstItem="O32-VN-JCP" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="329" id="tUW-gr-2hg"/>
                             <constraint firstItem="hQB-Hg-0Cg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="y31-eF-BVH"/>
                         </constraints>

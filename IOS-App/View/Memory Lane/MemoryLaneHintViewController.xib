@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MemoryLaneHintViewController" customModule="MemoryLane" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MemoryLaneHintViewController" customModule="IOS_App" customModuleProvider="target">
             <connections>
                 <outlet property="containerView" destination="vO3-Fi-rsn" id="76O-Kk-0iF"/>
                 <outlet property="messageLabel" destination="j1j-Fz-dEe" id="vbf-3M-WSW"/>
@@ -40,9 +40,9 @@
                                 <action selector="doneButtonTapped:" destination="-1" eventType="touchUpInside" id="X23-QZ-Z0F"/>
                             </connections>
                         </button>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j1j-Fz-dEe">
-                            <rect key="frame" x="16" y="85" width="361" height="20.333333333333329"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j1j-Fz-dEe">
+                            <rect key="frame" x="16" y="75" width="361" height="24"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="20"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
                         </label>
@@ -54,7 +54,7 @@
                             </constraints>
                         </view>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <color key="backgroundColor" red="0.99607843137254903" green="0.97254901960784312" blue="0.93725490196078431" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
                         <constraint firstItem="A1f-fL-6Db" firstAttribute="top" secondItem="Fha-F1-xQP" secondAttribute="bottom" constant="6" id="3qB-f3-aZz"/>
                         <constraint firstAttribute="trailing" secondItem="j1j-Fz-dEe" secondAttribute="trailing" constant="16" id="Dff-1Y-Mmh"/>
@@ -65,7 +65,7 @@
                         <constraint firstItem="Kr6-iL-R7c" firstAttribute="leading" secondItem="vO3-Fi-rsn" secondAttribute="leading" id="Qbm-J4-S19"/>
                         <constraint firstItem="A1f-fL-6Db" firstAttribute="leading" secondItem="vO3-Fi-rsn" secondAttribute="leading" id="SEi-4U-y6H"/>
                         <constraint firstAttribute="trailing" secondItem="Kr6-iL-R7c" secondAttribute="trailing" id="ToT-6p-PjJ"/>
-                        <constraint firstItem="j1j-Fz-dEe" firstAttribute="top" secondItem="I8J-X3-fe5" secondAttribute="bottom" constant="26" id="VW5-L7-9Px"/>
+                        <constraint firstItem="j1j-Fz-dEe" firstAttribute="top" secondItem="I8J-X3-fe5" secondAttribute="bottom" constant="16" id="VW5-L7-9Px"/>
                         <constraint firstItem="I8J-X3-fe5" firstAttribute="leading" secondItem="vO3-Fi-rsn" secondAttribute="leading" id="XyU-jT-Jdk"/>
                         <constraint firstItem="Kr6-iL-R7c" firstAttribute="top" secondItem="vO3-Fi-rsn" secondAttribute="top" constant="15" id="huJ-os-OOH"/>
                         <constraint firstAttribute="height" constant="260" id="pEu-cM-xcQ"/>

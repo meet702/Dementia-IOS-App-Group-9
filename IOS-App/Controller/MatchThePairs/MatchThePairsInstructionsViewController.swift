@@ -18,20 +18,18 @@ class MatchThePairsInstructionsViewController: UIViewController {
 
     var isHowToPlayOpen = false
 
-    // --- NEW: Track selected difficulty ---
     enum Difficulty {
         case easy, medium, hard
     }
     private var selectedDifficulty: Difficulty? {
         didSet {
-            // You can add additional side-effects here if needed
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Game VC viewDidAppear")
-        instructionsCard.isHidden = true  // start closed
+        instructionsCard.isHidden = true
         howToPlayChevronButton.isUserInteractionEnabled = false
 
         let cards = [easyCard, mediumCard, hardCard, howToPlayView, instructionsCard]
@@ -63,7 +61,6 @@ class MatchThePairsInstructionsViewController: UIViewController {
     func selectDifficulty(card: UIView) {
         let cards = [easyCard, mediumCard, hardCard]
 
-        // selected background + border
         let selectedBackground = UIColor(red: 1.0, green: 0.75, blue: 0.46, alpha: 0.25)
         let selectedBorder = UIColor(red: 0.95, green: 0.6, blue: 0.2, alpha: 1.0).cgColor
 
@@ -86,25 +83,18 @@ class MatchThePairsInstructionsViewController: UIViewController {
         }
     }
 
-    // -------------------------
-    // MARK: - Actions
-    // -------------------------
-
     @IBAction func howToPlayTapped(_ sender: Any) {
-        isHowToPlayOpen.toggle()   // flip true/false
+        isHowToPlayOpen.toggle()
 
-        // Change chevron direction
         let imageName = isHowToPlayOpen ? "chevron.up" : "chevron.down"
         howToPlayChevronButton.setImage(UIImage(systemName: imageName), for: .normal)
 
-        // Animate the card appearing / disappearing
         UIView.animate(withDuration: 0.25) {
             self.instructionsCard.isHidden = !self.isHowToPlayOpen
-            self.view.layoutIfNeeded()   // stack view smoothly moves everything
+            self.view.layoutIfNeeded()
         }
     }
 
-    // NOTE: keeping your existing IBAction names — they now set selectedDifficulty
     @IBAction func easyCardTapped(_ sender: Any) {
         print("easy tapped")
         selectedDifficulty = .easy
@@ -118,14 +108,12 @@ class MatchThePairsInstructionsViewController: UIViewController {
     }
 
     @IBAction func hardCardTapped(_ sender: Any) {
-//        print("hard tapped")
         selectedDifficulty = .hard
         selectDifficulty(card: hardCard)
     }
 
     @IBAction func playTapped(_ sender: UIButton) {
         print("playTapped called")
-        // ensure a difficulty is selected before starting
         guard selectedDifficulty != nil else {
             let alert = UIAlertController(title: "Select Difficulty",
                                           message: "Please choose Easy, Medium, or Hard before playing.",
@@ -135,11 +123,9 @@ class MatchThePairsInstructionsViewController: UIViewController {
             return
         }
 
-        // perform a single segue to start the game
         performSegue(withIdentifier: "startGame", sender: self)
     }
 
-    // Pass rows/columns based on the selected difficulty
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "startGame",
            let dest = segue.destination as? MatchThePairsViewController {

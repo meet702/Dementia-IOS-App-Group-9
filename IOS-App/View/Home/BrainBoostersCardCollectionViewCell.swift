@@ -16,22 +16,18 @@ class BrainBoostersCardCollectionViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        // Backgrounds must be clear so shadow is visible
         backgroundColor = .clear
         contentView.backgroundColor = .white
 
-        // Rounded corners on the CARD
         contentView.layer.cornerRadius = 34
-        contentView.layer.masksToBounds = true   // clips the image to rounded corners
+        contentView.layer.masksToBounds = true
 
-        // Shadow on CELL (not clipped)
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.15
         layer.shadowOffset = CGSize(width: 0, height: 4)
         layer.shadowRadius = 6
         layer.masksToBounds = false
 
-        // Image settings
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
     }
@@ -39,7 +35,6 @@ class BrainBoostersCardCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        // Shadow must follow the rounded shape
         layer.shadowPath = UIBezierPath(
             roundedRect: bounds,
             cornerRadius: contentView.layer.cornerRadius
@@ -49,7 +44,6 @@ class BrainBoostersCardCollectionViewCell: UICollectionViewCell {
     func configureBrainBoostersCell(brainBooster: BrainBoostersCardModel) {
         gameNameLabel.text = brainBooster.gameName
         imageView.image = UIImage(named: brainBooster.gameImage)
-        }
-
-//       func did
     }
+
+}

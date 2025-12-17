@@ -23,7 +23,7 @@ class DetailsTableViewController: UITableViewController {
         super.viewDidLoad()
 
         tableView.allowsSelection = false
-        
+        enableKeyboardDismissOnTap()
         fetchPersonEntity()
         configureRelationMenu()
         populateUI()
@@ -35,8 +35,6 @@ class DetailsTableViewController: UITableViewController {
     }
 
     private func populateUI() {
-
-        // Relation
         if let savedRelation = personEntity.relation {
             selectedRelation = savedRelation
             setRelationTitle(for: savedRelation)
@@ -76,18 +74,17 @@ class DetailsTableViewController: UITableViewController {
     private func setRelationTitle(for value: String) {
         switch value {
         case "family":
-            relationButton.setTitle("Family", for: .normal)
+            relationButton.setTitle("Family  ", for: .normal)
         case "friend":
-            relationButton.setTitle("Friend", for: .normal)
+            relationButton.setTitle("Friend  ", for: .normal)
         case "work":
-            relationButton.setTitle("Work", for: .normal)
+            relationButton.setTitle("Work  ", for: .normal)
         default:
-            relationButton.setTitle("Select relation", for: .normal)
+            relationButton.setTitle("Select relation  ", for: .normal)
         }
     }
 
     @IBAction func cancelTapped(_ sender: UIBarButtonItem) {
-        // ❌ Discard changes
         dismiss(animated: true)
     }
 
@@ -98,14 +95,13 @@ class DetailsTableViewController: UITableViewController {
 
         do {
             try PersistenceController.shared.context.save()
-            print("✅ Person details saved")
+            print("Person details saved")
             dismiss(animated: true)
         } catch {
-            print("❌ Failed to save person details:", error)
+            print("Failed to save person details:", error)
         }
     }
     
-
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }

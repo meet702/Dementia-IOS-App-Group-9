@@ -15,7 +15,7 @@ class MemoryLaneFinalQuestionViewController: UIViewController, UITextViewDelegat
         super.viewDidLoad()
         setupUI()
         setupPlaceholder()
-
+        enableKeyboardDismissOnTap()
 
         progressView.progress = MemorySessionManager.shared.currentProgress()
     }

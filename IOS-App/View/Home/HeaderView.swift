@@ -25,7 +25,6 @@ class HeaderView: UICollectionReusableView {
         self.onTapAction = onTap
 
         if isTappable {
-            // Add gesture recognizer if not already added
             if tapGesture == nil {
                 let g = UITapGestureRecognizer(target: self, action: #selector(headerTapped(_:)))
                 addGestureRecognizer(g)

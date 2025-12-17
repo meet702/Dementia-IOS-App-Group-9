@@ -2,18 +2,14 @@ import UIKit
 
 class SudokuViewController: UIViewController {
 
-    // -----------------------------
-    // Difficulty coming from previous VC
-    // 1 = easy, 2 = medium, 3 = hard
-    // -----------------------------
-    var difficultyLevel: Int = 1     // default: easy
+    var difficultyLevel: Int = 1
 
     private var clueCount: Int {
         switch difficultyLevel {
-        case 1: return 40      // easy
-        case 2: return 34      // medium
-        case 3: return 28      // hard
-        default: return 40     // safe fallback
+        case 1: return 40
+        case 2: return 34
+        case 3: return 28
+        default: return 40
         }
     }
 
@@ -26,16 +22,10 @@ class SudokuViewController: UIViewController {
         }
     }
 
-    // -----------------------------
-    // Outlets
-    // -----------------------------
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var difficultyLabel: UILabel!
     @IBOutlet weak var numberPadContainer: UIView!
 
-    // -----------------------------
-    // Pause Logic
-    // -----------------------------
     private var pauseOverlayView: UIView?
     private var isPausedState: Bool = false
 
@@ -82,22 +72,15 @@ class SudokuViewController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
 
-    // -----------------------------
-    // Game State
-    // -----------------------------
     private var puzzle: [Int?] = Array(repeating: nil, count: 81)
     private var solution: [Int?] = Array(repeating: nil, count: 81)
     private var boardModel = SudokuBoard()
     private var selectedIndex: Int? = nil
     private var undoStack: [(index: Int, previous: Int?)] = []
 
-    // -----------------------------
-    // View Lifecycle
-    // -----------------------------
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Show difficulty
         difficultyLabel.text = "Difficulty: \(difficultyName)"
 
         collectionView.dataSource = self
@@ -105,7 +88,6 @@ class SudokuViewController: UIViewController {
         collectionView.isScrollEnabled = false
         collectionView.collectionViewLayout = createSudokuLayout()
 
-        // Generate puzzle based on difficulty
         DispatchQueue.global(qos: .userInitiated).async {
             let (p, s) = SudokuGenerator.generatePuzzle(
                 targetClues: self.clueCount,
@@ -120,9 +102,6 @@ class SudokuViewController: UIViewController {
         }
     }
 
-    // -----------------------------
-    // Board Setup
-    // -----------------------------
     private func loadBoardFromPuzzle() {
         var b = SudokuBoard()
         for i in 0..<81 {
@@ -136,9 +115,6 @@ class SudokuViewController: UIViewController {
         selectedIndex = nil
     }
 
-    // -----------------------------
-    // Restart Game
-    // -----------------------------
     private func restartGame() {
         let (newPuzzle, newSolution) = SudokuGenerator.generatePuzzle(
             targetClues: clueCount,
@@ -151,9 +127,6 @@ class SudokuViewController: UIViewController {
         collectionView.reloadData()
     }
 
-    // -----------------------------
-    // Layout (collection view)
-    // -----------------------------
     private func createSudokuLayout() -> UICollectionViewLayout {
         let columns = 9
         let rows = 9
@@ -179,9 +152,6 @@ class SudokuViewController: UIViewController {
         return UICollectionViewCompositionalLayout(section: section)
     }
 
-    // -----------------------------
-    // Inputs
-    // -----------------------------
     @IBAction func numberTapped(_ sender: UIButton) {
         let num = sender.tag
         guard let idx = selectedIndex else { return }
@@ -230,23 +200,17 @@ class SudokuViewController: UIViewController {
         collectionView.reloadItems(at: [IndexPath(item: idx, section: 0)])
     }
 
-    // -----------------------------
-    // Conflict checking
-    // -----------------------------
     private func validateConflictsAll() {
         for i in 0..<81 { boardModel.cells[i].isConflict = false }
 
-        // rows
         for r in 0..<9 {
             checkConflicts(in: (0..<9).map { r * 9 + $0 })
         }
 
-        // cols
         for c in 0..<9 {
             checkConflicts(in: (0..<9).map { $0 * 9 + c })
         }
 
-        // blocks
         for br in stride(from: 0, to: 9, by: 3) {
             for bc in stride(from: 0, to: 9, by: 3) {
                 var indices: [Int] = []
@@ -301,9 +265,6 @@ class SudokuViewController: UIViewController {
     }
 }
 
-// -----------------------------
-// MARK: - Collection View
-// -----------------------------
 extension SudokuViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int { 1 }

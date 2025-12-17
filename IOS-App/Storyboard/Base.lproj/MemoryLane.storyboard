@@ -452,7 +452,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="f6p-Mf-W6S" customClass="MemoryLanePersonOverviewCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="memoryLaneCell" id="f6p-Mf-W6S" customClass="MemoryLanePersonOverviewCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="sz0-u8-ofh">
@@ -544,14 +544,14 @@
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="OptionCell" id="RAi-r0-3rp" customClass="OptionTableViewCell" customModule="IOS_App" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="50" width="321" height="51.333332061767578"/>
+                                                <rect key="frame" x="0.0" y="50" width="321" height="52.333332061767578"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="RAi-r0-3rp" id="Fdt-6G-aP5">
-                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="51.333332061767578"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="52.333332061767578"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L6A-uH-pyj">
-                                                            <rect key="frame" x="47" y="14.999999999999998" width="258" height="21.333333333333329"/>
+                                                            <rect key="frame" x="56" y="14.999999999999998" width="249" height="22.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -568,7 +568,7 @@
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstItem="0G3-qt-M48" firstAttribute="top" secondItem="Fdt-6G-aP5" secondAttribute="topMargin" constant="-4" id="Axg-9C-KQ6"/>
-                                                        <constraint firstItem="L6A-uH-pyj" firstAttribute="leading" secondItem="0G3-qt-M48" secondAttribute="trailing" constant="-1" id="NzT-5A-u9G"/>
+                                                        <constraint firstItem="L6A-uH-pyj" firstAttribute="leading" secondItem="0G3-qt-M48" secondAttribute="trailing" constant="8" id="NzT-5A-u9G"/>
                                                         <constraint firstAttribute="trailing" secondItem="L6A-uH-pyj" secondAttribute="trailing" constant="16" id="T4M-ps-di6"/>
                                                         <constraint firstAttribute="bottom" secondItem="L6A-uH-pyj" secondAttribute="bottom" constant="15" id="WoN-cg-Vr1"/>
                                                         <constraint firstItem="0G3-qt-M48" firstAttribute="leading" secondItem="Fdt-6G-aP5" secondAttribute="leading" constant="20" id="ZDf-RB-atE"/>
@@ -686,14 +686,14 @@
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="OptionCell" id="rvT-GG-wUE" customClass="OptionTableViewCell" customModule="IOS_App" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="50" width="321" height="51.333332061767578"/>
+                                                <rect key="frame" x="0.0" y="50" width="321" height="52.333332061767578"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="rvT-GG-wUE" id="nsg-5c-hmO">
-                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="51.333332061767578"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="52.333332061767578"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uPA-Zs-jlG">
-                                                            <rect key="frame" x="47" y="14.999999999999998" width="258" height="21.333333333333329"/>
+                                                            <rect key="frame" x="56" y="14.999999999999998" width="249" height="22.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -711,7 +711,7 @@
                                                     <constraints>
                                                         <constraint firstAttribute="trailing" secondItem="uPA-Zs-jlG" secondAttribute="trailing" constant="16" id="DL2-Pl-b0U"/>
                                                         <constraint firstItem="V11-M7-IZL" firstAttribute="leading" secondItem="nsg-5c-hmO" secondAttribute="leading" constant="20" id="Qqj-ya-qe1"/>
-                                                        <constraint firstItem="uPA-Zs-jlG" firstAttribute="leading" secondItem="V11-M7-IZL" secondAttribute="trailing" constant="-1" id="TnS-rk-tDc"/>
+                                                        <constraint firstItem="uPA-Zs-jlG" firstAttribute="leading" secondItem="V11-M7-IZL" secondAttribute="trailing" constant="8" id="TnS-rk-tDc"/>
                                                         <constraint firstItem="uPA-Zs-jlG" firstAttribute="top" secondItem="nsg-5c-hmO" secondAttribute="top" constant="15" id="fTz-5P-zM5"/>
                                                         <constraint firstAttribute="bottom" secondItem="uPA-Zs-jlG" secondAttribute="bottom" constant="15" id="gAV-XG-Gih"/>
                                                         <constraint firstItem="V11-M7-IZL" firstAttribute="top" secondItem="nsg-5c-hmO" secondAttribute="topMargin" constant="-4" id="gaK-FJ-YgO"/>

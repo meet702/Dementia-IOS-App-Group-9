@@ -33,7 +33,6 @@ class MemoryRecapCardCollectionViewCell: UICollectionViewCell {
         cardView.clipsToBounds = true
         cardView.backgroundColor = .white
 
-        // cell shadow (drawn by cell's layer)
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.12
         layer.shadowOffset = CGSize(width: 0, height: 7)

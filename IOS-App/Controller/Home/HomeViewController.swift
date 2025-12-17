@@ -32,16 +32,12 @@ class HomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // ensure the Home card shows today's tasks by default
         selectedDate = Date()
-        // refresh the layout/data so the Routine card reads the correct date
         homeCollectionView.reloadData()
     }
 
     @objc private func dataStoreUpdated(_ n: Notification) {
         DispatchQueue.main.async {
-            // If DataStore sends a "dateKey" in userInfo you can check it here and only reload when it matches.
-            // For simplicity we reload only the "My Routine" section (section index 2).
             let sectionIndex = 2
             let indexSet = IndexSet(integer: sectionIndex)
             self.homeCollectionView.reloadSections(indexSet)
@@ -90,7 +86,6 @@ class HomeViewController: UIViewController {
             }
             
             else if section == 2 {
-                // allow the cell to size itself based on its content
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .estimated(200)
@@ -148,7 +143,30 @@ class HomeViewController: UIViewController {
         
         homeCollectionView.register(UINib(nibName: "RoutineCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "routineCardCollectionViewCell")
     }
+    
+    
+    @IBAction func sosButtonTapped(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(
+            title: "Contact Your Caregiver?",
+            message: "A call and your location will be sent to your caregiver.",
+            preferredStyle: .alert
+        )
 
+        let helpAction = UIAlertAction(title: "Yes, Get help", style: .default) { _ in
+            self.triggerSOS()
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+        alert.addAction(helpAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+    
+    private func triggerSOS() {
+        print("SOS triggered")
+    }
 
 }
 
@@ -175,7 +193,6 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryLaneCardCollectionViewCell", for: indexPath) as! MemoryLaneCardCollectionViewCell
-//            let memoryLane = memoryLane[indexPath.row]
             cell.configureMemoryLaneCell()
             return cell
         }
@@ -200,9 +217,7 @@ extension HomeViewController: UICollectionViewDataSource {
         }
     }
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        // Create the header view
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
-//        headerView.backgroundColor = .blue
         if indexPath.section == 0 {
             headerView.configureHeaderCell(text: "Memories", showChevron: false, isTappable: false)
         }
@@ -283,14 +298,12 @@ extension HomeViewController: UICollectionViewDelegate {
         }
 
         if segue.identifier == "showMemoryRecap" {
-            // Example destination handling: adjust to your real VC class
             if let _ = segue.destination as? BaseViewController {
                 print("Preparing Memory Recap (direct)")
             }
         }
         
         if segue.identifier == "showMemoryLane" {
-            // Example destination handling: adjust to your real VC class
             if let _ = segue.destination as? MemoryLaneHomeViewController {
                 print("Preparing Memory Lane (direct)")
             }

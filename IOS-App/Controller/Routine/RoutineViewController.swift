@@ -129,7 +129,8 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
 
         tasksTableView.dataSource = self
         tasksTableView.delegate = self
-
+        tasksTableView.sectionHeaderHeight = UITableView.automaticDimension
+        
         routineCollectionView.setCollectionViewLayout(generateLayout(), animated: true)
         
         dates = DataStore.shared.getDates()
@@ -156,12 +157,8 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
                 widthDimension: .estimated(400),
                 heightDimension: .absolute(100)
             )
-
-            let group = NSCollectionLayoutGroup.horizontal(
-                layoutSize: groupSize,
-                subitem: item,
-                count: 7
-            )
+            
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
@@ -189,7 +186,7 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
 
 }
 
-// calendar collection view things
+// calendar collection view
 extension RoutineViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         dates.count       
@@ -251,56 +248,19 @@ extension RoutineViewController: AddEditTaskDelegate, UITableViewDelegate {
 
         return calendar.date(from: combined) ?? Date()
     }
-
-    /*
-    func didCreateRecurringTasks(from task: TaskModel) {
-        guard let recurrenceID = task.recurrenceID else { return }
-
-        _ = Calendar.current
-
-            for dateModel in dates {
-                let date = dateModel.date
-                
-                if date > selectedDate {
-                    let combinedTime = combine(date: date, time: task.time)
-                    
-                    let newTask = TaskModel(
-                        title: task.title,
-                        description: task.description,
-                        time: combinedTime,
-                        isCompleted: false,
-                        isRecurring: true,
-                        recurrenceID: recurrenceID
-                    )
-                    
-                    DataStore.shared.addRoutine(for: date, routine: newTask)
-                }
-            }
-
-            splitTasksByTime()
-            tasksTableView.reloadData()
-    }
-    */
      
     func didCreateRecurringTasks(from task: TaskModel, startingAt startDate: Date) {
         guard let recurrenceID = task.recurrenceID else { return }
         
         for dateModel in dates {
             let date = dateModel.date
-            
-            // Only create tasks for startDate and future dates
             if date >= startDate {
-                
-                // Prevent duplicates
                 let tasksOnDay = DataStore.shared.getRoutines(for: date)
                 let alreadyExists = tasksOnDay.contains { existing in
                     existing.recurrenceID == recurrenceID
                 }
                 if alreadyExists { continue }
-                
-                // Combine correct date + time
                 let combinedDate = combine(date: date, time: task.time)
-                
                 let newTask = TaskModel(
                     title: task.title,
                     description: task.description,
@@ -357,26 +317,7 @@ extension RoutineViewController: AddEditTaskDelegate, UITableViewDelegate {
         let task = getTaskAt(indexPath)
         let isPast = Calendar.current.compare(selectedDate, to: Date(), toGranularity: .day) == .orderedAscending
         var actions: [UIContextualAction] = []
-        if !isPast {
-            let edit = UIContextualAction(style: .normal, title: "Edit") { _, _, complete in
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddEditTaskTableViewController") as! AddEditTaskTableViewController
-                
-                //vc.selectedDate = self.selectedDate
-                
-                vc.delegate = self
-                vc.mode = .edit(task)
-                vc.originalTaskDate = self.selectedDate
-                
-                
-                let nav = UINavigationController(rootViewController: vc)
-                nav.modalPresentationStyle = .pageSheet
-                self.present(nav, animated: true)
-                
-                complete(true)
-            }
-            actions.append(edit)
-        }
-
+        
         let delete = UIContextualAction(style: .destructive, title: "Delete") { _, _, complete in
             let allTasks = DataStore.shared.getRoutines(for: self.selectedDate)
 
@@ -389,19 +330,27 @@ extension RoutineViewController: AddEditTaskDelegate, UITableViewDelegate {
             complete(true)
         }
         actions.append(delete)
+        
+        if !isPast {
+            let edit = UIContextualAction(style: .normal, title: "Edit") { _, _, complete in
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddEditTaskTableViewController") as! AddEditTaskTableViewController
+                
+                vc.delegate = self
+                vc.mode = .edit(task)
+                vc.originalTaskDate = self.selectedDate
+
+                let nav = UINavigationController(rootViewController: vc)
+                nav.modalPresentationStyle = .pageSheet
+                self.present(nav, animated: true)
+                
+                complete(true)
+            }
+            actions.append(edit)
+        }
+
+        
         return UISwipeActionsConfiguration(actions: actions)
     }
-    
-    /*
-    func getTaskAt(_ indexPath: IndexPath) -> TaskModel {
-        switch indexPath.section {
-        case 0: return morningTasks[indexPath.row]
-        case 1: return afternoonTasks[indexPath.row]
-        case 2: return eveningTasks[indexPath.row]
-        default: fatalError()
-        }
-    }
-     */
     
     func getTaskAt(_ indexPath: IndexPath) -> TaskModel {
         let allTasks = DataStore.shared.getRoutines(for: selectedDate)

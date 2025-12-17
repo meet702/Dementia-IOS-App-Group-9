@@ -2,14 +2,13 @@ import UIKit
 
 final class RoutineCardCaregiver: UICollectionViewCell {
 
-    @IBOutlet weak var cardView: UIView!         // rounded white background
-    @IBOutlet weak var stackView: UIStackView!   // vertical stack inside card
+    @IBOutlet weak var cardView: UIView!
+    @IBOutlet weak var stackView: UIStackView!
 
     private let cornerRadius: CGFloat = 34
     private let dividerInset: CGFloat = 12
     private let dividerTag = 999
 
-    // time formatter for the right-hand label
     private lazy var timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .none
@@ -22,19 +21,16 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
 
-        // card rounded and clipping
         cardView.layer.cornerRadius = cornerRadius
         cardView.clipsToBounds = true
         cardView.backgroundColor = .white
 
-        // cell shadow (drawn by cell's layer)
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.12
         layer.shadowOffset = CGSize(width: 0, height: 4)
         layer.shadowRadius = 8
         layer.masksToBounds = false
 
-        // stack view default config
         stackView.axis = .vertical
         stackView.spacing = 12
         stackView.alignment = .fill
@@ -43,7 +39,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        // sync shadow path to rounded card shape for crisp shadow
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
     }
 
@@ -60,17 +55,11 @@ final class RoutineCardCaregiver: UICollectionViewCell {
     }
     
     func configureRoutineCell(tasks: [TaskModel], date: Date = Date()) {
-
         clearStack()
-
-        // STEP 1: sort tasks
         let sortedTasks = sortTasksByTime(tasks)
-
-        // STEP 2: split pending / completed
         let pending = pendingTasks(from: sortedTasks)
         let completed = completedTasks(from: sortedTasks)
 
-        // STEP 3: combine for time-of-day grouping
         var allTasks: [TaskModel] = []
         allTasks.append(contentsOf: pending)
         allTasks.append(contentsOf: completed)
@@ -79,7 +68,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         let afternoon = afternoonTasks(from: allTasks)
         let evening = eveningTasks(from: allTasks)
 
-        // STEP 4: decide current period
         let period = Self.currentPeriod(for: date)
 
         var periodTasks: [TaskModel] = []
@@ -92,20 +80,14 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         case .evening:
             periodTasks = evening
         }
-
-        // STEP 5: split again for UI
         let periodPending = pendingTasks(from: periodTasks)
         let periodCompleted = completedTasks(from: periodTasks)
 
-        // STEP 6: build UI
         addSection(title: "Upcoming", items: periodPending, placeholder: "No pending tasks")
         addSection(title: "Completed", items: periodCompleted, placeholder: "No tasks completed yet")
 
         removeTrailingDividerIfNeeded()
     }
-
-
-    // MARK: - Section builder
 
     private func addSection(title: String, items: [TaskModel], placeholder: String) {
         addSectionHeader(title: title)
@@ -184,7 +166,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         row.translatesAutoresizingMaskIntoConstraints = false
         row.backgroundColor = .clear
 
-        // Title
         let titleLabel = UILabel()
         titleLabel.font = UIFont.systemFont(ofSize: 15)
         titleLabel.text = item.title
@@ -192,7 +173,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         titleLabel.numberOfLines = 1
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // Time
         let timeLabel = UILabel()
         timeLabel.font = UIFont.systemFont(ofSize: 14)
         timeLabel.textColor = .black
@@ -200,7 +180,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         timeLabel.textAlignment = .right
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // Make labels resist vertical compression so they keep readable heights
         titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         timeLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -210,7 +189,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         row.addSubview(timeLabel)
 
         if let sub = item.description, !sub.isEmpty {
-            // Subtitle case: allow the row to grow with subtitle, but still enforce a minimum
             let subtitleLabel = UILabel()
             subtitleLabel.font = UIFont.systemFont(ofSize: 12)
             subtitleLabel.textColor = UIColor(white: 0.55, alpha: 1)
@@ -218,34 +196,27 @@ final class RoutineCardCaregiver: UICollectionViewCell {
             subtitleLabel.numberOfLines = 0
             subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-            // stronger priorities for subtitle block
             subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
             subtitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
             row.addSubview(subtitleLabel)
 
             NSLayoutConstraint.activate([
-                // title at top
                 titleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 12),
                 titleLabel.topAnchor.constraint(equalTo: row.topAnchor, constant: 8),
 
-                // subtitle under title
                 subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
                 subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
                 subtitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: timeLabel.leadingAnchor, constant: -8),
 
-                // time aligned to the right, vertically centered roughly with the title/subtitle block
                 timeLabel.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -12),
                 timeLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor, constant: 6),
 
-                // bottom anchor for subtitle (defines row height)
                 subtitleLabel.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -8),
 
-                // ensure row is at least a minimum even with subtitle present
                 row.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
             ])
         } else {
-            // No subtitle: enforce compact fixed minimum height so rows don't shrink as you add more
             NSLayoutConstraint.activate([
                 titleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 12),
                 titleLabel.topAnchor.constraint(equalTo: row.topAnchor, constant: 8),
@@ -256,20 +227,15 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
                 titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: timeLabel.leadingAnchor, constant: -8),
 
-                // Important: explicit minimum so the stack cannot compress the row smaller than this
                 row.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
             ])
         }
 
-        // Make the row resist vertical compression relative to other content
         row.setContentHuggingPriority(.defaultHigh, for: .vertical)
         row.setContentCompressionResistancePriority(.required, for: .vertical)
 
         return row
     }
-
-
-
 
     private func addSectionHeader(title: String) {
         let label = UILabel()
@@ -293,8 +259,9 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         d.backgroundColor = UIColor(white: 0.90, alpha: 1)
         d.tag = dividerTag
         stackView.addArrangedSubview(d)
+        let scale = traitCollection.displayScale
         NSLayoutConstraint.activate([
-            d.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
+            d.heightAnchor.constraint(equalToConstant: 1.0 / scale),
             d.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: dividerInset),
             d.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -dividerInset)
         ])
@@ -306,8 +273,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
             last.removeFromSuperview()
         }
     }
-
-    // MARK: - Time of day helpers
 
     private enum Period {
         case morning, afternoon, evening
@@ -401,9 +366,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         }
         return result
     }
-
-    
-    // MARK: - auto-sizing for compositional layout
 
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         setNeedsLayout()

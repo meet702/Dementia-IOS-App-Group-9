@@ -12,10 +12,10 @@ struct ImageSession {
     var imageId: UUID = UUID()
     var image: String
 
-    var peopleShown: [String] = []              // All people in picture
-    var personSessions: [PersonSession] = [] // Sessions per person
+    var peopleShown: [String] = []
+    var personSessions: [PersonSession] = []
 
-    var overallReflection: String? = nil        // Final answer for entire picture
+    var overallReflection: String? = nil
     var timestamp: Date = Date()
 }
 

@@ -22,7 +22,7 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        enableKeyboardDismissOnTap()
         personImageView.image = personImage
         personImageView.clipsToBounds = true
         personNameLabel.text = personName
@@ -48,8 +48,8 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
 
         nextButton.layer.cornerRadius = 26
         
-        nextButton.isEnabled = false
-        nextButton.alpha = 0.4
+        nextButton.isEnabled = true
+//        nextButton.alpha = 0.4
 
     }
 
@@ -123,14 +123,6 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
             textView.text = "Add response"
             textView.textColor = .lightGray
         }
-    }
-    func textViewDidChange(_ textView: UITextView) {
-        let hasText =
-            !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            textView.textColor != .lightGray
-
-        nextButton.isEnabled = hasText
-        nextButton.alpha = hasText ? 1.0 : 0.4
     }
 
 }

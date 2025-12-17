@@ -1,8 +1,8 @@
 //
-//  CrosswordViewController.swift
-//  crossword
+//  CrosswordInstructionsViewController.swift
+//  IOS-App
 //
-//  Created by SDC-USER on 28/11/25.
+//  Created by SDC-USER on 17/12/25.
 //
 
 import UIKit
@@ -39,7 +39,6 @@ class CrosswordInstructionsViewController: UIViewController {
        )
        private let unselectedBorderColor = UIColor.clear
 
-       // Helper to access all category cards at once
        private var allCards: [UIView] {
            return [countriesCard, dailyObjectsCard, gkCard, foodCard, randomCategoryCard, instructionsCard, howToPlayView]
        }
@@ -47,11 +46,9 @@ class CrosswordInstructionsViewController: UIViewController {
     override func viewDidLoad() {
            super.viewDidLoad()
 
-           // How to play dropdown
-           instructionsCard.isHidden = true          // start closed
+           instructionsCard.isHidden = true
            howToPlayChevronButton.isUserInteractionEnabled = false
 
-           // Default style for all cards
            for card in allCards {
                card.layer.cornerRadius = 20
                card.backgroundColor = unselectedBackground
@@ -63,7 +60,7 @@ class CrosswordInstructionsViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-        applyRandomCardUnselectedStyle() 
+        applyRandomCardUnselectedStyle()
         }
 
     func animateCardTransition(card: UIView,
@@ -120,11 +117,7 @@ class CrosswordInstructionsViewController: UIViewController {
         }
     }
 
-
-       // MARK: - Dashed border for random card
-
        private func addDashedBorderToRandomCard() {
-           // remove previous dashed layers if any (so we don't stack them)
            randomCategoryCard.layer.sublayers?
                .filter { $0.name == "dashedBorder" }
                .forEach { $0.removeFromSuperlayer() }
@@ -138,7 +131,7 @@ class CrosswordInstructionsViewController: UIViewController {
            shapeLayer.strokeColor = selectedBorderColor.withAlphaComponent(0.6).cgColor
            shapeLayer.fillColor = UIColor.clear.cgColor
            shapeLayer.lineWidth = 2
-           shapeLayer.lineDashPattern = [6, 4]  // dash, gap
+           shapeLayer.lineDashPattern = [6, 4]
 
            randomCategoryCard.layer.addSublayer(shapeLayer)
        }
@@ -146,7 +139,6 @@ class CrosswordInstructionsViewController: UIViewController {
     func applyRandomCardSelectedStyle() {
         guard let card = randomCategoryCard else { return }
 
-        // Remove any existing dashed layers
         card.layer.sublayers?.removeAll(where: { $0.name == "RandomDashedBorder" })
 
         let selectedBorderColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
@@ -160,22 +152,19 @@ class CrosswordInstructionsViewController: UIViewController {
     func applyRandomCardUnselectedStyle() {
         guard let card = randomCategoryCard else { return }
 
-        // Remove old dashed layer if any
         card.layer.sublayers?.removeAll(where: { $0.name == "RandomDashedBorder" })
 
-        card.layer.borderWidth = 0         // no solid border
+        card.layer.borderWidth = 0
         card.layer.cornerRadius = 25
         card.layer.masksToBounds = true
 
-        // Create dashed border layer
         let dashed = CAShapeLayer()
-        dashed.name = "RandomDashedBorder" // so we can remove it later
+        dashed.name = "RandomDashedBorder"
         dashed.strokeColor = UIColor.orange.cgColor
         dashed.lineDashPattern = [6, 4]
         dashed.fillColor = UIColor.clear.cgColor
         dashed.lineWidth = 2
 
-        // IMPORTANT: use current bounds + corner radius
         dashed.path = UIBezierPath(roundedRect: card.bounds,
                                    cornerRadius: 25).cgPath
         dashed.frame = card.bounds
@@ -186,13 +175,11 @@ class CrosswordInstructionsViewController: UIViewController {
    
 
     @IBAction func howToPlayTapped(_ sender: Any) {
-        isHowToPlayOpen.toggle()   // flip true/false
+        isHowToPlayOpen.toggle()
 
-        // Change chevron direction
                 let imageName = isHowToPlayOpen ? "chevron.up" : "chevron.down"
                 howToPlayChevronButton.setImage(UIImage(systemName: imageName), for: .normal)
 
-                // Animate the card appearing / disappearing
                 UIView.animate(withDuration: 0.25) {
                     self.instructionsCard.isHidden = !self.isHowToPlayOpen
                     self.view.layoutIfNeeded()   // stack view smoothly moves everything
@@ -223,9 +210,7 @@ class CrosswordInstructionsViewController: UIViewController {
     }
     
 
-        @IBAction func playTapped(_ sender: UIButton) {
-            // later: go to the actual game screen
-        }
+    @IBAction func playTapped(_ sender: UIButton) {
+    }
     
 }
-

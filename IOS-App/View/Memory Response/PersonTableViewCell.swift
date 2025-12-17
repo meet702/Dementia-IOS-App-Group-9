@@ -20,12 +20,6 @@ class PersonTableViewCell: UITableViewCell {
         // Initialization code
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-    
     func configure(person: PersonSession) {
         personImageView.image = UIImage(named: person.image)
         personImageView.layer.cornerRadius = 26
@@ -34,7 +28,6 @@ class PersonTableViewCell: UITableViewCell {
     
 
     @IBAction func chevronTapped(_ sender: UIButton) {
-        //print("chevron tapped")
         onChevronTapped?()
     }
     

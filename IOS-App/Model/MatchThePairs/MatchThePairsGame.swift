@@ -22,14 +22,12 @@ class MemoryGame {
         indexOfFirstSelected = nil
     }
 
-    // returns changed indices and whether it was a match
     func chooseCard(at index: Int) -> (changed: [Int], matched: Bool) {
         guard index >= 0 && index < cards.count else { return ([], false) }
         if cards[index].isFaceUp || cards[index].isMatched { return ([], false) }
 
         var changed: [Int] = []
         if let first = indexOfFirstSelected {
-            // second selection
             cards[index].isFaceUp = true
             changed.append(index)
             if cards[first].pairId == cards[index].pairId {
@@ -40,13 +38,11 @@ class MemoryGame {
                 changed.append(first)
                 return (changed, true)
             } else {
-                // not match - caller will flip back after delay
                 changed.append(first)
                 indexOfFirstSelected = nil
                 return (changed, false)
             }
         } else {
-            // first selection
             cards[index].isFaceUp = true
             indexOfFirstSelected = index
             changed.append(index)

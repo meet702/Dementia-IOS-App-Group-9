@@ -37,7 +37,7 @@ class CalendarCollectionViewCell: UICollectionViewCell {
             return
         }
         if isToday {
-            backgroundCard.backgroundColor = UIColor(red: 1.0, green: 0.85, blue: 0.70, alpha: 1.0) // Light orange
+            backgroundCard.backgroundColor = UIColor(red: 1.0, green: 0.85, blue: 0.70, alpha: 1.0)
             dateLabel.textColor = .systemOrange
             return
         }

@@ -12,9 +12,8 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var peopleNameLabel: UILabel!
     @IBOutlet weak var editButton: UIButton!
-    @IBOutlet weak var nameTextField: UITextField!   // ✅ fixed naming
+    @IBOutlet weak var nameTextField: UITextField!
 
-    // Callback to notify ViewController
     var onNameUpdated: ((String) -> Void)?
 
     override func awakeFromNib() {
@@ -33,13 +32,11 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
         editButton.layer.cornerRadius = 18
         editButton.clipsToBounds = true
 
-        // Text field setup
         nameTextField.isHidden = true
         nameTextField.delegate = self
         nameTextField.returnKeyType = .done
         nameTextField.textAlignment = .center
 
-        // Double-tap gesture on label
         let doubleTap = UITapGestureRecognizer(
             target: self,
             action: #selector(handleDoubleTap)

@@ -18,14 +18,10 @@ class TaskTableViewCell: UITableViewCell {
     @IBOutlet weak var timePicker: UIDatePicker!
     
     var onCheckTapped: (() -> Void)?
-    //var onTimeChanged: ((Date) -> Void)?
 
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        
-        //timePicker.addTarget(self, action: #selector(timeChanged(_:)), for: .valueChanged)
-
         updateCheckButtonUI()
     }
     
@@ -34,17 +30,6 @@ class TaskTableViewCell: UITableViewCell {
         updateCheckButtonUI()
         onCheckTapped?()
     }
-    
-    
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-    
-    
-
 
     func configure(task: TaskModel) {
         titleLabel.text = task.title

@@ -24,6 +24,13 @@ class WellDoneViewController: UIViewController {
         }
     }
     @IBAction func homeButtonTapped(_ sender: Any) {
-        navigationController?.popToRootViewController(animated: false)
+        guard let nav = navigationController else { return }
+
+        for vc in nav.viewControllers {
+            if vc is HomeViewController {
+                nav.popToViewController(vc, animated: false)
+                return
+            }
+        }
     }
 }

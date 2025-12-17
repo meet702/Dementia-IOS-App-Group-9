@@ -1,32 +1,78 @@
 import UIKit
 
 class MatchThePairsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
-    // MARK: - IBOutlets (connect from storyboard)
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var matchedLabel: UILabel!
     @IBOutlet weak var difficultyLabel: UILabel!
 
-    // MARK: - Configurable before presenting
     var columns: Int = 3
     var rows: Int = 4
     var backImageName: String = "card_back"
 
-    // MARK: - Internal state
     private lazy var pairsCount: Int = (columns * rows) / 2
     private lazy var game: MemoryGame = MemoryGame(pairsCount: pairsCount)
     private var layoutAppliedForSize: CGSize = .zero
     private var isProcessingSelection = false
 
-    // MARK: - Lifecycle
+    
+    private var pauseOverlayView: UIView?
+    private var isPausedState: Bool = false
+
+    private func pauseGameState() {
+        guard !isPausedState else { return }
+        isPausedState = true
+        collectionView.isUserInteractionEnabled = false
+        isProcessingSelection = true
+
+    }
+
+    private func resumeGameState() {
+        guard isPausedState else { return }
+        isPausedState = false
+        collectionView.isUserInteractionEnabled = true
+        isProcessingSelection = false
+        
+    }
+
+    @IBAction func pauseTapped(_ sender: Any) {
+        pauseGameState()
+        showPauseAlert()
+    }
+
+    func showPauseAlert() {
+        let alert = UIAlertController(
+            title: "Game Paused",
+            message: nil,
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Resume", style: .default, handler: { _ in
+            self.resumeGameState()
+        }))
+
+        alert.addAction(UIAlertAction(title: "Restart", style: .default, handler: { _ in
+            self.restartGame()
+        }))
+
+        alert.addAction(UIAlertAction(title: "Quit", style: .destructive, handler: { _ in
+            self.navigationController?.popViewController(animated: true)
+        }))
+
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func restartGame() {
+        resumeGameState()
+        isProcessingSelection = false
+        startGame()
+        collectionView.setContentOffset(.zero, animated: false)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        print("GameVC viewDidLoad columns=\(columns) rows=\(rows)")
-        // Ensure conformance
         collectionView.dataSource = self
         collectionView.delegate = self
 
-        // Keep selection visible and static board
         collectionView.allowsSelection = true
         collectionView.isScrollEnabled = false
 
@@ -38,7 +84,6 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // Apply layout when collectionView gets its size
         let currentSize = collectionView.bounds.size
         if currentSize != layoutAppliedForSize {
             layoutAppliedForSize = currentSize
@@ -46,7 +91,6 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         }
     }
 
-    // MARK: - Game control
     func startGame() {
         pairsCount = (columns * rows) / 2
         game.reset(pairsCount: pairsCount)
@@ -67,11 +111,9 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         }
     }
 
-    // MARK: - Layout that fits available height (keeps scrolling disabled)
     private func applyFittingLayout(columns: Int, rows: Int) {
         guard columns > 0 && rows > 0 else { return }
 
-        // spacing + insets (tweak to taste)
         let interItemSpacing: CGFloat = 12.0
         let interGroupSpacing: CGFloat = 12.0
         let sectionInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)
@@ -79,27 +121,35 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         let cvWidth = collectionView.bounds.width - (sectionInsets.leading + sectionInsets.trailing)
         let cvHeight = collectionView.bounds.height - (sectionInsets.top + sectionInsets.bottom)
 
-        // candidate sizes to fit the grid
         let candidateWidth = (cvWidth - CGFloat(columns - 1) * interItemSpacing) / CGFloat(columns)
         let candidateHeight = (cvHeight - CGFloat(rows - 1) * interGroupSpacing) / CGFloat(rows)
         let cellSide = max(20.0, floor(min(candidateWidth, candidateHeight)))
 
-        // Build compositional layout with absolute square items
         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(cellSide),
                                               heightDimension: .absolute(cellSide))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        // small internal padding so the container inside has breathing room
         item.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6)
 
         let groupHeight = NSCollectionLayoutDimension.absolute(cellSide)
         let hGroupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: groupHeight)
         let hGroup = NSCollectionLayoutGroup.horizontal(layoutSize: hGroupSize, subitem: item, count: columns)
+//        let hGroup = NSCollectionLayoutGroup.horizontal(
+//            layoutSize: hGroupSize,
+//            subitems: Array(repeating: item, count: columns)
+//        )
+
         hGroup.interItemSpacing = .fixed(interItemSpacing)
 
         // vertical stack of rows
         let vGroupHeight = NSCollectionLayoutDimension.absolute(cellSide * CGFloat(rows) + interGroupSpacing * CGFloat(rows - 1))
         let vGroupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: vGroupHeight)
         let vGroup = NSCollectionLayoutGroup.vertical(layoutSize: vGroupSize, subitem: hGroup, count: rows)
+        //let vGroup = NSCollectionLayoutGroup.vertical(layoutSize: vGroupSize, subitems: [hGroup])
+//        let vGroup = NSCollectionLayoutGroup.vertical(
+//            layoutSize: vGroupSize,
+//            subitems: Array(repeating: hGroup, count: rows)
+//        )
+
         vGroup.interItemSpacing = .fixed(interGroupSpacing)
 
         let section = NSCollectionLayoutSection(group: vGroup)
@@ -109,12 +159,9 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
         let layout = UICollectionViewCompositionalLayout(section: section)
         collectionView.setCollectionViewLayout(layout, animated: false)
-
-        // ensure it does not scroll
         collectionView.isScrollEnabled = false
     }
 
-    // MARK: - DataSource
     func numberOfSections(in collectionView: UICollectionView) -> Int { 1 }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return game.cards.count
@@ -129,15 +176,13 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         return cell
     }
 
-    // MARK: - Delegate (selection & game logic)
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard !isProcessingSelection else { return }
+        guard !isProcessingSelection, !isPausedState else { return }
         let idx = indexPath.item
         let card = game.cards[idx]
         if card.isFaceUp || card.isMatched { return }
-
+        
         let result = game.chooseCard(at: idx)
-        // animate changed indices
         for changedIndex in result.changed {
             let ip = IndexPath(item: changedIndex, section: 0)
             if let cell = collectionView.cellForItem(at: ip) as? MatchThePairsCollectionViewCell {
@@ -146,7 +191,6 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
                 let back = UIImage(named: backImageName)
                 cell.flip(toFaceUp: c.isFaceUp || c.isMatched, frontImage: front, backImage: back)
             } else {
-                // if cell isn't visible then reload that item so it shows correct state later
                 collectionView.reloadItems(at: [ip])
             }
         }
@@ -159,7 +203,6 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
             return
         }
 
-        // if this was the second card and not matched, flip back after delay
         if result.changed.count == 2 {
             isProcessingSelection = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {

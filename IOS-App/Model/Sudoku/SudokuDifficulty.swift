@@ -10,9 +10,9 @@ enum SudokuDifficulty {
 
     var clueCount: Int {
         switch self {
-        case .easy: return 40   // more numbers present
+        case .easy: return 40
         case .medium: return 34
-        case .hard: return 28   // least numbers present
+        case .hard: return 28
         }
     }
     var displayName: String {
