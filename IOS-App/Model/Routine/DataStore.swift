@@ -56,19 +56,21 @@ class DataStore {
         for (i, dateModel) in dates.enumerated() {
             let key = dateFormatter.string(from: dateModel.date)
 
-            if i == 7 {
+            if i == 10 {
                 routinesByDate[key] = [
                     TaskModel(title: "Brush teeth", description: nil, time: makeTime(hour: 7, minute: 45), isCompleted: false),
                     TaskModel(title: "Have breakfast", description: nil, time: makeTime(hour: 8, minute: 00), isCompleted: false),
                     TaskModel(title: "Take meds", description: "Vitamin B12 – 1 capsule", time: makeTime(hour: 8, minute: 45), isCompleted: false),
                     
                     TaskModel(title: "Have lunch", description: nil, time: makeTime(hour: 13, minute: 00), isCompleted: false),
+                    TaskModel(title: "Visit the dentist", description: nil, time: makeTime(hour: 14, minute: 30), isCompleted: false),
+                    TaskModel(title: "Meet Purv", description: "At Gandhi Park", time: makeTime(hour: 16, minute: 00), isCompleted: false),
                     
                     TaskModel(title: "Evening walk", description: nil, time: makeTime(hour: 18, minute: 00), isCompleted: false),
                     TaskModel(title: "Have dinner", description: nil, time: makeTime(hour: 19, minute: 45), isCompleted: false),
                     TaskModel(title: "Take meds", description: "Sleep aid – 1 capsule", time: makeTime(hour: 20, minute: 45), isCompleted: false)
                 ]
-            } else if i < 7 {
+            } else if i < 10 {
                 routinesByDate[key] = [
                     TaskModel(title: "Brush teeth", description: nil, time: makeTime(hour: 7, minute: 45), isCompleted: true),
                     TaskModel(title: "Have breakfast", description: nil, time: makeTime(hour: 8, minute: 00), isCompleted: true),

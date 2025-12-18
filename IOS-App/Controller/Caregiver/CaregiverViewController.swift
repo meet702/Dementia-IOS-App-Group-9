@@ -90,6 +90,7 @@ class CaregiverViewController: UIViewController {
         if let destination = segue.destination as? ResponseViewController {
             destination.session = ResponseDataStore.shared.currentImageSession
             print("Prepared Memory Response via segue")
+            
         }
     }
 

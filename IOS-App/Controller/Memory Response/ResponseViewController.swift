@@ -63,6 +63,11 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         header.descriptionLabel.text = session.overallReflection
         header.headerImageView.image = UIImage(named: session.image)
         installTableHeaderView(header)
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy • h:mm a"
+        formatter.locale = .current
+        navigationItem.title = formatter.string(from: session.timestamp)
     }
     
     override func viewDidLayoutSubviews() {

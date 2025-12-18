@@ -285,18 +285,18 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
     private static func isInAfternoon(_ date: Date) -> Bool {
         let hour = Calendar.current.component(.hour, from: date)
-        return hour >= 12 && hour < 18
+        return hour >= 12 && hour < 17
     }
 
     private static func isInEvening(_ date: Date) -> Bool {
         let hour = Calendar.current.component(.hour, from: date)
-        return hour >= 18 && hour <= 23 || hour < 5
+        return hour >= 17 && hour <= 23 || hour < 5
     }
 
     private static func currentPeriod(for date: Date) -> Period {
         let hour = Calendar.current.component(.hour, from: date)
         if hour >= 5 && hour < 12 { return .morning }
-        if hour >= 12 && hour < 18 { return .afternoon }
+        if hour >= 12 && hour < 17 { return .afternoon }
         return .evening
     }
 
