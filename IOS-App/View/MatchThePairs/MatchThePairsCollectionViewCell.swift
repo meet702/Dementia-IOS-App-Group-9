@@ -18,7 +18,6 @@ class MatchThePairsCollectionViewCell: UICollectionViewCell {
            imageView.layer.cornerRadius = 18
            imageView.clipsToBounds = true
 
-           // image view content mode
            imageView.contentMode = .scaleAspectFill
            imageView.clipsToBounds = true
        }
