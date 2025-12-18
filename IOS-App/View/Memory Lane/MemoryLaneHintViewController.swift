@@ -11,26 +11,26 @@ class MemoryLaneHintViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // start with transparent background
+       
         view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
 
-        // popup style
+       
         containerView.layer.cornerRadius = 24
         containerView.layer.masksToBounds = true
         
-        // shadow for good UX
+        
         containerView.layer.shadowColor = UIColor.black.cgColor
         containerView.layer.shadowOpacity = 0.2
         containerView.layer.shadowRadius = 12
         containerView.layer.shadowOffset = CGSize(width: 0, height: 3)
 
-        // populate hint text
+        
         messageLabel.text = hintText
 
-        // start position (hidden)
+       
         containerView.transform = CGAffineTransform(translationX: 0, y: 600)
 
-        // enable drag down
+        
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         containerView.addGestureRecognizer(panGesture)
     }
@@ -72,12 +72,12 @@ class MemoryLaneHintViewController: UIViewController {
         animateOut { self.dismiss(animated: false) }
     }
 
-    // MARK: - Tap outside to close
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self.view)
 
-        // if tap outside popup
+        
         if !containerView.frame.contains(location) {
             animateOut { self.dismiss(animated: false) }
         }
@@ -98,11 +98,11 @@ class MemoryLaneHintViewController: UIViewController {
         case .ended, .cancelled:
             let velocity = gesture.velocity(in: view).y
 
-            // if dragged enough or fast → close
+            
             if translation.y > 120 || velocity > 600 {
                 animateOut { self.dismiss(animated: false) }
             } else {
-                // reset position
+                
                 UIView.animate(withDuration: 0.25) {
                     self.containerView.transform = .identity
                 }

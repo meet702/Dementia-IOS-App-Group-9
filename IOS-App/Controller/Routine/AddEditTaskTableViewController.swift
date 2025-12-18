@@ -161,8 +161,7 @@ class AddEditTaskTableViewController: UITableViewController {
     }
 
     
-    // MARK: - Table view data source
-
+    //Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
         2
     }
