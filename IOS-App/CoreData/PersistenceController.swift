@@ -19,7 +19,6 @@ struct PersistenceController {
 
     init(inMemory: Bool = false) {
         
-        // This name MUST match your .xcdatamodeld file name
         container = NSPersistentContainer(name: "PeopleDataModel")
 
         if inMemory {

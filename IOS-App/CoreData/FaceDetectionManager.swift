@@ -49,13 +49,11 @@ final class FaceDetectionManager {
     }
 
 
-    // MARK: - Crop Face
     private func crop(face: VNFaceObservation, from image: CGImage) -> UIImage? {
 
         let imageWidth = CGFloat(image.width)
         let imageHeight = CGFloat(image.height)
 
-        // Original bounding box (Vision coordinates → UIKit)
         var rect = CGRect(
             x: face.boundingBox.origin.x * imageWidth,
             y: (1 - face.boundingBox.origin.y - face.boundingBox.height) * imageHeight,
@@ -63,14 +61,12 @@ final class FaceDetectionManager {
             height: face.boundingBox.height * imageHeight
         )
 
-        // 🔹 Add padding
         let padding: CGFloat = 0.5
         let padX = rect.width * padding
         let padY = rect.height * padding
 
         rect = rect.insetBy(dx: -padX, dy: -padY)
 
-        // 🔹 Clamp to image bounds
         rect.origin.x = max(0, rect.origin.x)
         rect.origin.y = max(0, rect.origin.y)
 
