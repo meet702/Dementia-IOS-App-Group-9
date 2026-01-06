@@ -15,7 +15,9 @@ class MatchThePairsInstructionsViewController: UIViewController {
     @IBOutlet weak var easyCard: UIView!
     @IBOutlet weak var mediumCard: UIView!
     @IBOutlet weak var hardCard: UIView!
+    @IBOutlet weak var instructionsLabel: UILabel!
 
+        
     var isHowToPlayOpen = false
 
     enum Difficulty {
@@ -32,6 +34,7 @@ class MatchThePairsInstructionsViewController: UIViewController {
         instructionsCard.isHidden = true
         howToPlayChevronButton.isUserInteractionEnabled = false
 
+        setupInstructionsText()
         let cards = [easyCard, mediumCard, hardCard, howToPlayView, instructionsCard]
         for card in cards {
             card?.backgroundColor = UIColor.white
@@ -95,6 +98,31 @@ class MatchThePairsInstructionsViewController: UIViewController {
         }
     }
 
+    private func setupInstructionsText() {
+        let text = """
+        1. Tap two cards at a time.
+        2. If the cards match, they will stay open.
+        3. Try to find all the pairs.
+        4. No rush, take your time.
+        """
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 10
+        paragraphStyle.paragraphSpacing = 6
+
+
+        let attributedText = NSAttributedString(
+            string: text,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                
+            ]
+        )
+
+        instructionsLabel.attributedText = attributedText
+    }
+
+    
     @IBAction func easyCardTapped(_ sender: Any) {
         print("easy tapped")
         selectedDifficulty = .easy

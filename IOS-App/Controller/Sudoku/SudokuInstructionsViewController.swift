@@ -19,6 +19,8 @@ class SudokuInstructionsViewController: UIViewController {
     @IBOutlet weak var mediumCard: UIView!
     
     @IBOutlet weak var hardCard: UIView!
+    @IBOutlet weak var instructionsLabel: UILabel!
+
     
     var isHowToPlayOpen = false
 
@@ -35,7 +37,7 @@ class SudokuInstructionsViewController: UIViewController {
         super.viewDidLoad()
         instructionsCard.isHidden = true  // start closed
         howToPlayChevronButton.isUserInteractionEnabled = false
-
+        setupInstructionsText()
         let cards = [easyCard, mediumCard, hardCard, howToPlayView, instructionsCard]
         for card in cards {
             card?.backgroundColor = UIColor.white
@@ -85,6 +87,29 @@ class SudokuInstructionsViewController: UIViewController {
             c?.layer.borderColor = isSelected ? selectedBorder : UIColor.clear.cgColor
             c?.layer.cornerRadius = 20
         }
+    }
+    
+    private func setupInstructionsText() {
+        let text = """
+        1. Select a cell
+        2. Tap a number to fill it
+        3. Use Undo to remove the last entry
+        4. Use Hint if you’re stuck
+        """
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 12
+        paragraphStyle.paragraphSpacing = 6
+
+        let attributedText = NSAttributedString(
+            string: text,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                
+            ]
+        )
+
+        instructionsLabel.attributedText = attributedText
     }
 
 
