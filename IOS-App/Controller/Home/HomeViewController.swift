@@ -204,8 +204,25 @@ extension HomeViewController: UICollectionViewDataSource {
         
         else if indexPath.section == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as! RoutineCardCollectionViewCell
-            let tasks = DataStore.shared.getRoutines(for: selectedDate)
-            cell.configureRoutineCell(tasks: tasks, date: Date())
+            let rawTasks = DataStore.shared.getRoutines(for: selectedDate)
+
+            let sortedTasks = rawTasks.sorted { t1, t2 in
+                let c1 = Calendar.current.dateComponents([.hour, .minute], from: t1.time)
+                let c2 = Calendar.current.dateComponents([.hour, .minute], from: t2.time)
+
+                let minutes1 = (c1.hour ?? 0) * 60 + (c1.minute ?? 0)
+                let minutes2 = (c2.hour ?? 0) * 60 + (c2.minute ?? 0)
+
+                if minutes1 != minutes2 {
+                    return minutes1 < minutes2
+                }
+
+                // same time → incomplete first
+                return t1.isCompleted == false && t2.isCompleted == true
+            }
+
+            cell.configureRoutineCell(tasks: sortedTasks, date: Date())
+
             return cell
         }
         

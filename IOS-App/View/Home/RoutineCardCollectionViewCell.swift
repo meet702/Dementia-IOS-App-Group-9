@@ -59,12 +59,7 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
 
         let sortedTasks = sortTasksByTime(tasks)
 
-        let pending = pendingTasks(from: sortedTasks)
-        let completed = completedTasks(from: sortedTasks)
-
-        var allTasks: [TaskModel] = []
-        allTasks.append(contentsOf: pending)
-        allTasks.append(contentsOf: completed)
+        let allTasks = sortedTasks
 
         let morning = morningTasks(from: allTasks)
         let afternoon = afternoonTasks(from: allTasks)
@@ -172,17 +167,22 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         let titleLabel = UILabel()
         titleLabel.font = UIFont.systemFont(ofSize: 15)
         titleLabel.text = item.title
-        titleLabel.textColor = .black
         titleLabel.numberOfLines = 1
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let timeLabel = UILabel()
         timeLabel.font = UIFont.systemFont(ofSize: 14)
-        timeLabel.textColor = .black
         timeLabel.text = timeFormatter.string(from: item.time)
         timeLabel.textAlignment = .right
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
-
+        if item.isCompleted {
+            titleLabel.textColor = .gray
+            timeLabel.textColor = .gray
+        } else {
+            titleLabel.textColor = .black
+            timeLabel.textColor = .black
+        }
+        
         titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         timeLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -360,18 +360,33 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
 
     private func sortTasksByTime(_ tasks: [TaskModel]) -> [TaskModel] {
         var result = tasks
+        let calendar = Calendar.current
 
         for i in 0..<result.count {
             for j in 0..<result.count - i - 1 {
-                if result[j].time > result[j + 1].time {
-                    let temp = result[j]
-                    result[j] = result[j + 1]
-                    result[j + 1] = temp
+                let t1 = result[j]
+                let t2 = result[j + 1]
+
+                let c1 = calendar.dateComponents([.hour, .minute], from: t1.time)
+                let c2 = calendar.dateComponents([.hour, .minute], from: t2.time)
+
+                let minutes1 = (c1.hour ?? 0) * 60 + (c1.minute ?? 0)
+                let minutes2 = (c2.hour ?? 0) * 60 + (c2.minute ?? 0)
+
+                if minutes1 > minutes2 {
+                    result.swapAt(j, j + 1)
+                }
+                
+                else if minutes1 == minutes2 {
+                    if t1.isCompleted && !t2.isCompleted {
+                        result.swapAt(j, j + 1)
+                    }
                 }
             }
         }
         return result
     }
+
 
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         setNeedsLayout()
