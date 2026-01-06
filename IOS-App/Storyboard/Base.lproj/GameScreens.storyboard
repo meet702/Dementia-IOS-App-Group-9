@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="U6F-l6-T9n">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="U6F-l6-T9n">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -66,13 +66,9 @@
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ohf-Xr-CxL">
                                                 <rect key="frame" x="0.0" y="72" width="345" height="32"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ewa-rt-JTT">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ewa-rt-JTT">
                                                         <rect key="frame" x="16" y="16" width="313" height="0.0"/>
-                                                        <string key="text">1. Tap two cards at a time.
-2. If the cards match, they will stay open.
-3. Try to find all the pairs.
-4. No rush, take your time.</string>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -245,6 +241,7 @@
                         <outlet property="howToPlayChevronButton" destination="MhY-Im-KZr" id="GlU-RA-fTC"/>
                         <outlet property="howToPlayView" destination="Ghw-qa-iZS" id="hxM-ne-wGa"/>
                         <outlet property="instructionsCard" destination="Ohf-Xr-CxL" id="veK-aX-37W"/>
+                        <outlet property="instructionsLabel" destination="Ewa-rt-JTT" id="7tm-sP-1ZK"/>
                         <outlet property="mediumCard" destination="qkm-Vf-3qS" id="WV0-19-4at"/>
                     </connections>
                 </viewController>
@@ -332,13 +329,9 @@
                                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="33L-Bu-coH">
                                                         <rect key="frame" x="0.0" y="72" width="345" height="32"/>
                                                         <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gOu-0l-ROt">
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gOu-0l-ROt">
                                                                 <rect key="frame" x="16" y="16" width="313" height="0.0"/>
-                                                                <string key="text">1. Find and fill words in the crossword grid by identifying the pictures.
-2. Tap letters to select and form words.
-3. Use "Hint" if needed.
-4. Think carefully and enjoy solving the puzzle!</string>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -638,6 +631,7 @@ From Flags</string>
                         <outlet property="howToPlayChevronButton" destination="d6E-RQ-jW5" id="H0f-RQ-jgA"/>
                         <outlet property="howToPlayView" destination="8ke-Iq-7OK" id="Yur-as-xhM"/>
                         <outlet property="instructionsCard" destination="33L-Bu-coH" id="oz0-m7-Uir"/>
+                        <outlet property="instructionsLabel" destination="gOu-0l-ROt" id="G8N-nH-ICa"/>
                         <outlet property="randomCategoryCard" destination="gal-T2-hoZ" id="lV0-gL-Uo1"/>
                     </connections>
                 </viewController>
@@ -756,7 +750,7 @@ From Flags</string>
 2. Tap a number to fill it
 3. Use Undo to remove the last entry
 4. Use Hint if you’re stuck</string>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -915,6 +909,7 @@ From Flags</string>
                         <outlet property="howToPlayChevronButton" destination="37R-3D-gO1" id="lrQ-2Y-4V0"/>
                         <outlet property="howToPlayView" destination="qlz-pr-s5J" id="MTN-VN-Kvg"/>
                         <outlet property="instructionsCard" destination="8Zo-d5-Vdj" id="5hh-Py-1Y1"/>
+                        <outlet property="instructionsLabel" destination="nrb-xj-ATK" id="g5V-qA-V3C"/>
                         <outlet property="mediumCard" destination="pwd-3Y-KNT" id="s5e-yK-iqG"/>
                     </connections>
                 </viewController>
@@ -945,7 +940,6 @@ From Flags</string>
         <!--Navigation Controller-->
         <scene sceneID="7oQ-Ln-M5s">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="N97-Qr-h0w" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="U6F-l6-T9n" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="U3K-dJ-zoN">
@@ -957,6 +951,7 @@ From Flags</string>
                         <segue destination="2Or-0I-xLa" kind="relationship" relationship="rootViewController" id="69z-yW-g2u"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="N97-Qr-h0w" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-2436" y="111"/>
         </scene>
@@ -1319,7 +1314,7 @@ From Flags</string>
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.55294117647058827" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
