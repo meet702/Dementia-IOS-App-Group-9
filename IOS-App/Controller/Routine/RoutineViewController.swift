@@ -22,6 +22,7 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
 
         let cell = tableView.dequeueReusableCell(withIdentifier: "task_cell", for: indexPath) as! TaskTableViewCell
         var task: TaskModel
+        
 
         switch indexPath.section {
         case 0: task = morningTasks[indexPath.row]
@@ -32,14 +33,22 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
 
         cell.configure(task: task)
 
-        cell.onCheckTapped = {
+        let isToday = Calendar.current.isDateInToday(selectedDate)
+
+        cell.checkButton.isEnabled = isToday
+        cell.checkButton.alpha = isToday ? 1.0 : 0.6
+
+        cell.onCheckTapped = { [weak self] in
+            guard let self = self else { return }
+            guard isToday else { return }
+
             task.isCompleted.toggle()
             DataStore.shared.updateRoutine(for: self.selectedDate, task: task)
-            
+
             self.splitTasksByTime()
             tableView.reloadData()
         }
-
+        
         return cell
     }
 
@@ -148,21 +157,22 @@ class RoutineViewController: UIViewController, UITableViewDataSource, UICollecti
         let layout = UICollectionViewCompositionalLayout { section, env in
             
             let itemSize = NSCollectionLayoutSize(
-                widthDimension: .absolute(60),
+                widthDimension: .absolute(48),
                 heightDimension: .absolute(70)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
+            
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .estimated(400),
                 heightDimension: .absolute(100)
             )
             
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-
+            group.interItemSpacing = .fixed(20)
+            
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
-            section.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 0, bottom: 30, trailing: 0)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 4, trailing: 0)
 
             return section
         }

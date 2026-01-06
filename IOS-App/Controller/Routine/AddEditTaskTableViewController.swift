@@ -57,6 +57,7 @@ class AddEditTaskTableViewController: UITableViewController {
         switch mode {
         case .add:
             self.navigationItem.title = "Add Task"
+            dateCell.datePicker.minimumDate = Calendar.current.startOfDay(for: Date())
 
         case .edit(let task):
             self.navigationItem.title = "Edit Task"
@@ -68,7 +69,7 @@ class AddEditTaskTableViewController: UITableViewController {
             shouldRepeatDaily = task.isRecurring
             dateCell.datePicker.isEnabled = false
 
-
+            navigationItem.rightBarButtonItem?.isEnabled = true
         }
 
         titleCell.titleTextView.text = titleText
@@ -78,17 +79,28 @@ class AddEditTaskTableViewController: UITableViewController {
         
         repeatCell.repeatSwitch.isOn = shouldRepeatDaily
 
-        titleCell.onTextChanged = { [weak self] text in self?.titleText = text }
+        titleCell.onTextChanged = { [weak self] text in
+            guard let self = self else { return }
+
+            self.titleText = text
+
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.navigationItem.rightBarButtonItem?.isEnabled = !trimmed.isEmpty
+        }
+
         notesCell.onTextChanged = { [weak self] text in self?.notesText = text }
         dateCell.onDateChanged = { [weak self] date in self?.selectedDateValue = date }
         timeCell.onTimeChanged = { [weak self] time in self?.selectedTimeValue = time }
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        
+        let doneButton = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
-            action: #selector(saveTapped),
-            
+            action: #selector(saveTapped)
         )
+        doneButton.isEnabled = false
+        doneButton.tintColor = .systemOrange
+        navigationItem.rightBarButtonItem = doneButton
+
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .cancel,
@@ -103,8 +115,6 @@ class AddEditTaskTableViewController: UITableViewController {
     }
     
     @IBAction func saveTapped(_ sender: Any) {
-        print("Save tapped:", titleText)
-
         let finalDate = combine(date: selectedDateValue, time: selectedTimeValue)
         let recurrenceID = shouldRepeatDaily ? UUID() : nil
 

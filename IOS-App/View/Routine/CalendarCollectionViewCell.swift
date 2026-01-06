@@ -24,7 +24,7 @@ class CalendarCollectionViewCell: UICollectionViewCell {
     func configure(with model: DateModel, isSelected: Bool, isToday: Bool) {
         dayLabel.text = model.dayString
         dateLabel.text = model.dateString
-        backgroundCard.layer.cornerRadius = 24
+        backgroundCard.layer.cornerRadius = 20.5
         
         backgroundCard.backgroundColor = .clear
         dayLabel.textColor = .lightGray
