@@ -19,6 +19,8 @@ class CrosswordInstructionsViewController: UIViewController {
     
     @IBOutlet weak var howToPlayView: UIView!
     @IBOutlet weak var instructionsCard: UIView!
+    @IBOutlet weak var instructionsLabel: UILabel!
+
     
     var isHowToPlayOpen = false
     private var selectedCard: UIView?
@@ -48,8 +50,9 @@ class CrosswordInstructionsViewController: UIViewController {
 
            instructionsCard.isHidden = true
            howToPlayChevronButton.isUserInteractionEnabled = false
-
-           for card in allCards {
+            
+            setupInstructionsText()
+            for card in allCards {
                card.layer.cornerRadius = 20
                card.backgroundColor = unselectedBackground
                card.layer.borderWidth = 0
@@ -172,7 +175,28 @@ class CrosswordInstructionsViewController: UIViewController {
         card.layer.addSublayer(dashed)
     }
 
-   
+    private func setupInstructionsText() {
+        let text = """
+        1. Find and fill words in the crossword grid by identifying the pictures.
+        2. Tap letters to select and form words.
+        3. Use "Hint" if needed.
+        4. Think carefully and enjoy solving the puzzle!
+        """
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        
+        paragraphStyle.paragraphSpacing = 10
+
+        let attributedText = NSAttributedString(
+            string: text,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                
+            ]
+        )
+
+        instructionsLabel.attributedText = attributedText
+    }
 
     @IBAction func howToPlayTapped(_ sender: Any) {
         isHowToPlayOpen.toggle()
