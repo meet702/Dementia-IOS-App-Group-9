@@ -91,15 +91,16 @@ class SudokuInstructionsViewController: UIViewController {
     
     private func setupInstructionsText() {
         let text = """
-        1. Select a cell
-        2. Tap a number to fill it
-        3. Use Undo to remove the last entry
-        4. Use Hint if you’re stuck
+        1. Select a cell and tap a number to fill it
+        2. Use Undo to remove the last move
+        3. Use Erase to clear a cell
+        4. Tap Check to verify a number
+        5. Use Hint to reveal the correct number
         """
 
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 12
-        paragraphStyle.paragraphSpacing = 6
+//        paragraphStyle.lineSpacing = 12
+        paragraphStyle.paragraphSpacing = 8
 
         let attributedText = NSAttributedString(
             string: text,

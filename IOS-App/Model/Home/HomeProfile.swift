@@ -12,7 +12,7 @@ struct HomeProfile {
     var gender: String
     var codeForCareiver: String
     
-    var patientName: String
+    var caregiverName: String
     var relationWithCaregiver: String
-    var patientContact: String
+    var caregiverContact: String
 }
