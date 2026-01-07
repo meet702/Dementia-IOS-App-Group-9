@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="U6F-l6-T9n">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="U6F-l6-T9n">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -622,7 +623,7 @@ From Flags</string>
                             <constraint firstItem="dcV-e6-N3Z" firstAttribute="leading" secondItem="FXf-rS-8Dp" secondAttribute="leading" id="z10-mb-Kjs"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Crossword" id="bvY-wL-BZ6"/>
+                    <navigationItem key="navigationItem" title="Crossword" largeTitleDisplayMode="never" id="bvY-wL-BZ6"/>
                     <connections>
                         <outlet property="countriesCard" destination="qvm-OW-hc6" id="RNw-cH-wzt"/>
                         <outlet property="dailyObjectsCard" destination="mk6-LG-MxU" id="Pwp-op-KMq"/>
@@ -742,14 +743,10 @@ From Flags</string>
                                                 </connections>
                                             </view>
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8Zo-d5-Vdj">
-                                                <rect key="frame" x="0.0" y="72" width="345" height="16"/>
+                                                <rect key="frame" x="0.0" y="72" width="345" height="24"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nrb-xj-ATK">
-                                                        <rect key="frame" x="16" y="8" width="313" height="0.0"/>
-                                                        <string key="text">1. Select a cell
-2. Tap a number to fill it
-3. Use Undo to remove the last entry
-4. Use Hint if you’re stuck</string>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nrb-xj-ATK">
+                                                        <rect key="frame" x="16" y="12" width="313" height="0.0"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -759,8 +756,8 @@ From Flags</string>
                                                 <constraints>
                                                     <constraint firstAttribute="trailing" secondItem="nrb-xj-ATK" secondAttribute="trailing" constant="16" id="5A0-sm-mIy"/>
                                                     <constraint firstItem="nrb-xj-ATK" firstAttribute="leading" secondItem="8Zo-d5-Vdj" secondAttribute="leading" constant="16" id="7Nl-jt-paI"/>
-                                                    <constraint firstItem="nrb-xj-ATK" firstAttribute="top" secondItem="8Zo-d5-Vdj" secondAttribute="top" constant="8" id="SHP-VP-GVf"/>
-                                                    <constraint firstAttribute="bottom" secondItem="nrb-xj-ATK" secondAttribute="bottom" constant="8" id="tLI-Z6-OY1"/>
+                                                    <constraint firstItem="nrb-xj-ATK" firstAttribute="top" secondItem="8Zo-d5-Vdj" secondAttribute="top" constant="12" id="SHP-VP-GVf"/>
+                                                    <constraint firstAttribute="bottom" secondItem="nrb-xj-ATK" secondAttribute="bottom" constant="12" id="tLI-Z6-OY1"/>
                                                 </constraints>
                                             </view>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select difficulty" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uNg-Y5-8ZN">
@@ -935,7 +932,7 @@ From Flags</string>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="-1637.4045801526718" y="110.56338028169014"/>
+            <point key="canvasLocation" x="-1637" y="111"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="7oQ-Ln-M5s">
@@ -967,7 +964,7 @@ From Flags</string>
                                 <rect key="frame" x="0.0" y="160" width="393" height="617"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="ZhG-MK-dB0">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="472.33333333333331"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="400"/>
                                         <color key="backgroundColor" red="0.99607843139999996" green="0.97254901959999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="fcp-l5-Mib">
                                             <size key="itemSize" width="128" height="128"/>
@@ -1015,36 +1012,64 @@ From Flags</string>
                                         </cells>
                                     </collectionView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="CEL-Lp-u4H">
-                                        <rect key="frame" x="0.0" y="478.33333333333343" width="393" height="138.66666666666669"/>
+                                        <rect key="frame" x="0.0" y="406" width="393" height="211"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="4Sz-2h-kvi">
-                                                <rect key="frame" x="135.66666666666666" y="0.0" width="121.66666666666666" height="40"/>
+                                                <rect key="frame" x="69.000000000000014" y="0.0" width="255.33333333333337" height="80.333333333333329"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Q1I-Kz-wNg">
-                                                        <rect key="frame" x="0.0" y="3" width="54" height="34.333333333333336"/>
+                                                        <rect key="frame" x="0.0" y="15.000000000000004" width="50.333333333333336" height="50.333333333333343"/>
+                                                        <color key="tintColor" systemColor="systemOrangeColor"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" image="lightbulb.max.fill" catalog="system" title=""/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="" cornerStyle="capsule" buttonSize="large">
+                                                            <imageReference key="image" image="checkmark.circle.badge.questionmark.fill" catalog="system" symbolScale="large"/>
+                                                        </buttonConfiguration>
                                                         <connections>
-                                                            <action selector="hintTapped:" destination="Ku4-ZF-txd" eventType="touchUpInside" id="tPQ-H7-uNb"/>
+                                                            <action selector="checkTapped:" destination="Ku4-ZF-txd" eventType="touchUpInside" id="XMa-10-Jdp"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obl-YI-0Zm">
+                                                        <rect key="frame" x="68.333333333333343" y="15.000000000000004" width="50.333333333333343" height="50.333333333333343"/>
+                                                        <color key="tintColor" systemColor="systemOrangeColor"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="" cornerStyle="capsule" buttonSize="large">
+                                                            <imageReference key="image" image="lightbulb.min.fill" catalog="system" symbolScale="large"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="fixTapped:" destination="Ku4-ZF-txd" eventType="touchUpInside" id="8HK-LB-Dec"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wFl-me-Lmw">
-                                                        <rect key="frame" x="72" y="3" width="49.666666666666657" height="34.333333333333336"/>
+                                                        <rect key="frame" x="136.66666666666666" y="15.000000000000004" width="50.333333333333343" height="50.333333333333343"/>
+                                                        <color key="tintColor" systemColor="systemOrangeColor"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" image="arrow.uturn.backward" catalog="system"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" cornerStyle="capsule" buttonSize="large">
+                                                            <imageReference key="image" image="arrow.uturn.backward" catalog="system" symbolScale="large"/>
+                                                        </buttonConfiguration>
                                                         <connections>
                                                             <action selector="undoTapped:" destination="Ku4-ZF-txd" eventType="touchUpInside" id="ZQg-Dv-7a8"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vg7-ag-HQf">
+                                                        <rect key="frame" x="205" y="15.000000000000004" width="50.333333333333343" height="50.333333333333343"/>
+                                                        <color key="tintColor" systemColor="systemOrangeColor"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" cornerStyle="capsule" buttonSize="large">
+                                                            <imageReference key="image" image="eraser.fill" catalog="system" symbolScale="large"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="eraseTapped:" destination="Ku4-ZF-txd" eventType="touchUpInside" id="105-W0-c3P"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleAspectFill" alignment="center" spacing="35" translatesAutoresizingMaskIntoConstraints="NO" id="ZmB-Ip-DoI">
-                                                <rect key="frame" x="40" y="55" width="313.33333333333331" height="34.333333333333343"/>
+                                            <stackView opaque="NO" contentMode="scaleAspectFill" alignment="center" spacing="26" translatesAutoresizingMaskIntoConstraints="NO" id="ZmB-Ip-DoI">
+                                                <rect key="frame" x="18" y="95.333333333333371" width="357.33333333333331" height="50.333333333333343"/>
                                                 <subviews>
                                                     <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="imG-h6-2at">
-                                                        <rect key="frame" x="0.0" y="0.0" width="34.666666666666664" height="34.333333333333336"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="50.666666666666664" height="50.333333333333336"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="1" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="1" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1052,10 +1077,10 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="S89-X5-J2E">
-                                                        <rect key="frame" x="69.666666666666671" y="0.0" width="34.666666666666671" height="34.333333333333336"/>
+                                                        <rect key="frame" x="76.666666666666671" y="0.0" width="50.666666666666671" height="50.333333333333336"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="2" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="2" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1063,10 +1088,10 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="1U0-hc-s8z">
-                                                        <rect key="frame" x="139.33333333333334" y="0.0" width="34.666666666666657" height="34.333333333333336"/>
+                                                        <rect key="frame" x="153.33333333333334" y="0.0" width="50.666666666666657" height="50.333333333333336"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="3" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="3" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1074,10 +1099,10 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="mLB-Aw-dR3">
-                                                        <rect key="frame" x="209" y="0.0" width="34.666666666666657" height="34.333333333333336"/>
+                                                        <rect key="frame" x="230" y="0.0" width="50.666666666666686" height="50.333333333333336"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="4" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="4" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1085,10 +1110,10 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="z9Q-ae-XKm">
-                                                        <rect key="frame" x="278.66666666666669" y="0.0" width="34.666666666666686" height="34.333333333333336"/>
+                                                        <rect key="frame" x="306.66666666666669" y="0.0" width="50.666666666666686" height="50.333333333333336"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="5" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="5" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1096,17 +1121,14 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                 </subviews>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="40" id="F7N-W4-33z"/>
-                                                </constraints>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="34" translatesAutoresizingMaskIntoConstraints="NO" id="MLh-7H-Co8">
-                                                <rect key="frame" x="76.333333333333329" y="104.33333333333326" width="240.66666666666669" height="34.333333333333343"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="MLh-7H-Co8">
+                                                <rect key="frame" x="50.333333333333343" y="160.66666666666663" width="292.66666666666663" height="50.333333333333343"/>
                                                 <subviews>
                                                     <button opaque="NO" tag="6" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KIL-05-vfo">
-                                                        <rect key="frame" x="0.0" y="0.0" width="34.666666666666664" height="34.333333333333336"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="50.666666666666664" height="50.333333333333336"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="6" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="6" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1114,9 +1136,9 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="7" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JiO-OD-4F6">
-                                                        <rect key="frame" x="68.666666666666671" y="0.0" width="34.666666666666671" height="34.333333333333336"/>
+                                                        <rect key="frame" x="80.666666666666657" y="0.0" width="50.666666666666657" height="50.333333333333336"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="7" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="7" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1124,9 +1146,9 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="8" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="llP-Sa-A7j">
-                                                        <rect key="frame" x="137.33333333333331" y="0.0" width="34.666666666666657" height="34.333333333333336"/>
+                                                        <rect key="frame" x="161.33333333333331" y="0.0" width="50.666666666666657" height="50.333333333333336"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="8" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="8" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1134,9 +1156,9 @@ From Flags</string>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" tag="9" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AVg-Ai-md5">
-                                                        <rect key="frame" x="206" y="0.0" width="34.666666666666657" height="34.333333333333336"/>
+                                                        <rect key="frame" x="241.99999999999997" y="0.0" width="50.666666666666657" height="50.333333333333336"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="gray" title="9" cornerStyle="capsule">
+                                                        <buttonConfiguration key="configuration" style="gray" title="9" cornerStyle="capsule" buttonSize="large">
                                                             <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         </buttonConfiguration>
                                                         <connections>
@@ -1183,7 +1205,7 @@ From Flags</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZH4-Cj-FCX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-831" y="111"/>
+            <point key="canvasLocation" x="-831.29770992366412" y="110.56338028169014"/>
         </scene>
         <!--Match the Pairs-->
         <scene sceneID="L4s-6U-KLg">
@@ -1305,16 +1327,18 @@ From Flags</string>
     </scenes>
     <resources>
         <image name="arrow.uturn.backward" catalog="system" width="128" height="113"/>
+        <image name="checkmark.circle.badge.questionmark.fill" catalog="system" width="128" height="114"/>
         <image name="chevron.down" catalog="system" width="128" height="70"/>
+        <image name="eraser.fill" catalog="system" width="128" height="119"/>
         <image name="lightbulb" catalog="system" width="92" height="128"/>
-        <image name="lightbulb.max.fill" catalog="system" width="121" height="128"/>
+        <image name="lightbulb.min.fill" catalog="system" width="115" height="128"/>
         <image name="pause" catalog="system" width="88" height="128"/>
         <image name="shuffle" catalog="system" width="128" height="95"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.55294117647058827" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

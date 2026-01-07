@@ -5,6 +5,9 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
     @IBOutlet weak var matchedLabel: UILabel!
     @IBOutlet weak var difficultyLabel: UILabel!
 
+    private let cardTapHaptic = UIImpactFeedbackGenerator(style: .light)
+    private let matchSuccessHaptic = UINotificationFeedbackGenerator()
+    
     var columns: Int = 3
     var rows: Int = 4
     var backImageName: String = "card_back"
@@ -178,6 +181,10 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !isProcessingSelection, !isPausedState else { return }
+        
+        cardTapHaptic.impactOccurred()
+        cardTapHaptic.prepare()
+        
         let idx = indexPath.item
         let card = game.cards[idx]
         if card.isFaceUp || card.isMatched { return }
@@ -196,6 +203,9 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         }
 
         if result.matched {
+            matchSuccessHaptic.notificationOccurred(.success)
+            matchSuccessHaptic.prepare()
+            
             updateMatchedLabel()
             if game.isWin {
                 presentWinAlert()
@@ -229,7 +239,9 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         alert.addAction(UIAlertAction(title: "Play again", style: .default, handler: { _ in
             self.startGame()
         }))
-        alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Close", style: .cancel) { _ in
+            self.navigationController?.popViewController(animated: true)
+        })
         present(alert, animated: true)
     }
 }

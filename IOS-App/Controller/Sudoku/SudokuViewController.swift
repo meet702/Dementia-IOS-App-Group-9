@@ -22,6 +22,12 @@ class SudokuViewController: UIViewController {
         }
     }
 
+    private let lightHaptic = UIImpactFeedbackGenerator(style: .light)
+    private let softHaptic = UIImpactFeedbackGenerator(style: .soft)
+    private let rigidHaptic = UIImpactFeedbackGenerator(style: .rigid)
+    private let notificationHaptic = UINotificationFeedbackGenerator()
+
+    
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var difficultyLabel: UILabel!
     @IBOutlet weak var numberPadContainer: UIView!
@@ -91,7 +97,7 @@ class SudokuViewController: UIViewController {
         DispatchQueue.global(qos: .userInitiated).async {
             let (p, s) = SudokuGenerator.generatePuzzle(
                 targetClues: self.clueCount,
-                ensureUnique: false
+                ensureUnique: true
             )
             DispatchQueue.main.async {
                 self.puzzle = p
@@ -116,14 +122,16 @@ class SudokuViewController: UIViewController {
     }
 
     private func restartGame() {
+        resumeGameState()
         let (newPuzzle, newSolution) = SudokuGenerator.generatePuzzle(
             targetClues: clueCount,
-            ensureUnique: false
+            ensureUnique: true
         )
 
         puzzle = newPuzzle
         solution = newSolution
         loadBoardFromPuzzle()
+        selectedIndex = nil
         collectionView.reloadData()
     }
 
@@ -160,7 +168,8 @@ class SudokuViewController: UIViewController {
         let cell = boardModel.cells[idx]
 
         if cell.isGiven { return }
-
+        lightHaptic.impactOccurred()
+        
         undoStack.append((idx, cell.value))
 
         if cell.value == num {
@@ -171,10 +180,13 @@ class SudokuViewController: UIViewController {
 
         validateConflicts(aroundIndex: idx)
         collectionView.reloadItems(at: [IndexPath(item: idx, section: 0)])
+        checkIfSudokuCompleted()
     }
 
     @IBAction func undoTapped(_ sender: UIButton) {
         guard let last = undoStack.popLast() else { return }
+        softHaptic.impactOccurred()
+        
         let index = last.index
         let r = index / 9
         let c = index % 9
@@ -184,21 +196,167 @@ class SudokuViewController: UIViewController {
         collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
     }
 
-    @IBAction func hintTapped(_ sender: UIButton) {
-        let empty = (0..<81).filter { boardModel.cells[$0].value == nil }
-        guard !empty.isEmpty else { return }
+    @IBAction func checkTapped(_ sender: UIButton) {
+        print("check tapped")
 
-        let idx = empty.randomElement()!
-        let r = idx / 9
-        let c = idx % 9
-        guard let correct = solution[idx] else { return }
+        // Clear old global incorrect marks
+        var reload: [IndexPath] = []
+        for i in 0..<81 {
+            if boardModel.cells[i].isConflict {
+                boardModel.cells[i].isConflict = false
+                reload.append(IndexPath(item: i, section: 0))
+            }
+        }
 
-        undoStack.append((idx, boardModel.cells[idx].value))
-        boardModel.setValue(correct, atRow: r, col: c)
+        // Find incorrect user-entered cell
+        if let wrongIndex = findIncorrectUserCell() {
+            boardModel.cells[wrongIndex].isConflict = true
+            reload.append(IndexPath(item: wrongIndex, section: 0))
 
-        validateConflicts(aroundIndex: idx)
-        collectionView.reloadItems(at: [IndexPath(item: idx, section: 0)])
+            collectionView.reloadItems(at: reload)
+            rigidHaptic.impactOccurred()
+            return
+        }
+
+        // No mistakes
+        if !reload.isEmpty {
+            collectionView.reloadItems(at: reload)
+        }
+
+        notificationHaptic.notificationOccurred(.warning)
+        
+        let alert = UIAlertController(
+            title: "No Mistakes Found",
+            message: "All placed numbers are correct so far.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
+
+    @IBAction func fixTapped(_ sender: UIButton) {
+        print("fix tapped")
+
+        // Find incorrect user-entered cell
+        guard let wrongIndex = findIncorrectUserCell() else {
+            notificationHaptic.notificationOccurred(.warning)
+            
+            let alert = UIAlertController(
+                title: "Nothing to Fix",
+                message: "There are no incorrect numbers right now.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+
+        let row = wrongIndex / 9
+        let col = wrongIndex % 9
+
+        // Save for undo
+        undoStack.append((wrongIndex, boardModel.cells[wrongIndex].value))
+
+        // Replace with correct value
+        boardModel.setValue(solution[wrongIndex], atRow: row, col: col)
+
+        validateConflicts(aroundIndex: wrongIndex)
+
+        collectionView.reloadItems(
+            at: [IndexPath(item: wrongIndex, section: 0)]
+        )
+        notificationHaptic.notificationOccurred(.success)
+        checkIfSudokuCompleted() 
+    }
+
+    private func findIncorrectUserCell() -> Int? {
+        for i in 0..<81 {
+            let cell = boardModel.cells[i]
+
+            // ignore empty or given cells
+            if cell.isGiven { continue }
+            guard let userValue = cell.value else { continue }
+
+            // compare with solution
+            if let correct = solution[i], userValue != correct {
+                return i
+            }
+        }
+        return nil
+    }
+    @IBAction func eraseTapped(_ sender: UIButton) {
+        print("erase tapped")
+
+        // 1️⃣ Ensure a cell is selected
+        guard let idx = selectedIndex else { return }
+
+        let cell = boardModel.cells[idx]
+
+        // 2️⃣ Do not erase given cells
+        if cell.isGiven { return }
+
+        let row = idx / 9
+        let col = idx % 9
+
+        // 3️⃣ Save for undo
+        undoStack.append((idx, cell.value))
+
+        // 4️⃣ Clear the value
+        boardModel.setValue(nil, atRow: row, col: col)
+
+        // 5️⃣ Revalidate conflicts
+        validateConflictsAll()
+
+        // 6️⃣ Reload only affected cell
+        collectionView.reloadItems(
+            at: [IndexPath(item: idx, section: 0)]
+        )
+
+        // Optional haptic
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func checkIfSudokuCompleted() {
+        //  Check all cells are filled and correct
+        for i in 0..<81 {
+            let cell = boardModel.cells[i]
+
+            // not filled
+            guard let value = cell.value else { return }
+
+            // incorrect value
+            if value != solution[i] {
+                return
+            }
+        }
+
+        // No conflicts allowed
+        let hasConflict = boardModel.cells.contains { $0.isConflict }
+        if hasConflict { return }
+
+        showWellDoneAlert()
+    }
+    
+    private func showWellDoneAlert() {
+        notificationHaptic.notificationOccurred(.success)
+
+        let alert = UIAlertController(
+            title: "🎉 Well Done!",
+            message: "You’ve successfully completed the Sudoku.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "New Game", style: .default) { _ in
+            self.restartGame()
+        })
+
+        alert.addAction(UIAlertAction(title: "Close", style: .cancel) { _ in
+            self.navigationController?.popViewController(animated: true)
+        })
+
+        present(alert, animated: true)
+    }
+
 
     private func validateConflictsAll() {
         for i in 0..<81 { boardModel.cells[i].isConflict = false }
@@ -305,6 +463,12 @@ extension SudokuViewController: UICollectionViewDataSource, UICollectionViewDele
 
         if cellModel.isGiven { return }
 
+        if cellModel.isGiven {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            return
+        }
+
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
         let previous = selectedIndex
         selectedIndex = idx
 

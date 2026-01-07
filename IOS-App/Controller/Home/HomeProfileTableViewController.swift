@@ -16,15 +16,15 @@ class HomeProfileTableViewController: UITableViewController {
     @IBOutlet weak var codeLabel: UILabel!
     @IBOutlet weak var relationLabel: UILabel!
     
-    let profileData: HomeProfile = HomeProfile(dateOfBirth: "12 Oct 1965 (60)", gender: "Male", codeForCareiver: "172560", patientName: "Aayudh", relationWithCaregiver: "Son", patientContact: "9927654344")
+    let profileData: HomeProfile = HomeProfile(dateOfBirth: "12 Oct 1965 (60)", gender: "Male", codeForCareiver: "172560", caregiverName: "Aayudh", relationWithCaregiver: "Son", caregiverContact: "9927654344")
     
     func setProfile(profileInfo: HomeProfile) {
         dobLabel.text = profileInfo.dateOfBirth
         genderLabel.text = profileInfo.gender
         codeLabel.text = profileInfo.codeForCareiver
         relationLabel.text = profileInfo.relationWithCaregiver
-        nameLabel.text = profileInfo.patientName
-        contactLabel.text = profileInfo.patientContact
+        nameLabel.text = profileInfo.caregiverName
+        contactLabel.text = profileInfo.caregiverContact
     }
     
     override func viewDidLoad() {
