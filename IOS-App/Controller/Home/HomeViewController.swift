@@ -6,10 +6,13 @@
 //
 
 import UIKit
+import CoreLocation
 
 class HomeViewController: UIViewController {
 
     @IBOutlet weak var homeCollectionView: UICollectionView!
+    @IBOutlet weak var sosButton: UIBarButtonItem!
+    
     
     private var selectedDate: Date = Date()
     
@@ -28,6 +31,11 @@ class HomeViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dataStoreUpdated(_:)), name: .DataStoreDidUpdateRoutines, object: nil)
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
+        
+        //for SOS
+        LocationManager.shared.delegate = self
+        LocationManager.shared.requestPermission()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -148,27 +156,67 @@ class HomeViewController: UIViewController {
     @IBAction func sosButtonTapped(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(
             title: "Contact Your Caregiver?",
-            message: "A call and your location will be sent to your caregiver.",
+            message: "A call and your location will be shared with your caregiver.",
             preferredStyle: .alert
         )
 
-        let helpAction = UIAlertAction(title: "Yes, Get help", style: .default) { _ in
+        let yesAction = UIAlertAction(title: "Yes, Get Help", style: .default) { _ in
             self.triggerSOS()
         }
 
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
 
-        alert.addAction(helpAction)
+        alert.addAction(yesAction)
         alert.addAction(cancelAction)
 
         present(alert, animated: true)
     }
-    
+
     private func triggerSOS() {
         print("SOS triggered")
+
+        // Step 1: Initiate caregiver call
+        callCaregiver()
+
+        // Step 2: Request current location
+        LocationManager.shared.delegate = self
+        LocationManager.shared.getLocationOnce()
     }
 
+    private func callCaregiver() {
+        let number = "9920193798" // replace with actual caregiver number from DB
+        if let phoneURL = URL(string: "tel://\(number)"),
+           UIApplication.shared.canOpenURL(phoneURL) {
+            UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
+        }
+    }
+    
+   
+
+
+
 }
+
+extension HomeViewController: LocationManagerDelegate {
+    func didReceiveLocation(lat: Double, long: Double) {
+        let mapsLink = "https://maps.google.com/?q=\(lat),\(long)"
+        print("Maps link: \(mapsLink)")
+
+
+        // Optionally send via SMS:
+        sendLocationSMS(mapsLink)
+    }
+}
+
+private func sendLocationSMS(_ link: String) {
+    let message = "SOS! I need help. My location: \(link)"
+    let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    
+    if let smsURL = URL(string: "sms:&body=\(encodedMessage)") {
+        UIApplication.shared.open(smsURL)
+    }
+}
+
 
 extension HomeViewController: UICollectionViewDataSource {
     
@@ -204,25 +252,8 @@ extension HomeViewController: UICollectionViewDataSource {
         
         else if indexPath.section == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as! RoutineCardCollectionViewCell
-            let rawTasks = DataStore.shared.getRoutines(for: selectedDate)
-
-            let sortedTasks = rawTasks.sorted { t1, t2 in
-                let c1 = Calendar.current.dateComponents([.hour, .minute], from: t1.time)
-                let c2 = Calendar.current.dateComponents([.hour, .minute], from: t2.time)
-
-                let minutes1 = (c1.hour ?? 0) * 60 + (c1.minute ?? 0)
-                let minutes2 = (c2.hour ?? 0) * 60 + (c2.minute ?? 0)
-
-                if minutes1 != minutes2 {
-                    return minutes1 < minutes2
-                }
-
-                // same time → incomplete first
-                return t1.isCompleted == false && t2.isCompleted == true
-            }
-
-            cell.configureRoutineCell(tasks: sortedTasks, date: Date())
-
+            let tasks = DataStore.shared.getRoutines(for: selectedDate)
+            cell.configureRoutineCell(tasks: tasks, date: Date())
             return cell
         }
         
