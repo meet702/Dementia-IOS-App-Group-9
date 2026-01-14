@@ -12,7 +12,7 @@ struct CrosswordCell {
     let row: Int
     let col: Int
 
-    let number: Int?        // serial number (1,2,3…)
+    var number: Int?        // serial number (1,2,3…)
     var letter: Character?
     let isBlocked: Bool
 

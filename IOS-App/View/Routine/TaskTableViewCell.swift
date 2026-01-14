@@ -31,27 +31,37 @@ class TaskTableViewCell: UITableViewCell {
         onCheckTapped?()
     }
 
-    func configure(task: TaskModel) {
+    func configure(task: RoutineTask, isCompleted: Bool) {
+
+        // Title
         titleLabel.text = task.title
-        timePicker.date = task.time
-        updateCheckState(isChecked: task.isCompleted)
-        
-        if let description = task.description, !description.isEmpty {
-            descriptionLabel.text = description
+
+        // Time
+        if let time = task.time {
+            timePicker.date = time
+        }
+
+        // Check button
+        updateCheckState(isChecked: isCompleted)
+
+        // Subtitle / Description
+        if let subtitle = task.subtitle, !subtitle.isEmpty {
+            descriptionLabel.text = subtitle
             descriptionLabel.isHidden = false
         } else {
             descriptionLabel.isHidden = true
         }
-        
-        if task.isCompleted {
-            titleLabel.textColor = UIColor.lightGray
-            descriptionLabel.textColor = UIColor.lightGray
-        } else {
-            titleLabel.textColor = UIColor.black
-            descriptionLabel.textColor = UIColor.systemGray
-        }
 
+        // Completed state styling
+        if isCompleted {
+            titleLabel.textColor = .lightGray
+            descriptionLabel.textColor = .lightGray
+        } else {
+            titleLabel.textColor = .label
+            descriptionLabel.textColor = .secondaryLabel
+        }
     }
+
 
     func updateCheckState(isChecked: Bool) {
         checkButton.isSelected = isChecked

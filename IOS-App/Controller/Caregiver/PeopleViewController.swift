@@ -7,7 +7,7 @@
 
 import UIKit
 import Vision
-import CoreData
+internal import CoreData
 
 class PeopleViewController: UIViewController,
                             UIImagePickerControllerDelegate,

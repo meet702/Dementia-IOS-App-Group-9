@@ -13,7 +13,7 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var homeCollectionView: UICollectionView!
     @IBOutlet weak var sosButton: UIBarButtonItem!
     
-    
+    private let routineRepository = RoutineRepository()
     private var selectedDate: Date = Date()
     
     var brainBoosters: [BrainBoostersCardModel] = [
@@ -190,11 +190,6 @@ class HomeViewController: UIViewController {
             UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
         }
     }
-    
-   
-
-
-
 }
 
 extension HomeViewController: LocationManagerDelegate {
@@ -252,8 +247,8 @@ extension HomeViewController: UICollectionViewDataSource {
         
         else if indexPath.section == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as! RoutineCardCollectionViewCell
-            let tasks = DataStore.shared.getRoutines(for: selectedDate)
-            cell.configureRoutineCell(tasks: tasks, date: Date())
+            let tasks = routineRepository.fetchTasks(for: selectedDate)
+            cell.configureRoutineCell(tasks: tasks, date: selectedDate)
             return cell
         }
         

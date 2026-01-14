@@ -1,205 +1,240 @@
-//
-//  AddEditTaskTableViewController.swift
-//  TempApp
-//
-//  Created by SDC-USER on 28/11/25.
-//
-
 import UIKit
 
-protocol AddEditTaskDelegate: AnyObject {
-    func didAddTask(_ task: TaskModel, on date: Date)
-    func didUpdateTask(_ task: TaskModel, on date: Date)
-    func didCreateRecurringTasks(from task: TaskModel, startingAt startDate: Date)
-    func stopRecurringTasks(from task: TaskModel)
-
-}
-
-
 class AddEditTaskTableViewController: UITableViewController {
-    
+
     @IBOutlet weak var titleCell: TitleCell!
-    
     @IBOutlet weak var notesCell: NotesCell!
-    
     @IBOutlet weak var dateCell: DatePickerCell!
-    
     @IBOutlet weak var timeCell: TimePickerCell!
-    
     @IBOutlet weak var repeatCell: RepeatCell!
+
+    private var hasChanges = false
+    private var originalTitle: String = ""
+    private var originalNotes: String = ""
+    private var originalDate: Date?
+    private var originalTime: Date?
+    private var originalRepeatDaily: Bool = false
+
+    var onSave: (() -> Void)?
     
+    // MARK: - State
     var shouldRepeatDaily = false
-    
-    
+    var repository: RoutineRepository!
+
     enum TaskMode {
         case add
-        case edit(TaskModel)
+        case edit(RoutineTask)
     }
 
     var mode: TaskMode = .add
-    var selectedDate: Date!
-    var originalTaskDate: Date!
-    var titleText: String = ""
-    var notesText: String = ""
-    var selectedDateValue: Date = Date()
-    var selectedTimeValue: Date = Date()
-    
-    weak var delegate: AddEditTaskDelegate?
+    var selectedDate: Date?
+    var originalTaskDate: Date?
 
+    private var titleText: String = ""
+    private var notesText: String = ""
+    private var selectedDateValue: Date = Date()
+    private var selectedTimeValue: Date = Date()
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if repository == nil {
+           repository = RoutineRepository()
+       }
 
         repeatCell.onSwitchChanged = { [weak self] isOn in
             self?.shouldRepeatDaily = isOn
         }
-        
+
         switch mode {
+
         case .add:
-            self.navigationItem.title = "Add Task"
+            navigationItem.title = "Add Task"
+            hasChanges = true
+            shouldRepeatDaily = false
+            selectedDate = Calendar.current.startOfDay(for: selectedDate ?? Date())
+            selectedTimeValue = Date()
+
             dateCell.datePicker.minimumDate = Calendar.current.startOfDay(for: Date())
+            dateCell.datePicker.isEnabled = true
 
         case .edit(let task):
-            self.navigationItem.title = "Edit Task"
+            navigationItem.title = "Edit Task"
+            originalTitle = task.title ?? ""
+            originalDate = task.scheduledDate
+            originalTime = task.time
+            originalRepeatDaily = task.isRepeatDaily
 
-            titleText = task.title
-            notesText = task.description ?? ""
-            selectedDateValue = combine(date: originalTaskDate, time: task.time)
-            selectedTimeValue = task.time
-            shouldRepeatDaily = task.isRecurring
-            dateCell.datePicker.isEnabled = false
+            titleText = originalTitle
+            hasChanges = false
+            // Load text
+            titleText = task.title ?? ""
+            notesText = task.subtitle ?? ""
 
+            // 🔑 LOAD REPEAT + DATE
+            shouldRepeatDaily = task.isRepeatDaily
+            selectedDate = task.scheduledDate ?? selectedDate
+
+            // Load time
+            selectedTimeValue = task.time ?? Date()
+            
+            dateCell.datePicker.isEnabled = true
+            
             navigationItem.rightBarButtonItem?.isEnabled = true
+
         }
 
+        // Populate UI
         titleCell.titleTextView.text = titleText
         notesCell.notesTextView.text = notesText
-        dateCell.datePicker.date = selectedDateValue
+        dateCell.datePicker.date = selectedDate ?? Date()
         timeCell.timePicker.date = selectedTimeValue
-        
         repeatCell.repeatSwitch.isOn = shouldRepeatDaily
 
+        // Title validation
         titleCell.onTextChanged = { [weak self] text in
             guard let self = self else { return }
 
             self.titleText = text
-
-            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            self.navigationItem.rightBarButtonItem?.isEnabled = !trimmed.isEmpty
+            self.hasChanges = text != self.originalTitle
+            self.updateDoneButtonState()
         }
 
-        notesCell.onTextChanged = { [weak self] text in self?.notesText = text }
-        dateCell.onDateChanged = { [weak self] date in self?.selectedDateValue = date }
-        timeCell.onTimeChanged = { [weak self] time in self?.selectedTimeValue = time }
+
+        notesCell.onTextChanged = { [weak self] text in
+            guard let self = self else { return }
+
+            self.notesText = text
+            self.hasChanges = text != self.originalNotes
+            self.updateDoneButtonState()
+            
+        }
+
+        dateCell.onDateChanged = { [weak self] date in
+            guard let self = self else { return }
+
+            self.selectedDate = date
+            self.hasChanges = date != self.originalDate
+            self.updateDoneButtonState()
+        }
+
+        timeCell.onTimeChanged = { [weak self] time in
+            guard let self = self else { return }
+
+            self.selectedTimeValue = time
+            self.hasChanges = time != self.originalTime
+            self.updateDoneButtonState()
+        }
         
-        let doneButton = UIBarButtonItem(
+        repeatCell.onSwitchChanged = { [weak self] isOn in
+            guard let self = self else { return }
+
+            self.shouldRepeatDaily = isOn
+            self.hasChanges = isOn != self.originalRepeatDaily
+            self.updateDoneButtonState()
+        }
+
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
             action: #selector(saveTapped)
         )
-        doneButton.isEnabled = false
-        doneButton.tintColor = .systemOrange
-        navigationItem.rightBarButtonItem = doneButton
-
-
+        navigationItem.rightBarButtonItem?.tintColor = .systemOrange
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .cancel,
             target: self,
             action: #selector(cancelTapped)
         )
+        titleText = titleCell.titleTextView.text ?? ""
+        updateDoneButtonState()
     }
 
     
-    @objc func cancelTapped() {
+    private func updateDoneButtonState() {
+        let hasTitle = !titleText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+
+        let isEnabled = hasChanges && hasTitle
+        navigationItem.rightBarButtonItem?.isEnabled = isEnabled
+    }
+
+    
+    // MARK: - Actions
+    @objc private func cancelTapped() {
         dismiss(animated: true)
     }
-    
-    @IBAction func saveTapped(_ sender: Any) {
-        let finalDate = combine(date: selectedDateValue, time: selectedTimeValue)
-        let recurrenceID = shouldRepeatDaily ? UUID() : nil
 
-        let newTask = TaskModel(
-            title: titleText,
-            description: notesText.isEmpty ? nil : notesText,
-            time: finalDate,
-            isCompleted: false,
-            isRecurring: shouldRepeatDaily,
-            recurrenceID: recurrenceID
+    @objc private func saveTapped() {
+        let _ = combine(
+            date: selectedDateValue,
+            time: selectedTimeValue
         )
+        print("🟢 SAVING TASK FOR DATE:", selectedDateValue)
+
 
         switch mode {
+
         case .add:
-            delegate?.didAddTask(newTask, on: selectedDateValue)
-            
-            if shouldRepeatDaily {
-                delegate?.didCreateRecurringTasks(from: newTask, startingAt: selectedDateValue)
-            }
+            repository.createTask(
+                title: titleText,
+                subtitle: notesText.isEmpty ? nil : notesText,
+                time: selectedTimeValue,
+                repeatDaily: shouldRepeatDaily,
+                scheduledDate: shouldRepeatDaily ? nil : selectedDate
+            )
 
-        case .edit(var oldTask):
-            let wasRecurring = oldTask.isRecurring
-            let nowRecurring = shouldRepeatDaily
+        case .edit(let task):
+            repository.updateTask(
+                task,
+                title: titleText,
+                subtitle: notesText.isEmpty ? nil : notesText,
+                time: selectedTimeValue,
+                repeatDaily: shouldRepeatDaily,
+                scheduledDate: shouldRepeatDaily ? nil : selectedDate
+            )
             
-            oldTask.title = titleText
-            oldTask.description = notesText
-            oldTask.time = selectedTimeValue
-            oldTask.isRecurring = nowRecurring
-
-            if wasRecurring && !nowRecurring {
-                delegate?.stopRecurringTasks(from: oldTask)
-            }
-            
-            delegate?.didUpdateTask(oldTask, on: selectedDateValue)
         }
-
+        onSave?()
         dismiss(animated: true)
     }
-    
-    func combine(date: Date, time: Date) -> Date {
-        let calendar = Calendar.current
 
-        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
+    // MARK: - Helpers
+    private func combine(date: Date, time: Date) -> Date {
+        let calendar = Calendar.current
+        let d = calendar.dateComponents([.year, .month, .day], from: date)
+        let t = calendar.dateComponents([.hour, .minute], from: time)
 
         var combined = DateComponents()
-        combined.year = dateComponents.year
-        combined.month = dateComponents.month
-        combined.day = dateComponents.day
-        combined.hour = timeComponents.hour
-        combined.minute = timeComponents.minute
+        combined.year = d.year
+        combined.month = d.month
+        combined.day = d.day
+        combined.hour = t.hour
+        combined.minute = t.minute
 
         return calendar.date(from: combined) ?? Date()
     }
 
-    
-    //Table view data source
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        2
+    // MARK: - Table View
+    override func numberOfSections(in tableView: UITableView) -> Int { 2 }
+
+    override func tableView(_ tableView: UITableView,
+                            numberOfRowsInSection section: Int) -> Int {
+        section == 0 ? 2 : 3
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-            case 0: return 2
-            case 1: return 3
-            default: return 0
+    override func tableView(_ tableView: UITableView,
+                            cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        switch (indexPath.section, indexPath.row) {
+        case (0, 0): return titleCell
+        case (0, 1): return notesCell
+        case (1, 0): return dateCell
+        case (1, 1): return timeCell
+        default:     return repeatCell
         }
     }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        switch indexPath.section {
-
-        case 0:
-            if indexPath.row == 0 { return titleCell }
-            else { return notesCell }
-
-        case 1:
-            if indexPath.row == 0 { return dateCell }
-            else if indexPath.row == 1 { return timeCell }
-            else { return repeatCell }
-
-        default:
-            fatalError("Unexpected section")
-        }
-    }
-
 }

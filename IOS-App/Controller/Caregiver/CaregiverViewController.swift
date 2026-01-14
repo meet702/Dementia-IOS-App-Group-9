@@ -11,6 +11,7 @@ class CaregiverViewController: UIViewController {
 
     @IBOutlet weak var albumButton: UIButton!
 
+    private let routineRepository = RoutineRepository()
     private var selectedDate: Date = Date()
     
     func setupAlbumButton() {
@@ -168,7 +169,7 @@ extension CaregiverViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCaregiver", for: indexPath) as! RoutineCardCaregiver
-            let tasks = DataStore.shared.getRoutines(for: selectedDate)
+            let tasks = routineRepository.fetchTasks(for: selectedDate)
             cell.configureRoutineCell(tasks: tasks, date: Date())
             return cell
         }

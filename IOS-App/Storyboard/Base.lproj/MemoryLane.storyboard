@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="chd-5U-8el">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="chd-5U-8el">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -17,43 +17,30 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EhM-yR-2Bc">
-                                <rect key="frame" x="121.66666666666669" y="484" width="150" height="65"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="65" id="8jf-tb-bH3"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="150" id="Gje-Uf-UPF"/>
-                                </constraints>
-                                <color key="tintColor" red="0.89803921568627454" green="0.54117647058823526" blue="0.098039215686274508" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" title="Continue"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Continue" cornerStyle="capsule">
-                                    <color key="baseBackgroundColor" red="0.8980392157" green="0.54117647059999996" blue="0.098039215690000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="continueButtonTapped:" destination="d3n-Ds-6GD" eventType="touchUpInside" id="qGu-2R-P6W"/>
-                                </connections>
-                            </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Wt2-ab-SLm">
-                                <rect key="frame" x="56.666666666666657" y="272" width="280" height="160"/>
+                                <rect key="frame" x="46.666666666666657" y="272" width="300" height="200"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="280" id="NTb-3H-de9"/>
-                                    <constraint firstAttribute="height" constant="160" id="ieM-h8-hXd"/>
+                                    <constraint firstAttribute="width" constant="300" id="NTb-3H-de9"/>
+                                    <constraint firstAttribute="height" constant="200" id="ieM-h8-hXd"/>
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="htR-o3-2wP">
-                                <rect key="frame" x="121.66666666666669" y="579" width="150" height="65"/>
+                                <rect key="frame" x="121.66666666666669" y="485" width="150" height="60"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="65" id="DEO-cv-x3c"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="150" id="Tw0-Qy-wqy"/>
+                                    <constraint firstAttribute="height" constant="60" id="fpo-5F-0lp"/>
                                 </constraints>
+                                <color key="tintColor" red="0.94509803920000002" green="0.4823529412" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="New Session" cornerStyle="capsule"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Play Session" cornerStyle="capsule">
+                                    <color key="baseBackgroundColor" red="0.94509803920000002" green="0.4823529412" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </buttonConfiguration>
                                 <connections>
                                     <action selector="newSessionButtonTapped:" destination="d3n-Ds-6GD" eventType="touchUpInside" id="WDR-rS-Q9S"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qil-wm-4uz">
-                                <rect key="frame" x="50" y="719" width="292" height="50.333333333333371"/>
+                                <rect key="frame" x="50" y="635" width="292" height="50.333333333333371"/>
                                 <string key="text">Memories fade slower when
  they’re shared often.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="21"/>
@@ -65,12 +52,10 @@
                         <color key="backgroundColor" red="0.99607843139999996" green="0.97254901959999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="08P-x7-Wf8" firstAttribute="trailing" secondItem="qil-wm-4uz" secondAttribute="trailing" constant="51" id="3Un-qq-sRj"/>
-                            <constraint firstItem="htR-o3-2wP" firstAttribute="top" secondItem="EhM-yR-2Bc" secondAttribute="bottom" constant="30" id="4pa-8Z-W3F"/>
-                            <constraint firstItem="EhM-yR-2Bc" firstAttribute="top" secondItem="Wt2-ab-SLm" secondAttribute="bottom" constant="52" id="8al-uD-3jy"/>
-                            <constraint firstItem="qil-wm-4uz" firstAttribute="top" secondItem="htR-o3-2wP" secondAttribute="bottom" constant="75" id="DTx-7b-JFP"/>
+                            <constraint firstItem="08P-x7-Wf8" firstAttribute="bottom" secondItem="qil-wm-4uz" secondAttribute="bottom" constant="98.666666666666629" id="62M-8n-s22"/>
                             <constraint firstItem="htR-o3-2wP" firstAttribute="centerX" secondItem="5pI-lI-sTr" secondAttribute="centerX" id="S0y-Mj-fnp"/>
                             <constraint firstItem="Wt2-ab-SLm" firstAttribute="top" secondItem="08P-x7-Wf8" secondAttribute="top" constant="48" id="aJv-g4-agq"/>
-                            <constraint firstItem="EhM-yR-2Bc" firstAttribute="centerX" secondItem="5pI-lI-sTr" secondAttribute="centerX" id="hXi-jL-xpF"/>
+                            <constraint firstItem="qil-wm-4uz" firstAttribute="top" secondItem="htR-o3-2wP" secondAttribute="bottom" constant="90" id="fa0-Ee-gVJ"/>
                             <constraint firstItem="Wt2-ab-SLm" firstAttribute="centerX" secondItem="5pI-lI-sTr" secondAttribute="centerX" id="jMj-Bn-k2n"/>
                             <constraint firstItem="qil-wm-4uz" firstAttribute="leading" secondItem="08P-x7-Wf8" secondAttribute="leading" constant="50" id="ur7-Aa-OcO"/>
                         </constraints>
@@ -78,7 +63,6 @@
                     <navigationItem key="navigationItem" title="Memory Lane " id="fb0-DP-E8c"/>
                     <connections>
                         <outlet property="collageImageView" destination="Wt2-ab-SLm" id="TPy-vt-aj9"/>
-                        <outlet property="continueButton" destination="EhM-yR-2Bc" id="Y3A-V3-04N"/>
                         <outlet property="newSessionButton" destination="htR-o3-2wP" id="9d6-2e-fCh"/>
                         <outlet property="subtitleLabel" destination="qil-wm-4uz" id="rM6-S6-Zjq"/>
                     </connections>
@@ -544,14 +528,14 @@
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="OptionCell" id="RAi-r0-3rp" customClass="OptionTableViewCell" customModule="IOS_App" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="50" width="321" height="52.333332061767578"/>
+                                                <rect key="frame" x="0.0" y="50" width="321" height="51.333332061767578"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="RAi-r0-3rp" id="Fdt-6G-aP5">
-                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="52.333332061767578"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="51.333332061767578"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L6A-uH-pyj">
-                                                            <rect key="frame" x="56" y="14.999999999999998" width="249" height="22.333333333333329"/>
+                                                            <rect key="frame" x="56" y="14.999999999999998" width="249" height="21.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -686,14 +670,14 @@
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="OptionCell" id="rvT-GG-wUE" customClass="OptionTableViewCell" customModule="IOS_App" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="50" width="321" height="51.333332061767578"/>
+                                                <rect key="frame" x="0.0" y="50" width="321" height="52.333332061767578"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="rvT-GG-wUE" id="nsg-5c-hmO">
-                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="51.333332061767578"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="321" height="52.333332061767578"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uPA-Zs-jlG">
-                                                            <rect key="frame" x="56" y="14.999999999999998" width="249" height="21.333333333333329"/>
+                                                            <rect key="frame" x="56" y="14.999999999999998" width="249" height="22.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
