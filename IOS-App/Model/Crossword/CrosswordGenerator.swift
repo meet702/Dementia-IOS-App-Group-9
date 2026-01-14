@@ -4,55 +4,182 @@ import Foundation
 // CONFIG
 // =================================
 
-let BOARD_SIZE = 10
+public let BOARD_SIZE = 32
 
 // =================================
 // GLOBAL STATE
 // =================================
 
-var board: [[Character?]] = []
-var wordArr: [String] = []
-var wordBank: [WordObj] = []
-var wordsActive: [WordObj] = []
+public var board: [[Character?]] = []
+public var wordArr: [String] = []
+public var wordBank: [WordObj] = []
+public var wordsActive: [WordObj] = []
+
+public let bounds = Bounds()
+
+// =================================
+// BOUNDS
+// =================================
+
+public final class Bounds {
+    public var top = 999
+    public var right = 0
+    public var bottom = 0
+    public var left = 999
+
+    public func update(x: Int, y: Int) {
+        top = min(top, y)
+        right = max(right, x)
+        bottom = max(bottom, y)
+        left = min(left, x)
+    }
+
+    public func clean() {
+        top = 999
+        right = 0
+        bottom = 0
+        left = 999
+    }
+
+    public func center() -> (x: Int, y: Int) {
+        ((left + right) / 2, (top + bottom) / 2)
+    }
+    
+    public func width() -> Int {
+        return right - left + 1
+    }
+    
+    public func height() -> Int {
+        return bottom - top + 1
+    }
+}
 
 // =================================
 // WORD OBJECT
 // =================================
 
-final class WordObj {
-    let string: String
-    let chars: [Character]
+public final class WordObj {
+    public let string: String
+    public let chars: [Character]
 
-    var totalMatches = 0
-    var effectiveMatches = 0
-    var successfulMatches: [(x: Int, y: Int, dir: Int)] = []
+    public var totalMatches = 0
+    public var effectiveMatches = 0
+    public var successfulMatches: [(x: Int, y: Int, dir: Int)] = []
 
-    var x = 0
-    var y = 0
-    var dir = 0   // 0 = horizontal, 1 = vertical
+    public var x = 0
+    public var y = 0
+    public var dir = 0   // 0 = horizontal, 1 = vertical
 
-    init(_ value: String) {
+    public init(_ value: String) {
         self.string = value
         self.chars = Array(value)
     }
 }
 
 // =================================
-// HELPERS
+// SPREAD SCORING HELPERS
 // =================================
 
 @MainActor
-func cleanVars() {
+func distanceScore(x: Int, y: Int) -> Int {
+    let c = bounds.center()
+    return abs(x - c.x) + abs(y - c.y)
+}
+
+@MainActor
+func localDensityScore(x: Int, y: Int, length: Int, dir: Int) -> Int {
+    var density = 0
+    for i in -2...(length + 2) {
+        let px = dir == 0 ? x + i : x
+        let py = dir == 0 ? y : y + i
+        for dx in -1...1 {
+            for dy in -1...1 {
+                let nx = px + dx
+                let ny = py + dy
+                if nx >= 0, ny >= 0, nx < BOARD_SIZE, ny < BOARD_SIZE {
+                    if board[nx][ny] != nil { density += 1 }
+                }
+            }
+        }
+    }
+    return density
+}
+
+@MainActor
+func directionBalanceBonus(dir: Int) -> Int {
+    let horizontal = wordsActive.filter { $0.dir == 0 }.count
+    let vertical = wordsActive.count - horizontal
+
+    if dir == 0 && horizontal > vertical { return -5 }
+    if dir == 1 && vertical > horizontal { return -5 }
+    return 5
+}
+
+@MainActor
+func chooseBestSpreadPlacement(
+    _ placements: [(x: Int, y: Int, dir: Int)],
+    wordLength: Int
+) -> (x: Int, y: Int, dir: Int) {
+
+    let scored = placements.map { p -> ((Int, Int, Int), Int) in
+
+        let dist = distanceScore(x: p.x, y: p.y) * 3
+        let density = localDensityScore(x: p.x, y: p.y, length: wordLength, dir: p.dir) * 4
+        let dirBonus = directionBalanceBonus(dir: p.dir)
+
+        return ((p.x, p.y, p.dir), dist - density + dirBonus)
+    }
+
+    let bestScore = scored.map { $0.1 }.max()!
+    let bestCandidates = scored.filter { $0.1 >= bestScore - 3 }
+    return bestCandidates.randomElement()!.0
+}
+
+// =================================
+// COMPACTNESS CHECK
+// =================================
+
+@MainActor
+func isCompactCrossword() -> Bool {
+    let width = bounds.width()
+    let height = bounds.height()
+    
+    // Crossword should fit in 9x9 grid
+    if width > 9 || height > 9 {
+        return false
+    }
+    
+    // Check for weird clusters - ensure words are well connected
+    let wordCount = wordsActive.count
+    if wordCount < 3 {
+        return false
+    }
+    
+    // Calculate density - should not be too sparse
+    let usedCells = board.flatMap { $0 }.compactMap { $0 }.count
+    let gridArea = width * height
+    let density = Double(usedCells) / Double(gridArea)
+    
+    // Density should be between 0.25 and 0.85 for good looking crosswords
+    return density >= 0.20 && density <= 0.90
+}
+
+// =================================
+// GENERATION CORE
+// =================================
+
+@MainActor public func cleanVars() {
+    bounds.clean()
     wordBank.removeAll()
     wordsActive.removeAll()
+
     board = Array(
         repeating: Array(repeating: nil, count: BOARD_SIZE),
         count: BOARD_SIZE
     )
 }
 
-@MainActor
-func prepareBoard() {
+@MainActor func prepareBoard() {
     wordBank = wordArr.map { WordObj($0) }
 
     for i in 0..<wordBank.count {
@@ -68,94 +195,31 @@ func prepareBoard() {
     }
 }
 
-// =================================
-// VALIDATION
-// =================================
-
-@MainActor
-func isValidPlacement(word: WordObj, x: Int, y: Int, dir: Int) -> Bool {
-    let len = word.chars.count
-    let endX = dir == 0 ? x + len - 1 : x
-    let endY = dir == 1 ? y + len - 1 : y
-
-    if x < 0 || y < 0 || endX >= BOARD_SIZE || endY >= BOARD_SIZE {
-        return false
-    }
-
-    for i in -1...len {
-        let px = dir == 0 ? x + i : x
-        let py = dir == 0 ? y : y + i
-
-        if px < 0 || py < 0 || px >= BOARD_SIZE || py >= BOARD_SIZE {
-            if i >= 0 && i < len { return false }
-            continue
-        }
-
-        if i >= 0 && i < len {
-            let existing = board[px][py]
-            if existing != nil && existing != word.chars[i] {
-                return false
-            }
-        } else {
-            if board[px][py] != nil {
-                return false
-            }
-        }
-    }
-
-    return true
-}
-
-// =================================
-// WORD PLACEMENT
-// =================================
-
-@MainActor
-func populateBoard() -> Bool {
+@MainActor func populateBoard() -> Bool {
     prepareBoard()
-
     for _ in 0..<wordBank.count {
-        if !addWordToBoard() {
-            return false
-        }
+        if !addWordToBoard() { return false }
     }
     return true
 }
+
+// =================================
+// ADD WORD TO BOARD
+// =================================
 
 @MainActor
 func addWordToBoard() -> Bool {
+
     var curIndex = -1
     var minMatchDiff = Int.max
 
-    // ---------------------------------
-    // FIRST WORD (CENTERED & SAFE)
-    // ---------------------------------
     if wordsActive.isEmpty {
-        curIndex = wordBank.indices.min {
-            wordBank[$0].totalMatches < wordBank[$1].totalMatches
-        }!
 
-        let word = wordBank[curIndex]
-        let len = word.chars.count
-        let mid = BOARD_SIZE / 2
+        curIndex = wordBank.indices.min { wordBank[$0].totalMatches < wordBank[$1].totalMatches }!
+        wordBank[curIndex].successfulMatches = [(12, 12, 0)]
 
-        var placements: [(Int, Int, Int)] = []
+    } else {
 
-        for x in 0...(BOARD_SIZE - len) {
-            placements.append((x, mid, 0))
-        }
-
-        for y in 0...(BOARD_SIZE - len) {
-            placements.append((mid, y, 1))
-        }
-
-        guard !placements.isEmpty else { return false }
-        wordBank[curIndex].successfulMatches = placements
-    }
-    // ---------------------------------
-    // SUBSEQUENT WORDS
-    // ---------------------------------
-    else {
         for i in 0..<wordBank.count {
             let curWord = wordBank[i]
             curWord.effectiveMatches = 0
@@ -167,37 +231,20 @@ func addWordToBoard() -> Bool {
                         where curChar == testChar {
 
                         curWord.effectiveMatches += 1
-
-                        var x = testWord.x
-                        var y = testWord.y
-                        let dir = testWord.dir == 0 ? 1 : 0
+                        var crossX = testWord.x
+                        var crossY = testWord.y
+                        let crossDir = testWord.dir == 0 ? 1 : 0
 
                         if testWord.dir == 0 {
-                            x += l
-                            y -= j
+                            crossX += l
+                            crossY -= j
                         } else {
-                            y += l
-                            x -= j
+                            crossY += l
+                            crossX -= j
                         }
 
-                        if isValidPlacement(word: curWord, x: x, y: y, dir: dir) {
-                            curWord.successfulMatches.append((x, y, dir))
-                        }
-                    }
-                }
-            }
-
-            if curWord.successfulMatches.isEmpty {
-                let len = curWord.chars.count
-                for dir in [0, 1] {
-                    for x in 0..<BOARD_SIZE {
-                        for y in 0..<BOARD_SIZE {
-                            let endX = dir == 0 ? x + len - 1 : x
-                            let endY = dir == 1 ? y + len - 1 : y
-                            if endX < BOARD_SIZE && endY < BOARD_SIZE &&
-                               isValidPlacement(word: curWord, x: x, y: y, dir: dir) {
-                                curWord.successfulMatches.append((x, y, dir))
-                            }
+                        if isValidPlacement(word: curWord, x: crossX, y: crossY, dir: crossDir) {
+                            curWord.successfulMatches.append((crossX, crossY, crossDir))
                         }
                     }
                 }
@@ -216,42 +263,123 @@ func addWordToBoard() -> Bool {
     let word = wordBank.remove(at: curIndex)
     wordsActive.append(word)
 
-    let match = word.successfulMatches.randomElement()!
+    let match = chooseBestSpreadPlacement(word.successfulMatches, wordLength: word.chars.count)
+
     word.x = match.x
     word.y = match.y
     word.dir = match.dir
 
     for i in 0..<word.chars.count {
-        let px = word.dir == 0 ? word.x + i : word.x
-        let py = word.dir == 0 ? word.y : word.y + i
-        board[px][py] = word.chars[i]
+        let x = word.dir == 0 ? word.x + i : word.x
+        let y = word.dir == 0 ? word.y : word.y + i
+        board[x][y] = word.chars[i]
+        bounds.update(x: x, y: y)
     }
 
     return true
 }
 
 // =================================
-// WRAPPER FOR APP INTEGRATION
+// VALIDATION
 // =================================
 
 @MainActor
-func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
+func isValidPlacement(word: WordObj, x: Int, y: Int, dir: Int) -> Bool {
+    let length = word.chars.count
 
-    wordArr = words
+    for i in 0..<length {
+        let px = dir == 0 ? x + i : x
+        let py = dir == 0 ? y : y + i
 
-    guard wordArr.allSatisfy({ $0.count <= BOARD_SIZE }) else {
-        fatalError("Word longer than board size")
+        if px < 0 || py < 0 || px >= BOARD_SIZE || py >= BOARD_SIZE {
+            return false
+        }
+
+        if let existing = board[px][py], existing != word.chars[i] {
+            return false
+        }
     }
 
+    return true
+}
+
+// =================================
+// PUBLIC API — OPTIMIZED VERSION
+// =================================
+
+@MainActor
+public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
+
+    // OPTIMIZED: Limit to 5-6 words only
+    wordArr = words.filter { $0.count >= 4 && $0.count <= 8 }
+    wordArr = Array(wordArr.prefix(6))  // Max 6 words
+
+    guard wordArr.count >= 3 else {
+        return ([], [])
+    }
+
+    // OPTIMIZED: Reduced attempts from 100 to 30
     var success = false
-    for _ in 0..<20 where !success {
+    var attempts = 0
+    let maxAttempts = 30
+    
+    while !success && attempts < maxAttempts {
         cleanVars()
         success = populateBoard()
+        
+        // Check if crossword is compact and well-formed
+        if success {
+            success = isCompactCrossword()
+        }
+        
+        attempts += 1
     }
 
-    guard success else {
-        fatalError("Failed to generate crossword")
-    }
+    return success ? (board, wordsActive) : ([], [])
+}
 
-    return (board, wordsActive)
+// =================================
+// GENERATE MULTIPLE UNIQUE PUZZLES - OPTIMIZED
+// =================================
+
+@MainActor
+public func generateUniqueCrosswords(
+    from items: [CountryData],
+    count: Int
+) -> [([String], [String: String])] {
+    
+    var puzzles: [([String], [String: String])] = []
+    var usedCombinations: Set<String> = []
+    
+    for _ in 0..<count {
+        var attempts = 0
+        var foundUnique = false
+        
+        while !foundUnique && attempts < 20 {
+            
+            // ⬇️ FIXED — use provided items, NOT countries
+            let shuffled = items.shuffled()
+            let subset = Array(shuffled.prefix(min(6, shuffled.count)))
+            
+            let words = subset.map { $0.name }
+            let clues = Dictionary(uniqueKeysWithValues: subset.map { ($0.name, $0.clue) })
+            
+            let signature = words.sorted().joined()
+            
+            if !usedCombinations.contains(signature) {
+                
+                let (_, placedWords) = generateCrossword(words: words)
+                
+                if !placedWords.isEmpty && placedWords.count >= 3 {
+                    puzzles.append((words, clues))
+                    usedCombinations.insert(signature)
+                    foundUnique = true
+                }
+            }
+            
+            attempts += 1
+        }
+    }
+    
+    return puzzles
 }

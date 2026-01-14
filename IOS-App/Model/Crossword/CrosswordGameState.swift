@@ -1,14 +1,10 @@
-//
-//  CrosswordGameState.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 08/01/26.
-//
-
-import Foundation
+enum GlobalDirection {
+    case across
+    case down
+}
 
 final class CrosswordGameState {
     var selectedWord: CrosswordWord?
-    var selectedDirection: Direction = .across
-    var selectedCellIndex: Int?
+    var selectedCellIndex: Int = 0
+    var selectedDirection: GlobalDirection = .across
 }
