@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CoreData
+internal import CoreData
 
 class DetailsTableViewController: UITableViewController {
 
