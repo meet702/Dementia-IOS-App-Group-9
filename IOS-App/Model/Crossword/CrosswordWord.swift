@@ -4,10 +4,7 @@
 //
 //  Created by SDC-USER on 08/01/26.
 //
-
-import UIKit
-
-enum Direction {
+enum CrosswordDirection {
     case across
     case down
 }
@@ -15,7 +12,13 @@ enum Direction {
 struct CrosswordWord {
     let number: Int
     let answer: String
+    let clue: String
     let startIndex: Int
-    let direction: Direction
-    let image: UIImage
+    let direction: CrosswordDirection
+
+    var globalDirection: GlobalDirection {
+        return direction == .across ? .across : .down
+    }
 }
+
+

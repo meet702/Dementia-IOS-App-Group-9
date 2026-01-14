@@ -3,19 +3,19 @@
 //  IOS-App
 //
 //  Created by SDC-USER on 08/01/26.
-//
-
-import UIKit
 
 struct CrosswordCell {
     let index: Int
     let row: Int
     let col: Int
 
-    var number: Int?        // serial number (1,2,3…)
+    var numbers: [Int] = []  // CHANGED: Array instead of single Int
     var letter: Character?
-    let isBlocked: Bool
+    var correctLetter: Character?
 
+    var isBlocked: Bool
     var isHighlighted: Bool
-    var isCorrect: Bool
+
+    var isCorrectWord: Bool
+    var isWrongLetter: Bool
 }
