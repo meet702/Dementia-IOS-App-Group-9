@@ -15,6 +15,7 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
     @IBOutlet weak var nameTextField: UITextField!
 
     var onNameUpdated: ((String) -> Void)?
+    var onImageTapped: (() -> Void)?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -43,6 +44,19 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
         )
         doubleTap.numberOfTapsRequired = 2
         peopleNameLabel.addGestureRecognizer(doubleTap)
+        
+        imageView.isUserInteractionEnabled = true
+
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(imageTapped)
+        )
+
+        imageView.addGestureRecognizer(tap)
+    }
+    
+    @objc private func imageTapped() {
+        onImageTapped?()
     }
 
     override func layoutSubviews() {

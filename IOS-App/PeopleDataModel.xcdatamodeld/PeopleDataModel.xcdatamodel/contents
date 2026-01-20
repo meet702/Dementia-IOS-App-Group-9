@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24512" systemVersion="25C56" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="FaceImageEntity" representedClassName="FaceImageEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imagePath" optional="YES" attributeType="String"/>
+        <relationship name="person" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PersonEntity" inverseName="faces" inverseEntity="PersonEntity"/>
+        <relationship name="photo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoEntity" inverseName="faces" inverseEntity="PhotoEntity"/>
+    </entity>
     <entity name="PersonEntity" representedClassName="PersonEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="clusterId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="details" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -8,6 +16,13 @@
         <attribute name="memoryHint" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="relation" optional="YES" attributeType="String"/>
+        <relationship name="faces" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FaceImageEntity" inverseName="person" inverseEntity="FaceImageEntity"/>
+    </entity>
+    <entity name="PhotoEntity" representedClassName="PhotoEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imagePath" optional="YES" attributeType="String"/>
+        <relationship name="faces" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FaceImageEntity" inverseName="photo" inverseEntity="FaceImageEntity"/>
     </entity>
     <entity name="RoutineTask" representedClassName="RoutineTask" syncable="YES" codeGenerationType="class">
         <attribute name="completedDates" optional="YES" attributeType="Transformable"/>

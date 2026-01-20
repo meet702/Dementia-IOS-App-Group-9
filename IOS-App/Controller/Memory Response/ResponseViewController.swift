@@ -120,7 +120,7 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         
         let label = UILabel()
         label.text = "People in this memory"
-        label.font = UIFont.boldSystemFont(ofSize: 17)
+        label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = UIColor.black
         label.translatesAutoresizingMaskIntoConstraints = false
         
