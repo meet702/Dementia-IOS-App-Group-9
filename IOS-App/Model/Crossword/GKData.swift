@@ -7,48 +7,48 @@
 
 import Foundation
 
-let gkData: [CountryData] = [
+let gkData: [CrosswordData] = [
     // 4-letter GK
-    CountryData(name: "MARS", clue: "Red planet"),
-    CountryData(name: "MOON", clue: "Earth's satellite"),
-    CountryData(name: "GOLD", clue: "Precious yellow metal"),
-    CountryData(name: "IRON", clue: "Strong metal"),
-    CountryData(name: "RAIN", clue: "Water from clouds"),
-    CountryData(name: "SNOW", clue: "Frozen precipitation"),
+    CrosswordData(name: "MARS", clue: "Red planet"),
+    CrosswordData(name: "MOON", clue: "Earth's satellite"),
+    CrosswordData(name: "GOLD", clue: "Precious yellow metal"),
+    CrosswordData(name: "IRON", clue: "Strong metal"),
+    CrosswordData(name: "RAIN", clue: "Water from clouds"),
+    CrosswordData(name: "SNOW", clue: "Frozen precipitation"),
     
     // 5-letter GK
-    CountryData(name: "EARTH", clue: "Our planet"),
-    CountryData(name: "VENUS", clue: "Second planet"),
-    CountryData(name: "OCEAN", clue: "Large water body"),
-    CountryData(name: "RIVER", clue: "Flowing water"),
-    CountryData(name: "MOUNT", clue: "High elevation"),
-    CountryData(name: "FOREST", clue: "Tree area"),
-    CountryData(name: "SOLAR", clue: "Sun related"),
-    CountryData(name: "LUNAR", clue: "Moon related"),
+    CrosswordData(name: "EARTH", clue: "Our planet"),
+    CrosswordData(name: "VENUS", clue: "Second planet"),
+    CrosswordData(name: "OCEAN", clue: "Large water body"),
+    CrosswordData(name: "RIVER", clue: "Flowing water"),
+    CrosswordData(name: "MOUNT", clue: "High elevation"),
+    CrosswordData(name: "FOREST", clue: "Tree area"),
+    CrosswordData(name: "SOLAR", clue: "Sun related"),
+    CrosswordData(name: "LUNAR", clue: "Moon related"),
     
     // 6-letter GK
-    CountryData(name: "PLANET", clue: "Celestial body"),
-    CountryData(name: "SATURN", clue: "Ringed planet"),
-    CountryData(name: "OXYGEN", clue: "Breathing gas"),
-    CountryData(name: "CARBON", clue: "Element in diamonds"),
-    CountryData(name: "DESERT", clue: "Sandy region"),
-    CountryData(name: "JUNGLE", clue: "Dense forest"),
-    CountryData(name: "VALLEY", clue: "Low land between hills"),
-    CountryData(name: "ISLAND", clue: "Land surrounded by water"),
+    CrosswordData(name: "PLANET", clue: "Celestial body"),
+    CrosswordData(name: "SATURN", clue: "Ringed planet"),
+    CrosswordData(name: "OXYGEN", clue: "Breathing gas"),
+    CrosswordData(name: "CARBON", clue: "Element in diamonds"),
+    CrosswordData(name: "DESERT", clue: "Sandy region"),
+    CrosswordData(name: "JUNGLE", clue: "Dense forest"),
+    CrosswordData(name: "VALLEY", clue: "Low land between hills"),
+    CrosswordData(name: "ISLAND", clue: "Land surrounded by water"),
     
     // 7-letter GK
-    CountryData(name: "JUPITER", clue: "Largest planet"),
-    CountryData(name: "MERCURY", clue: "Closest planet to sun"),
-    CountryData(name: "NEPTUNE", clue: "Eighth planet"),
-    CountryData(name: "VOLCANO", clue: "Mountain that erupts"),
-    CountryData(name: "RAINBOW", clue: "Colorful arc in sky"),
-    CountryData(name: "THUNDER", clue: "Sound of lightning"),
-    CountryData(name: "GLACIER", clue: "Slow moving ice"),
-    CountryData(name: "EQUATOR", clue: "Earth's middle line"),
+    CrosswordData(name: "JUPITER", clue: "Largest planet"),
+    CrosswordData(name: "MERCURY", clue: "Closest planet to sun"),
+    CrosswordData(name: "NEPTUNE", clue: "Eighth planet"),
+    CrosswordData(name: "VOLCANO", clue: "Mountain that erupts"),
+    CrosswordData(name: "RAINBOW", clue: "Colorful arc in sky"),
+    CrosswordData(name: "THUNDER", clue: "Sound of lightning"),
+    CrosswordData(name: "GLACIER", clue: "Slow moving ice"),
+    CrosswordData(name: "EQUATOR", clue: "Earth's middle line"),
     
     // 8-letter GK
-    CountryData(name: "UNIVERSE", clue: "Everything that exists"),
-    CountryData(name: "WATERFALL", clue: "Falling water"),
-    CountryData(name: "MOUNTAIN", clue: "High peak"),
-    CountryData(name: "NITROGEN", clue: "Most abundant gas"),
+    CrosswordData(name: "UNIVERSE", clue: "Everything that exists"),
+    CrosswordData(name: "WATERFALL", clue: "Falling water"),
+    CrosswordData(name: "MOUNTAIN", clue: "High peak"),
+    CrosswordData(name: "NITROGEN", clue: "Most abundant gas"),
 ]

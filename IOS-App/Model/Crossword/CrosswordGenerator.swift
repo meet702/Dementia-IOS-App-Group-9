@@ -344,7 +344,7 @@ public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
 
 @MainActor
 public func generateUniqueCrosswords(
-    from items: [CountryData],
+    from items: [CrosswordData],
     count: Int
 ) -> [([String], [String: String])] {
     

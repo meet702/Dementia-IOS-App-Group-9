@@ -57,14 +57,14 @@ final class RoutineCardCaregiver: UICollectionViewCell {
     }
 
     // MARK: - Public API
-
+    @MainActor
     func configureRoutineCell(tasks: [RoutineTask], date: Date = Date()) {
 
         stackView.arrangedSubviews.forEach {
             stackView.removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
-        self.contextDate = date
+        self.contextDate = Calendar.current.startOfDay(for: date)
         let sortedTasks = sortTasksByTime(tasks)
 
         let period = Self.currentPeriod(for: date)
@@ -81,7 +81,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
                 return sortedTasks.filter { $0.time.map(Self.isInEvening) ?? false }
             }
         }()
-
 
         let pending = pendingTasks(from: periodTasks)
         let completed = completedTasks(from: periodTasks)
@@ -208,7 +207,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
                 subtitleLabel.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -8),
 
                 timeLabel.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -12),
-                timeLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
+                timeLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor)
             ])
         } else {
             NSLayoutConstraint.activate([
@@ -221,6 +220,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
                 titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: timeLabel.leadingAnchor, constant: -8)
             ])
         }
+        row.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
 
         return row
     }
@@ -275,7 +275,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
     private static func isInEvening(_ date: Date) -> Bool {
         let h = Calendar.current.component(.hour, from: date)
-        return h >= 17 || h < 23
+        return h >= 17 && h < 24
     }
 
     private func addSectionHeader(title: String) {

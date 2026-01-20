@@ -466,7 +466,7 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
     }
 
     // MARK: - Public API
-
+    @MainActor
     func configureRoutineCell(tasks: [RoutineTask], date: Date = Date()) {
 
         stackView.arrangedSubviews.forEach {
@@ -576,7 +576,8 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         let row = UIView()
 
         let titleLabel = UILabel()
-        titleLabel.font = .systemFont(ofSize: 15)
+//        titleLabel.font = .systemFont(ofSize: 15)
+        titleLabel.font = .preferredFont(forTextStyle: .callout)
         titleLabel.text = item.title ?? ""
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 

@@ -62,7 +62,20 @@ final class GridCell: UICollectionViewCell {
             numberLabel.text = ""
             return
         }
+        
+        // 1️⃣ SELECTED CELL (DARK ORANGE)
+        if model.isSelected {
+            contentView.backgroundColor = UIColor.orange.withAlphaComponent(0.45)
+            layer.borderWidth = 2
+            layer.borderColor = UIColor.orange.cgColor
 
+            letterLabel.text = model.letter.map { String($0) } ?? ""
+            letterLabel.textColor = .black
+            numberLabel.text = model.numbers.map { "\($0)" }.joined(separator: ",")
+
+            return
+        }
+        
         // -----------------------------
         // WORD IS CORRECT (SOLID ORANGE)
         // -----------------------------
@@ -72,14 +85,16 @@ final class GridCell: UICollectionViewCell {
             layer.borderColor = UIColor.orange.cgColor
 
             letterLabel.textColor = .white
-            letterLabel.text = model.letter != nil ? String(model.letter!) : ""
+            letterLabel.text = model.letter.map { String($0) } ?? ""
 
             numberLabel.textColor = .white
-            // CHANGED: Display multiple numbers separated by comma
-            numberLabel.text = model.numbers.isEmpty ? "" : model.numbers.map { "\($0)" }.joined(separator: ",")
+            numberLabel.text = model.numbers.isEmpty
+                ? ""
+                : model.numbers.map { "\($0)" }.joined(separator: ",")
 
             return
         }
+
 
         // -----------------------------
         // WRONG LETTER (RED STYLE)
@@ -99,23 +114,19 @@ final class GridCell: UICollectionViewCell {
             return
         }
 
-        // ---------------------------------
-        // SELECTED WORD (LIGHT ORANGE HIGHLIGHT)
-        // ---------------------------------
+        // 2️⃣ HIGHLIGHTED WORD (LIGHT ORANGE)
         if model.isHighlighted {
             contentView.backgroundColor = UIColor.orange.withAlphaComponent(0.25)
             layer.borderWidth = 1
             layer.borderColor = UIColor.orange.cgColor
 
+            letterLabel.text = model.letter.map { String($0) } ?? ""
             letterLabel.textColor = .black
-            letterLabel.text = model.letter != nil ? String(model.letter!) : ""
-
-            numberLabel.textColor = .darkGray
-            // CHANGED: Display multiple numbers
-            numberLabel.text = model.numbers.isEmpty ? "" : model.numbers.map { "\($0)" }.joined(separator: ",")
+            numberLabel.text = model.numbers.map { "\($0)" }.joined(separator: ",")
 
             return
         }
+
 
         // DEFAULT NORMAL CELL
         contentView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)

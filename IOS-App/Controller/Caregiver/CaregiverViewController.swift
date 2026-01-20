@@ -170,7 +170,7 @@ extension CaregiverViewController: UICollectionViewDataSource {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCaregiver", for: indexPath) as! RoutineCardCaregiver
             let tasks = routineRepository.fetchTasks(for: selectedDate)
-            cell.configureRoutineCell(tasks: tasks, date: Date())
+            cell.configureRoutineCell(tasks: tasks, date: selectedDate)
             return cell
         }
         else {

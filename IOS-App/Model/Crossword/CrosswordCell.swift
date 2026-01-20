@@ -16,6 +16,10 @@ struct CrosswordCell {
     var isBlocked: Bool
     var isHighlighted: Bool
 
+    var isCorrectLetter: Bool  
     var isCorrectWord: Bool
     var isWrongLetter: Bool
+    
+    var isSelected: Bool = false
+
 }
