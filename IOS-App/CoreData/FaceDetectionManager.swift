@@ -1,89 +1,84 @@
-//
-//  FaceDetectionManager.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 15/12/25.
-//
-
 import UIKit
 import Vision
-internal import CoreData
 
 final class FaceDetectionManager {
 
     static let shared = FaceDetectionManager()
     private init() {}
+    
+    struct DetectedFaceResult {
+        let faceImage: UIImage
+        let embedding: [Float]
+        let boundingBox: CGRect
+    }
 
-    func detectFaces(
-        in image: UIImage,
-        completion: @escaping ([UIImage]) -> Void) {
 
+    func detectFaces(in image: UIImage, completion: @escaping ([DetectedFaceResult]) -> Void) {
         let fixedImage = image.normalizedOrientation()
 
-        guard let cgImage = fixedImage.cgImage else {
+        guard let ciImage = CIImage(image: fixedImage) else {
             completion([])
             return
         }
 
-        let request = VNDetectFaceRectanglesRequest { request, error in
+        let request = VNDetectFaceRectanglesRequest { request, _ in
 
-            guard let observations = request.results as? [VNFaceObservation],
-                  !observations.isEmpty else {
+            guard let faces = request.results as? [VNFaceObservation],
+                  !faces.isEmpty else {
                 DispatchQueue.main.async {
                     completion([])
                 }
                 return
             }
 
-            let faces = observations.compactMap {
-                self.crop(face: $0, from: cgImage)
+            var results: [DetectedFaceResult] = []
+
+            for face in faces {
+
+                guard
+                    let cropped = self.crop(face: face, from: fixedImage),
+                    let embedding = FaceEmbedder.shared.embedding(from: cropped)
+                else { continue }
+
+                results.append(
+                    DetectedFaceResult(
+                        faceImage: cropped,
+                        embedding: embedding,
+                        boundingBox: face.boundingBox
+                    )
+                )
             }
 
             DispatchQueue.main.async {
-                completion(faces)
+                completion(results)
             }
         }
 
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        try? handler.perform([request])
+        let handler = VNImageRequestHandler(ciImage: ciImage, options: [:])
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            try? handler.perform([request])
+        }
     }
 
 
-    private func crop(face: VNFaceObservation, from image: CGImage) -> UIImage? {
+    private func crop(face: VNFaceObservation, from image: UIImage) -> UIImage? {
+        guard let cgImage = image.cgImage else { return nil }
 
-        let imageWidth = CGFloat(image.width)
-        let imageHeight = CGFloat(image.height)
+        let w = CGFloat(cgImage.width)
+        let h = CGFloat(cgImage.height)
 
         var rect = CGRect(
-            x: face.boundingBox.origin.x * imageWidth,
-            y: (1 - face.boundingBox.origin.y - face.boundingBox.height) * imageHeight,
-            width: face.boundingBox.width * imageWidth,
-            height: face.boundingBox.height * imageHeight
+            x: face.boundingBox.origin.x * w,
+            y: (1 - face.boundingBox.origin.y - face.boundingBox.height) * h,
+            width: face.boundingBox.width * w,
+            height: face.boundingBox.height * h
         )
 
-        let padding: CGFloat = 0.5
-        let padX = rect.width * padding
-        let padY = rect.height * padding
+        rect = rect.insetBy(dx: -rect.width * 0.4, dy: -rect.height * 0.4)
+        rect = rect.intersection(CGRect(x: 0, y: 0, width: w, height: h))
 
-        rect = rect.insetBy(dx: -padX, dy: -padY)
-
-        rect.origin.x = max(0, rect.origin.x)
-        rect.origin.y = max(0, rect.origin.y)
-
-        if rect.maxX > imageWidth {
-            rect.size.width = imageWidth - rect.origin.x
-        }
-
-        if rect.maxY > imageHeight {
-            rect.size.height = imageHeight - rect.origin.y
-        }
-
-        guard let croppedCGImage = image.cropping(to: rect) else {
-            return nil
-        }
-
-        return UIImage(cgImage: croppedCGImage)
+        guard let cropped = cgImage.cropping(to: rect) else { return nil }
+        return UIImage(cgImage: cropped)
     }
-
 }
-

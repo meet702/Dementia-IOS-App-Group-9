@@ -9,10 +9,7 @@ import UIKit
 import Vision
 internal import CoreData
 
-class PeopleViewController: UIViewController,
-                            UIImagePickerControllerDelegate,
-                            UINavigationControllerDelegate {
-
+class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet weak var PeoplecollectionView: UICollectionView!
 
     var people: [PeopleModel] = []
@@ -37,7 +34,6 @@ class PeopleViewController: UIViewController,
         
         let layout = generateLayout()
         PeoplecollectionView.setCollectionViewLayout(layout, animated: false)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -49,21 +45,28 @@ class PeopleViewController: UIViewController,
 
         let context = PersistenceController.shared.context
 
-        if let imagePath = person.imagePath {
-            ImageStorageManager.shared.deleteImage(named: imagePath)
+        // Delete all face images
+        if let faces = person.faces as? Set<FaceImageEntity> {
+            for face in faces {
+                if let path = face.imagePath {
+                    ImageStorageManager.shared.deleteImage(named: path)
+                }
+                context.delete(face)
+            }
         }
 
         context.delete(person)
 
         do {
             try context.save()
-            print("Person deleted")
+            print("✅ Person deleted")
         } catch {
-            print("Failed to delete person:", error)
+            print("❌ Failed to delete person:", error)
         }
 
         loadPeople()
     }
+
 
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { _, _ -> NSCollectionLayoutSection? in
@@ -105,10 +108,27 @@ class PeopleViewController: UIViewController,
             let results = try context.fetch(request)
 
             self.people = results.compactMap { entity in
+
                 guard
-                    let path = entity.imagePath,
+                    let faces = entity.faces as? Set<FaceImageEntity>,
+                    !faces.isEmpty
+                else {
+                    return nil
+                }
+
+                // Pick latest face safely
+                let sortedFaces = faces.sorted {
+                    ($0.createdAt ?? .distantPast) >
+                    ($1.createdAt ?? .distantPast)
+                }
+
+                guard
+                    let face = sortedFaces.first,
+                    let path = face.imagePath,
                     let image = ImageStorageManager.shared.loadImage(from: path)
-                else { return nil }
+                else {
+                    return nil
+                }
 
                 return PeopleModel(
                     objectID: entity.objectID,
@@ -117,15 +137,20 @@ class PeopleViewController: UIViewController,
                 )
             }
 
+
+
             PeoplecollectionView.reloadData()
             updateEmptyState()
-
         } catch {
             print("Failed to fetch people:", error)
         }
+        
     }
-
-    func savePerson(faceImage: UIImage) {
+    
+    func createPerson(
+        faceImage: UIImage,
+        clusterId: UUID
+    ) {
 
         let context = PersistenceController.shared.context
 
@@ -135,17 +160,59 @@ class PeopleViewController: UIViewController,
 
         let person = PersonEntity(context: context)
         person.id = UUID()
+        person.clusterId = clusterId
         person.name = "Add Name"
-        person.imagePath = imagePath
         person.createdAt = Date()
+
+        let face = FaceImageEntity(context: context)
+        face.id = UUID()
+        face.imagePath = imagePath
+        face.createdAt = Date()
+        face.person = person
 
         do {
             try context.save()
-            print("Person saved")
+            print("🆕 Person created with first face")
         } catch {
-            print("Failed to save person:", error)
+            print("❌ Save failed:", error)
         }
     }
+
+    func addFaceImage(
+        _ faceImage: UIImage,
+        to clusterId: UUID
+    ) {
+
+        let context = PersistenceController.shared.context
+
+        let request: NSFetchRequest<PersonEntity> = PersonEntity.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "clusterId == %@",
+            clusterId as CVarArg
+        )
+
+        guard
+            let person = try? context.fetch(request).first,
+            let imagePath = ImageStorageManager.shared.saveImage(faceImage)
+        else {
+            return
+        }
+
+        let face = FaceImageEntity(context: context)
+        face.id = UUID()
+        face.imagePath = imagePath
+        face.createdAt = Date()
+        face.person = person
+
+        do {
+            try context.save()
+            print("➕ Face added to existing person")
+        } catch {
+            print("❌ Failed to add face:", error)
+        }
+    }
+
+
 
     @IBAction func addPhotosButton(_ sender: UIBarButtonItem) {
 
@@ -190,15 +257,78 @@ class PeopleViewController: UIViewController,
         guard let image = info[.originalImage] as? UIImage else { return }
         handleUploadedImage(image)
     }
-
+    
     private func handleUploadedImage(_ image: UIImage) {
 
-        FaceDetectionManager.shared.detectFaces(in: image) { faceImages in
-            for face in faceImages {
-                self.savePerson(faceImage: face)
+        let context = PersistenceController.shared.context
+
+        guard let photoPath = ImageStorageManager.shared.saveImage(image) else { return }
+
+        let photo = PhotoEntity(context: context)
+        photo.id = UUID()
+        photo.imagePath = photoPath
+        photo.createdAt = Date()
+
+        FaceDetectionManager.shared.detectFaces(in: image) { results in
+
+            for result in results {
+
+                let embedding = result.embedding
+                let faceImage = result.faceImage
+//                let boundingBox = result.boundingBox
+
+                let clusterResult = FaceClusteringManager.shared.addFace(embedding: embedding)
+
+                let person = clusterResult.isNew
+                    ? self.createPersonEntity(clusterId: clusterResult.cluster.id)
+                    : self.fetchPerson(clusterId: clusterResult.cluster.id)!
+
+                let face = FaceImageEntity(context: context)
+                face.id = UUID()
+                face.imagePath = ImageStorageManager.shared.saveImage(faceImage)
+                face.createdAt = Date()
+                face.person = person
+                face.photo = photo
+
+//                face.faceRectX = boundingBox.origin.x
+//                face.faceRectY = boundingBox.origin.y
+//                face.faceRectW = boundingBox.size.width
+//                face.faceRectH = boundingBox.size.height
             }
-            self.loadPeople()
+
+            try? context.save()
+
+            DispatchQueue.main.async {
+                self.loadPeople()
+            }
         }
+    }
+
+    func createPersonEntity(clusterId: UUID) -> PersonEntity {
+
+        let context = PersistenceController.shared.context
+
+        let person = PersonEntity(context: context)
+        person.id = UUID()
+        person.clusterId = clusterId
+        person.name = "Add Name"
+        person.createdAt = Date()
+
+        return person
+    }
+
+    func fetchPerson(clusterId: UUID) -> PersonEntity? {
+
+        let context = PersistenceController.shared.context
+
+        let request: NSFetchRequest<PersonEntity> = PersonEntity.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "clusterId == %@",
+            clusterId as CVarArg
+        )
+        request.fetchLimit = 1
+
+        return try? context.fetch(request).first
     }
 
     @objc private func editButtonTapped(_ sender: UIButton) {
@@ -218,6 +348,13 @@ class PeopleViewController: UIViewController,
 
             detailsVC.person = person
         }
+        
+        if segue.identifier == "showPersonImages",
+           let vc = segue.destination as? PersonImageViewController,
+           let person = sender as? PeopleModel {
+
+            vc.personObjectID = person.objectID
+        }
     }
 }
 
@@ -232,10 +369,7 @@ extension PeopleViewController: UICollectionViewDataSource {
         return people.count
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "peopleCollectionViewCell",
@@ -262,6 +396,14 @@ extension PeopleViewController: UICollectionViewDataSource {
             try? context.save()
 
             self.loadPeople()
+        }
+        
+        cell.onImageTapped = { [weak self] in
+            guard let self = self else { return }
+            self.performSegue(
+                withIdentifier: "showPersonImages",
+                sender: person
+            )
         }
         return cell
     }

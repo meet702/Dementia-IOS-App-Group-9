@@ -16,21 +16,11 @@ class MemoryLaneHomeViewController: UIViewController {
         navigateToPictureIntro()
     }
 
-    @IBAction func continueButtonTapped(_ sender: UIButton) {
-        //navigateToLastPlayedStep()
-    }
-
-    
-
     private func navigateToPictureIntro() {
         let storyboard = UIStoryboard(name: "MemoryLane", bundle: nil)
         let nextVC = storyboard.instantiateViewController(withIdentifier: "MemoryLanePictureIntroVC")
         navigationController?.pushViewController(nextVC, animated: false)
     }
-
-
-
-    
 }
 
 
