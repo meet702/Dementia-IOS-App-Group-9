@@ -1324,8 +1324,8 @@ From Flags</string>
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="OBF-rX-lL4">
-                                <rect key="frame" x="12" y="118" width="369" height="666"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="OBF-rX-lL4">
+                                <rect key="frame" x="12" y="138" width="369" height="646"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="Pdj-Id-KhC">
                                         <rect key="frame" x="0.0" y="0.0" width="369" height="410"/>
@@ -1381,13 +1381,13 @@ From Flags</string>
                                         </cells>
                                     </collectionView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mmC-Dt-VH1">
-                                        <rect key="frame" x="0.0" y="422" width="369" height="61"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <rect key="frame" x="0.0" y="416" width="369" height="53"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="j18-VH-KS7">
-                                        <rect key="frame" x="0.0" y="495" width="369" height="171"/>
+                                        <rect key="frame" x="0.0" y="475" width="369" height="171"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="AJ4-ji-cjC">
                                                 <rect key="frame" x="0.0" y="0.0" width="369" height="45"/>
@@ -1398,7 +1398,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="qg3-91-GnL"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="Q" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="Q" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="5UD-xu-bt3"/>
                                                         </connections>
@@ -1410,7 +1410,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="KCr-CJ-Yl8"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="W" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="W" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="gs6-7Y-6BQ"/>
                                                         </connections>
@@ -1421,7 +1421,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="bq4-CP-Z6U"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="E" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="E" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="5UI-di-N1H"/>
                                                         </connections>
@@ -1432,7 +1432,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="hHP-K8-Lfw"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="R" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="R" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="rjy-Sa-Dzt"/>
                                                         </connections>
@@ -1443,7 +1443,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="wzB-U6-IyY"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="T" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="T" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="AgQ-MI-26b"/>
                                                         </connections>
@@ -1454,7 +1454,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="dRK-YU-3C1"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="Y" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="Y" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="xi4-lI-Cbq"/>
                                                         </connections>
@@ -1466,7 +1466,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="yY9-Eh-dCq"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="U" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="U" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="1VC-VP-oje"/>
                                                         </connections>
@@ -1477,7 +1477,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="lPe-uZ-a7N"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="I" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="I" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="gMU-pe-j91"/>
                                                         </connections>
@@ -1488,7 +1488,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="fgq-IV-pG8"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="O" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="O" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="u70-x2-6of"/>
                                                         </connections>
@@ -1499,7 +1499,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="xLG-eu-arP"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="P" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="P" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="kSs-2l-EXF"/>
                                                         </connections>
@@ -1523,7 +1523,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="mxj-Yo-3Qx"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="A" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="A" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="1j8-4K-YQ3"/>
                                                         </connections>
@@ -1535,7 +1535,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="YUA-ub-vhh"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="S" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="S" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="aRG-zA-Ali"/>
                                                         </connections>
@@ -1546,7 +1546,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="G6L-d4-gnB"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="D" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="D" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="6n5-XU-FE7"/>
                                                         </connections>
@@ -1557,7 +1557,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="CU0-S7-Ysx"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="F" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="F" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="Sgt-js-x03"/>
                                                         </connections>
@@ -1568,7 +1568,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="PfT-rF-IAt"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="G" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="G" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="g77-nn-ybZ"/>
                                                         </connections>
@@ -1579,7 +1579,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="TQh-hg-Fb1"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="H" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="H" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="jxo-XI-DjX"/>
                                                         </connections>
@@ -1591,7 +1591,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="45" id="acd-ef-dHS"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="J" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="J" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="FqN-Pl-Y8x"/>
                                                         </connections>
@@ -1602,7 +1602,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="PPK-Ai-Fid"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="K" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="K" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="te3-Bq-qNX"/>
                                                         </connections>
@@ -1613,7 +1613,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="gvc-Zc-VRN"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="L" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="L" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="bo6-LD-Xi1"/>
                                                         </connections>
@@ -1637,7 +1637,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="yiH-8B-P42"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="Z" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="Z" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="ZlM-J8-Se9"/>
                                                         </connections>
@@ -1649,7 +1649,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="45" id="pgM-t7-4Yp"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="X" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="X" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="2Mb-yK-Qek"/>
                                                         </connections>
@@ -1660,7 +1660,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="8CC-2s-kM7"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="C" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="C" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="hoG-3o-H3w"/>
                                                         </connections>
@@ -1671,7 +1671,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="gt6-fK-ZBJ"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="V" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="V" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="hNb-nK-o6J"/>
                                                         </connections>
@@ -1682,7 +1682,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="nqG-JL-r4Z"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="B" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="B" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="efs-zh-lia"/>
                                                         </connections>
@@ -1693,7 +1693,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" constant="45" id="Z9e-KK-dZS"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="N" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="N" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="QCp-NE-FWT"/>
                                                         </connections>
@@ -1705,7 +1705,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="45" id="WyK-54-K9Y"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" title="M" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" title="M" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="21b-8H-uGe"/>
                                                         </connections>
@@ -1717,7 +1717,7 @@ From Flags</string>
                                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="45" id="Ome-gD-4qU"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="tinted" image="delete.left.fill" catalog="system" cornerStyle="medium" buttonSize="mini"/>
+                                                        <buttonConfiguration key="configuration" style="gray" image="delete.left.fill" catalog="system" cornerStyle="medium" buttonSize="mini"/>
                                                         <connections>
                                                             <action selector="deleteTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="dFq-F5-VYE"/>
                                                             <action selector="keyTapped:" destination="iAQ-zY-sUe" eventType="touchUpInside" id="CTv-I2-S4y"/>
@@ -1766,7 +1766,7 @@ From Flags</string>
                             <constraint firstItem="3T9-3Q-Ws1" firstAttribute="bottom" secondItem="OBF-rX-lL4" secondAttribute="bottom" id="N2u-dA-v4z"/>
                             <constraint firstAttribute="bottom" secondItem="wC4-ca-EPS" secondAttribute="bottom" id="Tt7-Ed-dvw"/>
                             <constraint firstAttribute="trailing" secondItem="OBF-rX-lL4" secondAttribute="trailing" constant="12" id="Xcp-BG-VzZ"/>
-                            <constraint firstItem="OBF-rX-lL4" firstAttribute="top" secondItem="3T9-3Q-Ws1" secondAttribute="top" id="h0d-h8-oeT"/>
+                            <constraint firstItem="OBF-rX-lL4" firstAttribute="top" secondItem="3T9-3Q-Ws1" secondAttribute="top" constant="20" id="h0d-h8-oeT"/>
                             <constraint firstItem="OBF-rX-lL4" firstAttribute="leading" secondItem="3T9-3Q-Ws1" secondAttribute="leading" constant="12" id="i8H-ob-Npr"/>
                             <constraint firstItem="wC4-ca-EPS" firstAttribute="leading" secondItem="3T9-3Q-Ws1" secondAttribute="leading" id="k28-Ic-PKs"/>
                         </constraints>

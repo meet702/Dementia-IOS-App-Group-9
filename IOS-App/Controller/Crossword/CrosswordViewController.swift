@@ -10,7 +10,9 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
     private var cells: [CrosswordCell] = []
     private var words: [CrosswordWord] = []
     private let gameState = CrosswordGameState()
-
+    var isCorrectLetter: Bool = false
+    var isSelected: Bool = false
+    
     private let totalCols = 9
     private let totalRows = 9
 
@@ -206,8 +208,10 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
                 correctLetter: nil,
                 isBlocked: true,
                 isHighlighted: false,
+                isCorrectLetter: false,
                 isCorrectWord: false,
-                isWrongLetter: false
+                isWrongLetter: false,
+                isSelected: false
             )
         }
 
@@ -262,8 +266,14 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
     }
     
     private func isPuzzleComplete() -> Bool {
-        return words.allSatisfy { isWordCorrect($0) }
+        for cell in cells where !cell.isBlocked {
+            if !isCellCorrect(cell.index) {
+                return false
+            }
+        }
+        return true
     }
+
 
 
     // ---------------------------------------------------------
@@ -318,21 +328,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         }
         return matchingWords
     }
-    
-    private func isWordCorrect(_ word: CrosswordWord) -> Bool {
-        var r = cells[word.startIndex].row
-        var c = cells[word.startIndex].col
-        
-        for _ in 0..<word.answer.count {
-            let idx = indexForCell(x: c, y: r)
-            if !cells[idx].isCorrectWord {
-                return false
-            }
-            if word.direction == .across { c += 1 }
-            else { r += 1 }
-        }
-        return true
-    }
 
 
     // ---------------------------------------------------------
@@ -342,57 +337,98 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
     private func handleGridTap(_ cell: CrosswordCell) {
         let wordsContainingCell = findAllWordsForCell(cell)
         guard !wordsContainingCell.isEmpty else { return }
-        
-        if gameState.selectedCellIndex == cell.index {
-            let acrossWords = wordsContainingCell.filter { $0.direction == .across }
-            let downWords = wordsContainingCell.filter { $0.direction == .down }
-            
-            if !acrossWords.isEmpty && !downWords.isEmpty {
+
+        // 1️⃣ Clear previous selection
+        for i in cells.indices {
+            cells[i].isSelected = false
+        }
+
+        // 2️⃣ Select tapped cell
+        cells[cell.index].isSelected = true
+        gameState.selectedCellIndex = cell.index
+
+        // 3️⃣ Direction toggle (only affects clues, NOT cursor)
+        if wordsContainingCell.count > 1 {
+            let hasAcross = wordsContainingCell.contains { $0.direction == .across }
+            let hasDown = wordsContainingCell.contains { $0.direction == .down }
+
+            if hasAcross && hasDown {
                 gameState.selectedDirection =
                     (gameState.selectedDirection == .across ? .down : .across)
-                
-                if gameState.selectedDirection == .across {
-                    gameState.selectedWord = acrossWords.first
-                } else {
-                    gameState.selectedWord = downWords.first
-                }
-                
-                updateClueLabel()
-                highlightSelectedWord()
             }
-            return
         }
-        
-        gameState.selectedCellIndex = cell.index
-        
+
+        // 4️⃣ Pick preferred word (for clue display only)
         let preferredWord: CrosswordWord?
         if gameState.selectedDirection == .across {
             preferredWord = wordsContainingCell.first { $0.direction == .across }
-                           ?? wordsContainingCell.first
+                ?? wordsContainingCell.first
         } else {
             preferredWord = wordsContainingCell.first { $0.direction == .down }
-                           ?? wordsContainingCell.first
+                ?? wordsContainingCell.first
         }
-        
+
+        // 5️⃣ Update UI
         if let word = preferredWord {
             gameState.selectedWord = word
             gameState.selectedDirection = word.globalDirection
             updateClueLabel()
             highlightSelectedWord()
         }
+
+        gridCollectionView.reloadData()
     }
 
+
+    private func moveSelectionForward(from index: Int) {
+        guard let word = gameState.selectedWord else { return }
+
+        let current = cells[index]
+        var row = current.row
+        var col = current.col
+
+        // 🔁 Move based on word direction
+        if word.direction == .across {
+            col += 1
+        } else {
+            row += 1
+        }
+
+        // Stay inside grid
+        while row < totalRows && col < totalCols {
+            let nextIndex = indexForCell(x: col, y: row)
+
+            if !cells[nextIndex].isBlocked {
+                // Clear old selection
+                for i in cells.indices {
+                    cells[i].isSelected = false
+                }
+
+                // Select next cell
+                cells[nextIndex].isSelected = true
+                gameState.selectedCellIndex = nextIndex
+                return
+            }
+
+            // Keep moving in SAME direction
+            if word.direction == .across {
+                col += 1
+            } else {
+                row += 1
+            }
+        }
+    }
 
     // ---------------------------------------------------------
     // MARK: - Highlight Current Word
     // ---------------------------------------------------------
 
     private func highlightSelectedWord() {
-        guard let word = gameState.selectedWord else { return }
-
         for i in cells.indices {
             cells[i].isHighlighted = false
         }
+
+        guard let word = gameState.selectedWord else { return }
 
         var r = cells[word.startIndex].row
         var c = cells[word.startIndex].col
@@ -400,12 +436,13 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         for _ in 0..<word.answer.count {
             let idx = indexForCell(x: c, y: r)
             cells[idx].isHighlighted = true
-            if gameState.selectedDirection == .across { c += 1 }
+
+            if word.direction == .across { c += 1 }
             else { r += 1 }
         }
-
-        gridCollectionView.reloadData()
     }
+
+
 
 
     // ---------------------------------------------------------
@@ -466,115 +503,190 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
 
 
     private func insertLetter(_ char: Character) {
-        guard let word = gameState.selectedWord else { return }
-        if isWordCorrect(word) { return }
-        
-        var r = cells[word.startIndex].row
-        var c = cells[word.startIndex].col
-        var foundPosition = false
-        
-        for _ in 0..<word.answer.count {
-            let idx = indexForCell(x: c, y: r)
-            
-            if cells[idx].isCorrectWord {
-                if word.direction == .across { c += 1 }
-                else { r += 1 }
-                continue
-            }
-            
-            if cells[idx].letter == nil {
-                cells[idx].letter = char
-                cells[idx].isWrongLetter = false
-                gameState.selectedCellIndex = idx
-                foundPosition = true
-                break
-            }
-            
-            if word.direction == .across { c += 1 }
-            else { r += 1 }
+        let idx = gameState.selectedCellIndex
+
+        cells[idx].letter = char
+        cells[idx].isWrongLetter = false
+
+        if let correct = cells[idx].correctLetter {
+            cells[idx].isCorrectLetter = char.uppercased() == correct.uppercased()
         }
-        
-        if !foundPosition {
-            let selectedIdx = gameState.selectedCellIndex
-            if !cells[selectedIdx].isCorrectWord {
-                cells[selectedIdx].letter = char
-                cells[selectedIdx].isWrongLetter = false
-            } else {
+
+        revalidateWords(at: idx)
+
+        if let word = gameState.selectedWord {
+            if isSelectedWordComplete() {
+                clearSelection()
+                highlightSelectedWord()
+                gridCollectionView.reloadData()
+
+                if isPuzzleComplete() {
+                    showPuzzleCompleteAlert()
+                }
                 return
             }
         }
-        
-        moveCursorForward(word)
+
+        moveSelectionForward(from: idx)
+        highlightSelectedWord()
         gridCollectionView.reloadData()
-        checkWordCompletion(word)
-        
-        if isPuzzleComplete() {
-            showPuzzleCompleteAlert()
+    }
+
+    private func isSelectedWordComplete() -> Bool {
+        guard let word = gameState.selectedWord else { return false }
+
+        var r = cells[word.startIndex].row
+        var c = cells[word.startIndex].col
+
+        for _ in 0..<word.answer.count {
+            let idx = indexForCell(x: c, y: r)
+            if cells[idx].letter == nil {
+                return false
+            }
+            if word.direction == .across { c += 1 }
+            else { r += 1 }
         }
+        return true
+    }
+
+
+    private func isCellCorrect(_ idx: Int) -> Bool {
+        guard let letter = cells[idx].letter,
+              let correct = cells[idx].correctLetter else {
+            return false
+        }
+        return letter.uppercased() == correct.uppercased()
     }
     
     
     private func deleteLetter() {
         guard let word = gameState.selectedWord else { return }
-        if isWordCorrect(word) { return }
 
-        var lastIndex: Int? = nil
+        let idx = gameState.selectedCellIndex
+
+        // --------------------------------
+        // CASE 1: Current cell has a letter
+        // --------------------------------
+        if cells[idx].letter != nil {
+            cells[idx].letter = nil
+            cells[idx].isWrongLetter = false
+            cells[idx].isCorrectWord = false
+
+            revalidateWords(at: idx)
+            highlightSelectedWord()
+            gridCollectionView.reloadData()
+            return
+        }
+
+        // --------------------------------
+        // CASE 2: Move backward WITHIN WORD
+        // --------------------------------
         var r = cells[word.startIndex].row
         var c = cells[word.startIndex].col
+        var previousIndex: Int? = nil
 
         for _ in 0..<word.answer.count {
-            let idx = indexForCell(x: c, y: r)
-            
-            if cells[idx].letter != nil && !cells[idx].isCorrectWord {
-                lastIndex = idx
-            }
-            
+            let currentIndex = indexForCell(x: c, y: r)
+            if currentIndex == idx { break }
+
+            previousIndex = currentIndex
+
             if word.direction == .across { c += 1 }
             else { r += 1 }
         }
 
-        guard let delIndex = lastIndex else { return }
+        guard let prev = previousIndex else { return }
 
-        cells[delIndex].letter = nil
-        cells[delIndex].isWrongLetter = false
-        gameState.selectedCellIndex = delIndex
+        // Update selection
+        for i in cells.indices {
+            cells[i].isSelected = false
+        }
 
+        cells[prev].isSelected = true
+        gameState.selectedCellIndex = prev
+
+        // Delete letter
+        cells[prev].letter = nil
+        cells[prev].isWrongLetter = false
+        cells[prev].isCorrectWord = false
+
+        revalidateWords(at: prev)
+        highlightSelectedWord()
         gridCollectionView.reloadData()
     }
 
 
+    private func clearSelection() {
+        for i in cells.indices {
+            cells[i].isSelected = false
+        }
+    }
+
     private func moveCursorForward(_ word: CrosswordWord) {
         var r = cells[word.startIndex].row
         var c = cells[word.startIndex].col
-        
+
         for i in 0..<word.answer.count {
             let idx = indexForCell(x: c, y: r)
-            
+
             if idx == gameState.selectedCellIndex {
                 var nextR = r
                 var nextC = c
-                
+
                 for _ in (i + 1)..<word.answer.count {
                     if word.direction == .across { nextC += 1 }
                     else { nextR += 1 }
-                    
+
                     let nextIdx = indexForCell(x: nextC, y: nextR)
-                    
-                    if nextIdx < cells.count &&
-                       nextIdx >= 0 &&
+
+                    if nextIdx >= 0 &&
+                       nextIdx < cells.count &&
                        !cells[nextIdx].isBlocked &&
-                       !cells[nextIdx].isCorrectWord {
+                       (cells[nextIdx].letter == nil || !cells[nextIdx].isCorrectWord) {
+
+                        // ✅ Allow filled cells
                         gameState.selectedCellIndex = nextIdx
                         return
                     }
                 }
                 return
             }
-            
+
             if word.direction == .across { c += 1 }
             else { r += 1 }
         }
     }
+    
+    private func moveSelectionBackward(from index: Int) {
+        let current = cells[index]
+        var row = current.row
+        var col = current.col - 1   // move LEFT
+
+        while row >= 0 {
+            if col < 0 {
+                row -= 1
+                col = totalCols - 1
+                continue
+            }
+
+            let prevIndex = indexForCell(x: col, y: row)
+
+            if !cells[prevIndex].isBlocked {
+                // Clear old selection
+                for i in cells.indices {
+                    cells[i].isSelected = false
+                }
+
+                // Select previous cell
+                cells[prevIndex].isSelected = true
+                gameState.selectedCellIndex = prevIndex
+                return
+            }
+
+            col -= 1
+        }
+    }
+
 
 
     // ---------------------------------------------------------
@@ -585,51 +697,58 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         var r = cells[word.startIndex].row
         var c = cells[word.startIndex].col
 
-        var userAnswer = ""
+        var indices: [Int] = []
+        var allFilled = true
+        var allCorrect = true
 
+        // 1️⃣ Collect ALL cells of the word
         for _ in 0..<word.answer.count {
             let idx = indexForCell(x: c, y: r)
-            userAnswer.append(cells[idx].letter ?? " ")
+            indices.append(idx)
+
+            if let letter = cells[idx].letter {
+                if letter.uppercased() != cells[idx].correctLetter?.uppercased() {
+                    allCorrect = false
+                }
+            } else {
+                allFilled = false
+            }
 
             if word.direction == .across { c += 1 }
             else { r += 1 }
         }
 
-        if userAnswer.contains(" ") {
-            return
+        // 2️⃣ ALWAYS clear old states first
+        for idx in indices {
+            cells[idx].isCorrectWord = false
+            cells[idx].isWrongLetter = false
         }
 
-        if userAnswer.uppercased() == word.answer.uppercased() {
-            r = cells[word.startIndex].row
-            c = cells[word.startIndex].col
+        // 3️⃣ If not fully filled → STOP (word must be white)
+        guard allFilled else { return }
 
-            for _ in 0..<word.answer.count {
-                let idx = indexForCell(x: c, y: r)
-                cells[idx].isCorrectWord = true
-                cells[idx].isWrongLetter = false
-
-                if word.direction == .across { c += 1 }
-                else { r += 1 }
+        // 4️⃣ Apply final state
+        if allCorrect {
+            for idx in indices {
+                cells[idx].isCorrectWord = true   // 🟧
             }
         } else {
-            r = cells[word.startIndex].row
-            c = cells[word.startIndex].col
-
-            for _ in 0..<word.answer.count {
-                let idx = indexForCell(x: c, y: r)
-                
-                if !cells[idx].isCorrectWord {
-                    cells[idx].isWrongLetter = true
-                }
-                
-                if word.direction == .across { c += 1 }
-                else { r += 1 }
+            for idx in indices {
+                cells[idx].isWrongLetter = true  // 🟥
             }
         }
-
-        gridCollectionView.reloadData()
     }
+
+
     
+    private func revalidateWords(at cellIndex: Int) {
+        let cell = cells[cellIndex]
+        let affectedWords = findAllWordsForCell(cell)
+
+        for word in affectedWords {
+            checkWordCompletion(word)
+        }
+    }
     
     // ---------------------------------------------------------
     // MARK: - Puzzle Complete Alert

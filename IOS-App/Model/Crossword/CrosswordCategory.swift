@@ -13,7 +13,7 @@ enum CrosswordCategory: String {
     case gk = "GK"
     case food = "Food"
     
-    var data: [CountryData] {
+    var data: [CrosswordData] {
         switch self {
         case .countries:
             return allCountries
