@@ -701,7 +701,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         var allFilled = true
         var allCorrect = true
 
-        // 1️⃣ Collect ALL cells of the word
+        // 1️⃣ Collect indices & validate
         for _ in 0..<word.answer.count {
             let idx = indexForCell(x: c, y: r)
             indices.append(idx)
@@ -718,19 +718,21 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             else { r += 1 }
         }
 
-        // 2️⃣ ALWAYS clear old states first
-        for idx in indices {
-            cells[idx].isCorrectWord = false
-            cells[idx].isWrongLetter = false
+        // 2️⃣ If word not fully filled → ONLY clear wrong state
+        guard allFilled else {
+            for idx in indices {
+                cells[idx].isWrongLetter = false
+            }
+            return
         }
 
-        // 3️⃣ If not fully filled → STOP (word must be white)
-        guard allFilled else { return }
-
-        // 4️⃣ Apply final state
+        // 3️⃣ Apply correctness WITHOUT wiping other words
         if allCorrect {
             for idx in indices {
-                cells[idx].isCorrectWord = true   // 🟧
+                cells[idx].isCorrectWord = true   // 🟧 KEEP ORANGE
+                cells[idx].isWrongLetter = false
+                cells[idx].isHighlighted = false
+                cells[idx].isSelected = false
             }
         } else {
             for idx in indices {
@@ -739,8 +741,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         }
     }
 
-
-    
     private func revalidateWords(at cellIndex: Int) {
         let cell = cells[cellIndex]
         let affectedWords = findAllWordsForCell(cell)
