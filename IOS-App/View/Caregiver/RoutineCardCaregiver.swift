@@ -128,7 +128,8 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         if items.isEmpty {
             let label = UILabel()
             label.text = placeholder
-            label.font = .systemFont(ofSize: 14)
+//            label.font = .systemFont(ofSize: 14)
+            label.font = .preferredFont(forTextStyle: .callout)
             label.textColor = UIColor(white: 0.45, alpha: 1)
             label.numberOfLines = 0
             label.translatesAutoresizingMaskIntoConstraints = false
@@ -167,12 +168,14 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         let row = UIView()
 
         let titleLabel = UILabel()
-        titleLabel.font = .systemFont(ofSize: 15)
+//        titleLabel.font = .systemFont(ofSize: 15)
+        titleLabel.font = .preferredFont(forTextStyle: .body)
         titleLabel.text = item.title ?? ""
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let timeLabel = UILabel()
-        timeLabel.font = .systemFont(ofSize: 14)
+//        timeLabel.font = .systemFont(ofSize: 14)
+        timeLabel.font = .preferredFont(forTextStyle: .callout)
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         timeLabel.textAlignment = .right
 
@@ -189,7 +192,8 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
         if let subtitle = item.subtitle, !subtitle.isEmpty {
             let subtitleLabel = UILabel()
-            subtitleLabel.font = .systemFont(ofSize: 12)
+//            subtitleLabel.font = .systemFont(ofSize: 12)
+            subtitleLabel.font = .preferredFont(forTextStyle: .footnote)
             subtitleLabel.textColor = UIColor(white: 0.55, alpha: 1)
             subtitleLabel.text = subtitle
             subtitleLabel.numberOfLines = 0
@@ -280,7 +284,8 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
     private func addSectionHeader(title: String) {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+//        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .preferredFont(forTextStyle: .headline)
         label.text = title
 
         let container = UIView()

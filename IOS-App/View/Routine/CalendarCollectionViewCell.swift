@@ -10,7 +10,7 @@ class CalendarCollectionViewCell: UICollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundCard.layer.cornerRadius = 20.5
+        backgroundCard.layer.cornerRadius = 19
         updateUI()
     }
 
