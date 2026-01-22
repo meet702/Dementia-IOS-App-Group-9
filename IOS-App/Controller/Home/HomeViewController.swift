@@ -175,16 +175,16 @@ class HomeViewController: UIViewController {
     private func triggerSOS() {
         print("SOS triggered")
 
-        // Step 1: Initiate caregiver call
+        // Initiate caregiver call
         callCaregiver()
 
-        // Step 2: Request current location
+        // Request current location
         LocationManager.shared.delegate = self
         LocationManager.shared.getLocationOnce()
     }
 
     private func callCaregiver() {
-        let number = "9920193798" // replace with actual caregiver number from DB
+        let number = "9920193798" // will replace with actual caregiver number from DB
         if let phoneURL = URL(string: "tel://\(number)"),
            UIApplication.shared.canOpenURL(phoneURL) {
             UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
@@ -197,13 +197,12 @@ extension HomeViewController: LocationManagerDelegate {
         let mapsLink = "https://maps.google.com/?q=\(lat),\(long)"
         print("Maps link: \(mapsLink)")
 
-
-        // Optionally send via SMS:
         sendLocationSMS(mapsLink)
     }
 }
 
 private func sendLocationSMS(_ link: String) {
+    print("Location sent via SMS")
     let message = "SOS! I need help. My location: \(link)"
     let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     

@@ -3,7 +3,7 @@ import UIKit
 final class GridCell: UICollectionViewCell {
 
     private let letterLabel = UILabel()
-    private let numberLabel = UILabel()  // Now displays multiple numbers
+    private let numberLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,11 +23,11 @@ final class GridCell: UICollectionViewCell {
         numberLabel.translatesAutoresizingMaskIntoConstraints = false
 
         letterLabel.font = UIFont.systemFont(ofSize: 22, weight: .bold)
-        numberLabel.font = UIFont.systemFont(ofSize: 9, weight: .semibold)  // Slightly smaller for multiple numbers
+        numberLabel.font = UIFont.systemFont(ofSize: 9, weight: .semibold)
 
         numberLabel.textColor = .darkGray
         letterLabel.textAlignment = .center
-        numberLabel.numberOfLines = 1  // Keep single line
+        numberLabel.numberOfLines = 1
 
         NSLayoutConstraint.activate([
             numberLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
@@ -49,12 +49,9 @@ final class GridCell: UICollectionViewCell {
         letterLabel.textColor = .black
         numberLabel.textColor = .darkGray
 
-
-        // GENERAL CELL APPEARANCE
         layer.cornerRadius = 6
         layer.masksToBounds = true
 
-        // BLOCKED CELL (black square)
         if model.isBlocked {
             contentView.backgroundColor = .clear
             layer.borderWidth = 0
@@ -63,7 +60,6 @@ final class GridCell: UICollectionViewCell {
             return
         }
         
-        // 1️⃣ SELECTED CELL (DARK ORANGE)
         if model.isSelected {
             contentView.backgroundColor = UIColor.orange.withAlphaComponent(0.45)
             layer.borderWidth = 2
@@ -76,9 +72,6 @@ final class GridCell: UICollectionViewCell {
             return
         }
         
-        // -----------------------------
-        // WORD IS CORRECT (SOLID ORANGE)
-        // -----------------------------
         if model.isCorrectWord {
             contentView.backgroundColor = UIColor.orange
             layer.borderWidth = 1
@@ -96,9 +89,6 @@ final class GridCell: UICollectionViewCell {
         }
 
 
-        // -----------------------------
-        // WRONG LETTER (RED STYLE)
-        // -----------------------------
         if model.isWrongLetter {
             contentView.backgroundColor = UIColor.red.withAlphaComponent(0.15)
             layer.borderWidth = 1
@@ -108,13 +98,11 @@ final class GridCell: UICollectionViewCell {
             letterLabel.text = model.letter != nil ? String(model.letter!) : ""
 
             numberLabel.textColor = .darkGray
-            // CHANGED: Display multiple numbers
             numberLabel.text = model.numbers.isEmpty ? "" : model.numbers.map { "\($0)" }.joined(separator: ",")
 
             return
         }
 
-        // 2️⃣ HIGHLIGHTED WORD (LIGHT ORANGE)
         if model.isHighlighted {
             contentView.backgroundColor = UIColor.orange.withAlphaComponent(0.25)
             layer.borderWidth = 1
@@ -127,8 +115,7 @@ final class GridCell: UICollectionViewCell {
             return
         }
 
-
-        // DEFAULT NORMAL CELL
+        // Default Cell
         contentView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)
         layer.borderWidth = 1
         layer.borderColor = UIColor.orange.withAlphaComponent(0.5).cgColor
@@ -137,7 +124,6 @@ final class GridCell: UICollectionViewCell {
         letterLabel.text = model.letter != nil ? String(model.letter!) : ""
 
         numberLabel.textColor = .darkGray
-        // CHANGED: Display multiple numbers separated by comma
         numberLabel.text = model.numbers.isEmpty ? "" : model.numbers.map { "\($0)" }.joined(separator: ",")
     }
 }

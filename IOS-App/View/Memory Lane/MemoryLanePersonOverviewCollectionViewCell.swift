@@ -37,7 +37,7 @@ class MemoryLanePersonOverviewCollectionViewCell: UICollectionViewCell {
         beautify()
     }
 
-    func configurePersonOverview(person: MemoryLanePersonOverviewModel) {
+    func configurePersonOverview(person: MemoryLanePersonInfo) {
         personImage.image = UIImage(named: person.personImage)
         nameLabel.text = person.name
         summaryLabel.text = person.summary

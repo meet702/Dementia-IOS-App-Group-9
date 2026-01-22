@@ -61,6 +61,7 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
 
         selectedAnswer = ""
         progressView.progress = MemorySessionManager.shared.currentProgress()
+        restoreIfAlreadyAnswered()
     }
 
     private func setupUI() {
@@ -79,6 +80,7 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
     
     @IBAction func optionTapped(_ sender: UIButton) {
+        guard guessButton.title(for: .normal) == "Guess" else { return }
         [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
             $0?.backgroundColor = UIColor(white: 0.95, alpha: 1)
             $0?.layer.borderWidth = 0
@@ -99,7 +101,8 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             moveToNextQuestion()
             return
         }
-        
+        MemorySessionManager.shared.currentSession?.selectedIdentificationAnswer = selectedAnswer
+
         if selectedAnswer == correctAnswer {
             highlightCorrect()
         } else {
@@ -193,4 +196,45 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             )
         }
     }
+    private func restoreIfAlreadyAnswered() {
+        guard
+            let imageSession = MemorySessionManager.shared.currentImageSession,
+            personIndex < imageSession.personSessions.count
+        else { return }
+
+        let previousSession = imageSession.personSessions[personIndex]
+
+        guard
+            let selected = previousSession.selectedIdentificationAnswer,
+            let wasCorrect = previousSession.wasIdentifiedCorrectly
+        else { return }
+
+        // Lock buttons
+        let buttons = [
+            optionOneButton,
+            optionTwoButton,
+            optionThreeButton,
+            optionFourButton
+        ]
+
+        buttons.forEach { $0?.isEnabled = false }
+        guessButton.isEnabled = false
+
+        // Highlight selected answer
+        for button in buttons {
+            guard button?.title(for: .normal) == selected else { continue }
+
+            button?.layer.borderWidth = 3
+            button?.layer.borderColor =
+                wasCorrect ? UIColor.green.cgColor : UIColor.red.cgColor
+
+            button?.backgroundColor =
+                wasCorrect
+                ? UIColor(red: 0.78, green: 1.0, blue: 0.78, alpha: 1)
+                : UIColor(red: 1.0, green: 0.75, blue: 0.75, alpha: 1)
+        }
+
+        guessButton.setTitle("Next", for: .normal)
+    }
+
 }

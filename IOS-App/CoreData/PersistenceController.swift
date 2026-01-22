@@ -9,24 +9,22 @@ internal import CoreData
 
 struct PersistenceController {
 
-    // MARK: - Shared Instance
+    // Shared Instance
     static let shared = PersistenceController()
 
-    // MARK: - Core Data Container
+    // Core Data Container
     let container: NSPersistentContainer
 
-    // MARK: - Main Context
+    // Main Context
     var context: NSManagedObjectContext {
         container.viewContext
     }
 
-    // MARK: - Initializer
+    // Initializer
     init(inMemory: Bool = false) {
 
-        // ⚠️ MUST match your .xcdatamodeld file name
         container = NSPersistentContainer(name: "PeopleDataModel")
 
-        // In-memory store (useful for previews & unit tests)
         if inMemory {
             container.persistentStoreDescriptions.first?.url =
                 URL(fileURLWithPath: "/dev/null")
@@ -41,15 +39,13 @@ struct PersistenceController {
             }
         }
 
-        // Automatically merge changes (important for background saves)
         container.viewContext.automaticallyMergesChangesFromParent = true
 
-        // Optional but recommended
         container.viewContext.mergePolicy =
             NSMergeByPropertyObjectTrumpMergePolicy
     }
 
-    // MARK: - Save Helper
+    // Save Helper
     func saveContext() {
         let context = container.viewContext
         if context.hasChanges {

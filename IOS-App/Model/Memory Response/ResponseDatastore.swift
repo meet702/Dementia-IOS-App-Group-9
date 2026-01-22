@@ -26,7 +26,7 @@ class ResponseDataStore {
         component1.day = 17
         component1.hour = 14
         component1.minute = 30
-        let date1 = Calendar.current.date(from: component1)!
+        let _ = Calendar.current.date(from: component1)!
         
         var component2 = DateComponents()
         component2.year = 2025

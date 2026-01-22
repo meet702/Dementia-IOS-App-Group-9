@@ -12,12 +12,12 @@ class MemoryLanePersonOverviewViewController: UIViewController {
     @IBOutlet weak var memoryLaneCollectionView: UICollectionView!
     
     @IBOutlet weak var finishButton: UIButton!
-    let personOverview: [MemoryLanePersonOverviewModel] = [
-        MemoryLanePersonOverviewModel(name: "Priyamani", summary: "Priyamani has been like family to you for years. Her warmth, understanding, and quiet support make every moment with her feel comforting and familiar.", personImage: "image_38"),
+    let personOverview: [MemoryLanePersonInfo] = [
+        MemoryLanePersonInfo(name: "Priyamani", summary: "Priyamani has been like family to you for years. Her warmth, understanding, and quiet support make every moment with her feel comforting and familiar.", hint: " ", personImage: "image_38"),
         
-        MemoryLanePersonOverviewModel(name: "Priyadarshan", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", personImage: "image_39"),
+        MemoryLanePersonInfo(name: "Priyadarshan", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", hint: " ", personImage: "image_39"),
         
-        MemoryLanePersonOverviewModel(name: "Priya", summary: "Priya feels more like family than a friend. Her energy, laughter, and easy conversations always brighten your day.", personImage: "image_42")
+        MemoryLanePersonInfo(name: "Priya", summary: "Priya feels more like family than a friend. Her energy, laughter, and easy conversations always brighten your day.", hint: " ", personImage: "image_42")
     ]
     
     override func viewDidLoad() {

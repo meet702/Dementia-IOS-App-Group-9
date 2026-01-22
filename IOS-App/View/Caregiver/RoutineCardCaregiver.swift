@@ -56,7 +56,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         }
     }
 
-    // MARK: - Public API
     @MainActor
     func configureRoutineCell(tasks: [RoutineTask], date: Date = Date()) {
 
@@ -96,8 +95,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         removeTrailingDividerIfNeeded()
     }
 
-    // MARK: - Section Builder
-
     private func addSection(title: String,
                             items: [RoutineTask],
                             placeholder: String) {
@@ -128,7 +125,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         if items.isEmpty {
             let label = UILabel()
             label.text = placeholder
-//            label.font = .systemFont(ofSize: 14)
             label.font = .preferredFont(forTextStyle: .callout)
             label.textColor = UIColor(white: 0.45, alpha: 1)
             label.numberOfLines = 0
@@ -161,20 +157,17 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         stackView.addArrangedSubview(container)
     }
 
-    // MARK: - Row
-
+    // Row
     private func makeTransparentRow(for item: RoutineTask) -> UIView {
 
         let row = UIView()
 
         let titleLabel = UILabel()
-//        titleLabel.font = .systemFont(ofSize: 15)
         titleLabel.font = .preferredFont(forTextStyle: .body)
         titleLabel.text = item.title ?? ""
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let timeLabel = UILabel()
-//        timeLabel.font = .systemFont(ofSize: 14)
         timeLabel.font = .preferredFont(forTextStyle: .callout)
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         timeLabel.textAlignment = .right
@@ -192,7 +185,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
         if let subtitle = item.subtitle, !subtitle.isEmpty {
             let subtitleLabel = UILabel()
-//            subtitleLabel.font = .systemFont(ofSize: 12)
             subtitleLabel.font = .preferredFont(forTextStyle: .footnote)
             subtitleLabel.textColor = UIColor(white: 0.55, alpha: 1)
             subtitleLabel.text = subtitle
@@ -228,8 +220,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
         return row
     }
-
-    // MARK: - Helpers (LOGIC UNCHANGED)
 
     private enum Period { case morning, afternoon, evening }
 
@@ -284,7 +274,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
     private func addSectionHeader(title: String) {
         let label = UILabel()
-//        label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.font = .preferredFont(forTextStyle: .headline)
         label.text = title
 

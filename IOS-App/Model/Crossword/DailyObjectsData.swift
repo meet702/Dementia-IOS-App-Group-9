@@ -8,6 +8,7 @@
 import Foundation
 
 let dailyObjectsData: [CrosswordData] = [
+    
     // 4-letter objects
     CrosswordData(name: "BOOK", clue: "Reading material"),
     CrosswordData(name: "LAMP", clue: "Light source"),

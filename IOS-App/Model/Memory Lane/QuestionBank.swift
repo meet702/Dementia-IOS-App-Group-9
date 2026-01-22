@@ -1,7 +1,18 @@
-// QuestionBank.swift
-// Put this in Model
 
 import Foundation
+
+enum QuestionType {
+    case text
+    case mcq
+}
+
+struct Question {
+    let relation: String
+    let type: QuestionType
+    let question: String
+    let options: [String]?
+    let placeholder: String?
+}
 
 class QuestionBank {
     static let shared = QuestionBank()

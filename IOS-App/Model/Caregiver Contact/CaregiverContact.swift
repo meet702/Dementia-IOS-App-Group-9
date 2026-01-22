@@ -8,5 +8,5 @@
 import Foundation
 
 struct CaregiverContact {
-    static let phoneNumber = "9920193798"   // store from database later
+    static let phoneNumber = "9920193798"   // will store from database later
 }
