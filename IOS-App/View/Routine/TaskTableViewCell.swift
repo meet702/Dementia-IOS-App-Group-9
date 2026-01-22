@@ -32,19 +32,12 @@ class TaskTableViewCell: UITableViewCell {
     }
 
     func configure(task: RoutineTask, isCompleted: Bool) {
-
-        // Title
         titleLabel.text = task.title
-
-        // Time
         if let time = task.time {
             timePicker.date = time
         }
-
-        // Check button
         updateCheckState(isChecked: isCompleted)
 
-        // Subtitle / Description
         if let subtitle = task.subtitle, !subtitle.isEmpty {
             descriptionLabel.text = subtitle
             descriptionLabel.isHidden = false
@@ -52,7 +45,6 @@ class TaskTableViewCell: UITableViewCell {
             descriptionLabel.isHidden = true
         }
 
-        // Completed state styling
         if isCompleted {
             titleLabel.textColor = .lightGray
             descriptionLabel.textColor = .lightGray
@@ -61,7 +53,6 @@ class TaskTableViewCell: UITableViewCell {
             descriptionLabel.textColor = .secondaryLabel
         }
     }
-
 
     func updateCheckState(isChecked: Bool) {
         checkButton.isSelected = isChecked

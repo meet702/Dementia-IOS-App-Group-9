@@ -17,7 +17,6 @@ class AddEditTaskTableViewController: UITableViewController {
 
     var onSave: (() -> Void)?
     
-    // MARK: - State
     var shouldRepeatDaily = false
     var repository: RoutineRepository!
 
@@ -35,7 +34,6 @@ class AddEditTaskTableViewController: UITableViewController {
     private var selectedDateValue: Date = Date()
     private var selectedTimeValue: Date = Date()
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -68,15 +66,13 @@ class AddEditTaskTableViewController: UITableViewController {
 
             titleText = originalTitle
             hasChanges = false
-            // Load text
+
             titleText = task.title ?? ""
             notesText = task.subtitle ?? ""
 
-            // 🔑 LOAD REPEAT + DATE
             shouldRepeatDaily = task.isRepeatDaily
             selectedDate = task.scheduledDate ?? selectedDate
 
-            // Load time
             selectedTimeValue = task.time ?? Date()
             
             dateCell.datePicker.isEnabled = true
@@ -85,14 +81,12 @@ class AddEditTaskTableViewController: UITableViewController {
 
         }
 
-        // Populate UI
         titleCell.titleTextView.text = titleText
         notesCell.notesTextView.text = notesText
         dateCell.datePicker.date = selectedDate ?? Date()
         timeCell.timePicker.date = selectedTimeValue
         repeatCell.repeatSwitch.isOn = shouldRepeatDaily
 
-        // Title validation
         titleCell.onTextChanged = { [weak self] text in
             guard let self = self else { return }
 
@@ -163,7 +157,6 @@ class AddEditTaskTableViewController: UITableViewController {
     }
 
     
-    // MARK: - Actions
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
@@ -173,7 +166,7 @@ class AddEditTaskTableViewController: UITableViewController {
             date: selectedDateValue,
             time: selectedTimeValue
         )
-        print("🟢 SAVING TASK FOR DATE:", selectedDateValue)
+        print("saving task for date:", selectedDateValue)
 
 
         switch mode {
@@ -202,7 +195,6 @@ class AddEditTaskTableViewController: UITableViewController {
         dismiss(animated: true)
     }
 
-    // MARK: - Helpers
     private func combine(date: Date, time: Date) -> Date {
         let calendar = Calendar.current
         let d = calendar.dateComponents([.year, .month, .day], from: date)
@@ -218,7 +210,6 @@ class AddEditTaskTableViewController: UITableViewController {
         return calendar.date(from: combined) ?? Date()
     }
 
-    // MARK: - Table View
     override func numberOfSections(in tableView: UITableView) -> Int { 2 }
 
     override func tableView(_ tableView: UITableView,

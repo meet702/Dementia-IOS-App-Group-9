@@ -22,7 +22,6 @@ final class FaceDetectionManager {
         }
 
         let request = VNDetectFaceRectanglesRequest { request, _ in
-
             guard let faces = request.results as? [VNFaceObservation],
                   !faces.isEmpty else {
                 DispatchQueue.main.async {
@@ -30,13 +29,11 @@ final class FaceDetectionManager {
                 }
                 return
             }
-
+            
             var results: [DetectedFaceResult] = []
-
+            
             for face in faces {
-
-                guard
-                    let cropped = self.crop(face: face, from: fixedImage),
+                guard let cropped = self.crop(face: face, from: fixedImage),
                     let embedding = FaceEmbedder.shared.embedding(from: cropped)
                 else { continue }
 

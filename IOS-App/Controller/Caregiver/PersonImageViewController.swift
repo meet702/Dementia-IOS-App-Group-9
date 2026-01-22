@@ -64,7 +64,7 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
         let context = PersistenceController.shared.context
         let person = context.object(with: personObjectID) as! PersonEntity
 
-        let facesToRemove = (person.faces as? Set<FaceImageEntity>)?
+        let facesToRemove = (person.faces as? Set<FaceEntity>)?
             .filter { $0.photo == photo } ?? []
 
         for face in facesToRemove {
@@ -79,7 +79,7 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
 
         let context = PersistenceController.shared.context
 
-        if let faces = photo.faces as? Set<FaceImageEntity> {
+        if let faces = photo.faces as? Set<FaceEntity> {
             for face in faces {
                 context.delete(face)
             }
@@ -143,44 +143,12 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
         return layout
     }
     
-//    func generateLayout() -> UICollectionViewLayout {
-//
-//        let itemSize = NSCollectionLayoutSize(
-//            widthDimension: .fractionalWidth(1.0),
-//            heightDimension: .fractionalHeight(1.0)
-//        )
-//
-//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//        item.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
-//
-//        let groupSize = NSCollectionLayoutSize(
-//            widthDimension: .fractionalWidth(1.0),
-//            heightDimension: .fractionalWidth(1.0 / 3.0)
-//        )
-//
-//        let group = NSCollectionLayoutGroup.horizontal(
-//            layoutSize: groupSize,
-//            subitem: item,
-//            count: 3
-//        )
-//
-//        let section = NSCollectionLayoutSection(group: group)
-//        section.interGroupSpacing = 1
-//
-//        return UICollectionViewCompositionalLayout(section: section)
-//    }
-
-    
     func loadPhotosForPerson() {
-
         let context = PersistenceController.shared.context
         let person = context.object(with: personObjectID) as! PersonEntity
-
-        let faces = person.faces as? Set<FaceImageEntity> ?? []
-
+        let faces = person.faces as? Set<FaceEntity> ?? []
         let uniquePhotos = Set(faces.compactMap { $0.photo })
         photoEntities = Array(uniquePhotos)
-
         imageCollectionView.reloadData()
     }
 

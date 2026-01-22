@@ -24,14 +24,10 @@ class CalendarCollectionViewCell: UICollectionViewCell {
         dayLabel.text = model.dayString
         dateLabel.text = model.dateString
         self.isToday = isToday
-
-        // IMPORTANT: do NOT style selection here
         updateUI()
     }
 
     private func updateUI() {
-
-        // HARD RESET (important)
         backgroundCard.backgroundColor = .clear
 
         dayLabel.alpha = 1.0
@@ -40,18 +36,13 @@ class CalendarCollectionViewCell: UICollectionViewCell {
         dayLabel.textColor = .lightGray
         dateLabel.textColor = .black
 
-        // SELECTED
         if isSelected {
             backgroundCard.backgroundColor = .systemOrange
             dateLabel.textColor = .white
-
-            // 🔑 KEEP DAY LABEL VISIBLE
             dayLabel.textColor = .lightGray
             return
         }
-
-
-        // TODAY (not selected)
+        
         if isToday {
             backgroundCard.backgroundColor = UIColor(
                 red: 1.0,

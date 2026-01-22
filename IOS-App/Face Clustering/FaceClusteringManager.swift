@@ -25,7 +25,6 @@ final class FaceClusteringManager {
     private let similarityThreshold: Float = 0.45
 
     func addFace(embedding: [Float]) -> (cluster: FaceCluster, isNew: Bool) {
-
         if let index = bestMatchingClusterIndex(for: embedding) {
             clusters[index] = update(cluster: clusters[index], with: embedding)
             return (clusters[index], false)
@@ -46,8 +45,6 @@ final class FaceClusteringManager {
 
         for (i, cluster) in clusters.enumerated() {
             let sim = cosineSimilarity(embedding, cluster.centroid)
-            print("Similarity vs cluster:", sim)
-
             if sim > bestSim {
                 bestSim = sim
                 bestIndex = i
@@ -86,12 +83,10 @@ final class FaceClusteringManager {
 
         do {
             let people = try context.fetch(request)
-
             for person in people {
-
                 guard
                     let clusterId = person.clusterId,
-                    let faces = person.faces as? Set<FaceImageEntity>,
+                    let faces = person.faces as? Set<FaceEntity>,
                     !faces.isEmpty
                 else { continue }
 
@@ -108,9 +103,7 @@ final class FaceClusteringManager {
                 }
 
                 guard !embeddings.isEmpty else { continue }
-
                 let centroid = averageAndNormalize(embeddings)
-
                 clusters.append(
                     FaceCluster(
                         id: clusterId,
@@ -119,11 +112,10 @@ final class FaceClusteringManager {
                     )
                 )
             }
-
-            print("🔁 Bootstrapped clusters:", clusters.count)
+            print("bootstrapped clusters:", clusters.count)
 
         } catch {
-            print("❌ Cluster bootstrap failed:", error)
+            print("cluster bootstrap failed:", error)
         }
     }
 
@@ -151,10 +143,10 @@ final class FaceClusteringManager {
                     clusters[i].centroid,
                     clusters[j].centroid
                 )
-                if sim >= 0.75 {
+                if sim >= 0.9 {
                     mergeCluster(at: j, into: i)
                     merged.insert(j)
-                    print("🔀 Merged clusters:", clusters[j].id, "→", clusters[i].id)
+                    print("Merged clusters:", clusters[j].id, "→", clusters[i].id)
                 }
             }
         }
@@ -199,7 +191,7 @@ final class FaceClusteringManager {
         let source = people.first { $0.clusterId == sourceId }!
         let target = people.first { $0.clusterId == targetId }!
 
-        if let faces = source.faces as? Set<FaceImageEntity> {
+        if let faces = source.faces as? Set<FaceEntity> {
             for face in faces {
                 face.person = target
             }

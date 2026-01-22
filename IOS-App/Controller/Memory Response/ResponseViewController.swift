@@ -21,21 +21,21 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         let person = people[indexPath.row]
         cell.configure(person: person)
         cell.onChevronTapped = { [weak self] in
-            self?.openPersonDetail(person)
+            self?.performSegue(
+                withIdentifier: "showResponseDetail",
+                sender: person
+            )
         }
         return cell
     }
     
-    func openPersonDetail(_ person: PersonSession) {
-        let vc = storyboard!.instantiateViewController(identifier: "ResponseDetailViewController") as! ResponseDetailViewController
-
-        vc.person = person
-
-        vc.modalPresentationStyle = .pageSheet
-
-        present(vc, animated: true)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showResponseDetail",
+           let vc = segue.destination as? ResponseDetailViewController,
+           let person = sender as? PersonSession {
+            vc.person = person
+        }
     }
-
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -65,7 +65,7 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         installTableHeaderView(header)
         
         let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy • h:mm a"
+        formatter.dateFormat = "d MMM yyyy, h:mm a"
         formatter.locale = .current
         navigationItem.title = formatter.string(from: session.timestamp)
     }
@@ -120,7 +120,6 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         
         let label = UILabel()
         label.text = "People in this memory"
-//        label.font = UIFont.boldSystemFont(ofSize: 17)
         label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = UIColor.black
         label.translatesAutoresizingMaskIntoConstraints = false
