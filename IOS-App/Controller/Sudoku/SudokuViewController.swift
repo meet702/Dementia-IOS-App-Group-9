@@ -287,37 +287,36 @@ class SudokuViewController: UIViewController {
     @IBAction func eraseTapped(_ sender: UIButton) {
         print("erase tapped")
 
-        // 1️⃣ Ensure a cell is selected
+        // Ensure a cell is selected
         guard let idx = selectedIndex else { return }
 
         let cell = boardModel.cells[idx]
 
-        // 2️⃣ Do not erase given cells
+        // Do not erase given cells
         if cell.isGiven { return }
 
         let row = idx / 9
         let col = idx % 9
 
-        // 3️⃣ Save for undo
+        // For undo
         undoStack.append((idx, cell.value))
 
-        // 4️⃣ Clear the value
+        // For clearing the value
         boardModel.setValue(nil, atRow: row, col: col)
 
-        // 5️⃣ Revalidate conflicts
+        // For revalidate conflicts
         validateConflictsAll()
 
-        // 6️⃣ Reload only affected cell
+        // Reload only affected cell
         collectionView.reloadItems(
             at: [IndexPath(item: idx, section: 0)]
         )
 
-        // Optional haptic
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func checkIfSudokuCompleted() {
-        //  Check all cells are filled and correct
+        // Check all cells are filled and correct
         for i in 0..<81 {
             let cell = boardModel.cells[i]
 
@@ -330,7 +329,6 @@ class SudokuViewController: UIViewController {
             }
         }
 
-        // No conflicts allowed
         let hasConflict = boardModel.cells.contains { $0.isConflict }
         if hasConflict { return }
 
@@ -409,7 +407,7 @@ class SudokuViewController: UIViewController {
     }
 
     private func checkConflicts(in indices: [Int]) {
-        var seen: [Int: Int] = [:] // value → index
+        var seen: [Int: Int] = [:]
         for idx in indices {
             if let v = boardModel.cells[idx].value {
                 if let prev = seen[v] {

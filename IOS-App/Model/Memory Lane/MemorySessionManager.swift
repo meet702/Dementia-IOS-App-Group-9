@@ -1,10 +1,3 @@
-//
-//  MemorySessionManager.swift
-//  MemoryLane
-//
-//  Created by SDC-User on 17/12/25.
-//
-
 import Foundation
 import UIKit
 
@@ -13,12 +6,15 @@ class MemorySessionManager {
     static let shared = MemorySessionManager()
     private init() {}
 
+    // Session State
     var sessionInProgress: Bool = false
 
     enum SessionStep {
         case pictureIntro
         case identifyPerson
-        case followup
+        case text
+        case mcq
+        case emotion
         case finalQuestion
         case completed
     }
@@ -32,9 +28,10 @@ class MemorySessionManager {
     private(set) var totalSteps: Int = 0
     private(set) var currentStep: Int = 0
 
-    let stepsPerPerson: Int = 4
+    private let stepsPerPerson = 6
+    private let finalImageStep = 1
 
-
+    // Session Lifecycle
     func startImageSession(image: UIImage, peopleShown: [String]) {
 
         currentImageSession = MemoryImageSession(
@@ -46,13 +43,13 @@ class MemorySessionManager {
             timestamp: Date()
         )
 
-        totalSteps = (peopleShown.count * stepsPerPerson) + 1
+        totalSteps = (peopleShown.count * stepsPerPerson) + finalImageStep
         currentStep = 0
 
-        print("Image session started for imageId:", currentImageSession?.imageId ?? "nil")
-        print("Progress initialized:", currentStep, "/", totalSteps)
+        print("Image session started")
+        print("People:", peopleShown.count)
+        print("Total steps:", totalSteps)
     }
-
 
     func beginSession(for person: String, relation: String) {
         sessionInProgress = true
@@ -61,6 +58,7 @@ class MemorySessionManager {
         currentSession = MemorySessionData(
             personName: person,
             relation: relation,
+            image: nil,
             textAnswers: [],
             mcqAnswers: [],
             emotion: nil,
@@ -69,6 +67,7 @@ class MemorySessionManager {
         )
     }
 
+    // Answer Recording
     func setIdentificationResult(correct: Bool) {
         currentSession?.wasIdentifiedCorrectly = correct
     }
@@ -89,66 +88,18 @@ class MemorySessionManager {
         currentSession?.emotion = emotion
     }
 
-
+    // Completion
     func completeSession() {
-        guard let personSession = currentSession else {
-            print("Tried to complete session but currentSession is nil.")
-            return
-        }
+        guard let personSession = currentSession else { return }
 
         currentImageSession?.personSessions.append(personSession)
-
-        print("Completed session for", personSession.personName)
 
         currentSession = nil
         sessionInProgress = false
         lastStep = .completed
     }
 
-
     func finishImageSession(overallReflection: String?) {
-        print("\n===== MEMORY LANE SESSION SUMMARY =====\n")
-
-        if let imageSession = currentImageSession {
-
-            for (index, personSession) in imageSession.personSessions.enumerated() {
-
-                print("Person \(index + 1): \(personSession.personName)")
-                print("Relation: \(personSession.relation)")
-                print("Identified correctly: \(personSession.wasIdentifiedCorrectly ?? false)")
-
-                print("\nText Answers:")
-                if personSession.textAnswers.isEmpty {
-                    print("  None")
-                } else {
-                    for answer in personSession.textAnswers {
-                        print("  Q: \(answer.question)")
-                        print("  A: \(answer.answer)")
-                    }
-                }
-
-                print("\nMCQ Answers:")
-                if personSession.mcqAnswers.isEmpty {
-                    print("  None")
-                } else {
-                    for answer in personSession.mcqAnswers {
-                        print("  Q: \(answer.question)")
-                        print("  Selected: \(answer.selectedOption)")
-                    }
-                }
-
-                print("\nEmotion:")
-                print("  \(personSession.emotion ?? "Not answered")")
-
-                print("\n------------------------------------\n")
-            }
-
-            print("FINAL GROUP REFLECTION:")
-            print(overallReflection ?? "No final reflection")
-
-            print("\n=====================================\n")
-        }
-
         currentImageSession?.overallReflection = overallReflection
 
         if let finished = currentImageSession {
@@ -158,14 +109,13 @@ class MemorySessionManager {
         currentImageSession = nil
     }
 
-
-
+    // Progress API
     func advanceProgress() -> Float {
         guard totalSteps > 0 else { return 0 }
 
-        if currentStep < totalSteps {
-            currentStep += 1
-        }
+        currentStep = min(currentStep + 1, totalSteps)
+
+        print("Progress:", currentStep, "/", totalSteps)
 
         return Float(currentStep) / Float(totalSteps)
     }

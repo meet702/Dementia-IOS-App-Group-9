@@ -12,12 +12,10 @@ final class RoutineRepository {
 
         return allTasks.filter { task in
 
-            // 🔁 Repeat-daily → ALWAYS visible
             if task.isRepeatDaily {
                 return true
             }
 
-            // 📅 One-time task → must match the day
             if let scheduledDate = task.scheduledDate {
                 return calendar.isDate(scheduledDate, inSameDayAs: day)
             }
@@ -36,12 +34,12 @@ final class RoutineRepository {
         do {
             return try context.fetch(request)
         } catch {
-            print("❌ fetchAllTasks failed:", error)
+            print("fetchAllTasks failed:", error)
             return []
         }
     }
 
-    // MARK: - Create
+    // Create
     func createTask(
         title: String,
         subtitle: String?,
@@ -60,7 +58,7 @@ final class RoutineRepository {
         notifyChange()
     }
     
-    // MARK: - Update
+    // Update
     func updateTask(
         _ task: RoutineTask,
         title: String,
@@ -87,18 +85,17 @@ final class RoutineRepository {
         let day = Calendar.current.startOfDay(for: date)
         let today = Calendar.current.startOfDay(for: Date())
 
-        // ✅ ALL PAST DATES ARE AUTO-COMPLETED
+        // All past dates are auto completed
         if day < today {
             return true
         }
 
-        // ✅ Today → check real completion
+        // Check real completion of todays task
         guard let taskId = task.id else { return false }
         return fetchCompletion(taskId: taskId, date: day) != nil
     }
 
-
-
+    
     func fetchCompletion(taskId: UUID, date: Date) -> TaskCompletion? {
         let request: NSFetchRequest<TaskCompletion> = TaskCompletion.fetchRequest()
         request.fetchLimit = 1
@@ -111,9 +108,8 @@ final class RoutineRepository {
         return try? context.fetch(request).first
     }
 
-    // MARK: - Toggle completion
+    // Toggle completion
     func toggleCompletion(task: RoutineTask, date: Date) {
-        // 🔑 Safely unwrap task id once
         guard let taskId = task.id else {
             assertionFailure("RoutineTask has no id")
             return
@@ -122,10 +118,10 @@ final class RoutineRepository {
         let day = Calendar.current.startOfDay(for: date)
 
         if let completion = fetchCompletion(taskId: taskId, date: day) {
-            // ❌ Uncheck
+            // Uncheck
             context.delete(completion)
         } else {
-            // ✅ Check
+            // Check
             let completion = TaskCompletion(context: context)
             completion.id = UUID()
             completion.taskId = taskId
@@ -138,7 +134,7 @@ final class RoutineRepository {
 
 
 
-    // MARK: - Delete
+    // Delete
     func delete(_ task: RoutineTask) {
         context.delete(task)
         save()
@@ -191,26 +187,13 @@ final class RoutineRepository {
         }
         save()
     }
-    func debugPrintAllTasks() {
-        let tasks = fetchAllTasks()
-        print("🧪 TOTAL TASKS:", tasks.count)
 
-        for task in tasks {
-            print("""
-            📝 \(task.title ?? "nil")
-            - repeatDaily: \(task.isRepeatDaily)
-            - scheduledDate: \(task.scheduledDate as Any)
-            - time: \(task.time as Any)
-            """)
-        }
-    }
     private func notifyChange() {
         NotificationCenter.default.post(
             name: .DataStoreDidUpdateRoutines,
             object: nil
         )
     }
-
 }
 
 extension Notification.Name {

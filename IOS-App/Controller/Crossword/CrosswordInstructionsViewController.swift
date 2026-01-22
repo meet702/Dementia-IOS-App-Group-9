@@ -91,8 +91,7 @@ class CrosswordInstructionsViewController: UIViewController {
         }
     }
 
-    // MARK: - Category Selection
-
+    // Category Selection
     func handleSelection(of selectedCard: UIView) {
 
         isRandomCategorySelected = (selectedCard === randomCategoryCard)
@@ -134,8 +133,7 @@ class CrosswordInstructionsViewController: UIViewController {
         playButton.alpha = 1.0
     }
 
-    // MARK: - Instructions Text
-
+    // Instructions Text
     private func setupInstructionsText() {
         let text = """
         1. Find and fill words in the crossword grid by identifying pictures.
@@ -153,8 +151,7 @@ class CrosswordInstructionsViewController: UIViewController {
         )
     }
 
-    // MARK: - How To Play
-
+    // How To Play
     @IBAction func howToPlayTapped(_ sender: Any) {
         isHowToPlayOpen.toggle()
 
@@ -167,8 +164,7 @@ class CrosswordInstructionsViewController: UIViewController {
         }
     }
 
-    // MARK: - Tap Gestures
-
+    // Tap Gestures
     @IBAction func countriesTapped(_ sender: UITapGestureRecognizer) {
         handleSelection(of: countriesCard)
     }
@@ -189,17 +185,16 @@ class CrosswordInstructionsViewController: UIViewController {
         handleSelection(of: randomCategoryCard)
     }
 
-    // MARK: - Play Button
-
+    // Play Button
     @IBAction func playTapped(_ sender: UIButton) {
         let finalCategory: CrosswordCategory
 
         if isRandomCategorySelected {
             finalCategory = [.countries, .dailyObjects, .gk, .food].randomElement()!
-            print("🎲 Randomly selected:", finalCategory.rawValue)
+            print("Randomly selected:", finalCategory.rawValue)
         } else {
             guard let category = selectedCategory else {
-                print("❌ No category selected")
+                print("No category selected")
                 return
             }
             finalCategory = category

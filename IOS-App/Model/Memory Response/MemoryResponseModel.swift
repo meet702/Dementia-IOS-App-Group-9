@@ -19,13 +19,6 @@ struct ImageSession {
     var timestamp: Date = Date()
 }
 
-struct MemoryLanePersonOverviewModelCaregiver {
-    var name: String
-    var summary: String
-    var personImage: String
-}
-
-
 struct TextAnswerCaregiver {
     let question: String
     let answer: String
