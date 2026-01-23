@@ -23,20 +23,13 @@ class CaregiverViewController: UIViewController {
         albumButton.layer.masksToBounds = false
     }
     
-//    var todaysSessions: [MemoryImageSession] {
-//        ResponseDataStore.shared.imageSession
-//    }
-    
     private let memoryManager = MemorySessionManager.shared
 
     var todaysSessions: [MemoryImageSession] {
         memoryManager.completedImageSessions
     }
 
-
-    
     @IBOutlet weak var caregiverCollectionView: UICollectionView!
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -84,11 +77,6 @@ class CaregiverViewController: UIViewController {
 
         guard indexPath.section == 1 else { return }
 
-//        let selectedSession = todaysSessions[indexPath.item]
-//
-//        ResponseDataStore.shared.currentImageSession = selectedSession
-//
-//        performSegue(withIdentifier: "showMemoryResponse", sender: nil)
         
         let selectedSession = todaysSessions[indexPath.item]
         performSegue(
@@ -98,17 +86,6 @@ class CaregiverViewController: UIViewController {
 
     }
 
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//
-//        guard segue.identifier == "showMemoryResponse" else { return }
-//
-//        if let destination = segue.destination as? ResponseViewController {
-//            destination.session = ResponseDataStore.shared.currentImageSession
-//            print("Prepared Memory Response via segue")
-//            
-//        }
-//    }
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == "showMemoryResponse",
               let destination = segue.destination as? ResponseViewController,
@@ -117,9 +94,6 @@ class CaregiverViewController: UIViewController {
 
         destination.session = session
     }
-
-
-
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout(sectionProvider: {section, env in
@@ -171,7 +145,6 @@ class CaregiverViewController: UIViewController {
         caregiverCollectionView.register(UINib(nibName: "RoutineCardCaregiver", bundle: nil), forCellWithReuseIdentifier: "routineCardCaregiver")
         caregiverCollectionView.register(UINib(nibName: "TodaySessionsCard", bundle: nil), forCellWithReuseIdentifier: "todaySessionsCard")
         caregiverCollectionView.register(UINib(nibName: "HeaderView", bundle: nil), forSupplementaryViewOfKind: "header", withReuseIdentifier: "header_cell")
-        
     }
 
 }

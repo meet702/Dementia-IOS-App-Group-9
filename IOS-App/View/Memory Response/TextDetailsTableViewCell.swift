@@ -38,9 +38,4 @@ class TextDetailsTableViewCell: UITableViewCell {
             attributes: attributes
         )
     }
-     
-    
-   
-
-    
 }

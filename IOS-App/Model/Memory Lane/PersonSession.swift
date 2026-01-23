@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct MemoryLanePersonInfo {
+struct PersonData {
     var name: String
     var summary: String
     var hint: String

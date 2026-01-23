@@ -6,7 +6,6 @@ class MemorySessionManager {
     static let shared = MemorySessionManager()
     private init() {}
 
-    // Session State
     var sessionInProgress: Bool = false
 
     enum SessionStep {
@@ -31,7 +30,6 @@ class MemorySessionManager {
     private let stepsPerPerson = 6
     private let finalImageStep = 1
 
-    // Session Lifecycle
     func startImageSession(image: String, peopleShown: [String]) {
 
         currentImageSession = MemoryImageSession(
@@ -67,7 +65,6 @@ class MemorySessionManager {
         )
     }
 
-    // Answer Recording
     func setIdentificationResult(correct: Bool) {
         currentSession?.wasIdentifiedCorrectly = correct
     }
@@ -88,35 +85,8 @@ class MemorySessionManager {
         currentSession?.emotion = emotion
     }
 
-    // Completion
     func completeSession() {
         guard let personSession = currentSession else { return }
-
-        print("----- PERSON SESSION COMPLETED -----")
-        print("Person Name:", personSession.personName)
-        print("Relation:", personSession.relation)
-
-        if let identified = personSession.wasIdentifiedCorrectly {
-            print("Identified Correctly:", identified)
-        }
-
-        print("\n--- MCQ Answers ---")
-        for mcq in personSession.mcqAnswers {
-            print("Question:", mcq.question)
-            print("Selected Option:", mcq.selectedOption)
-            print("------------------")
-        }
-
-        print("\n--- Text Answers ---")
-        for text in personSession.textAnswers {
-            print("Question:", text.question)
-            print("Answer:", text.answer)
-            print("------------------")
-        }
-        if let emotion = personSession.emotion {
-            print("Emotion:", emotion)
-        }
-        print("----- END SESSION -----\n")
         currentImageSession?.personSessions.append(personSession)
 
         currentSession = nil
@@ -134,7 +104,6 @@ class MemorySessionManager {
         currentImageSession = nil
     }
 
-    // Progress API
     func advanceProgress() -> Float {
         guard totalSteps > 0 else { return 0 }
 

@@ -3,12 +3,10 @@ internal import CoreData
 
 final class RoutineViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
-    // Outlets
     @IBOutlet weak var routineCollectionView: UICollectionView!
     @IBOutlet weak var tasksTableView: UITableView!
     @IBOutlet weak var addTaskButtonOutlet: UIButton!
 
-    // State
     var dates: [DateModel] = []
     var selectedDate: Date = Date()
 
@@ -19,14 +17,11 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     let repository = RoutineRepository()
     let context = PersistenceController.shared.context
 
-    // Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
         repository.createBaselineRoutineIfNeeded()
         registerCells()
-//        repository.debugPrintAllTasks()
-
         routineCollectionView.dataSource = self
         routineCollectionView.delegate = self
 
@@ -46,7 +41,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         selectDateInCollectionView(selectedDate, animated: false)
     }
 
-    // Table view
     func numberOfSections(in tableView: UITableView) -> Int { 3 }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -100,7 +94,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
 
-    // Swipe actions
     func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
@@ -233,10 +226,10 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         let today = Date()
 
         let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "EEEEE"   // M T W T F S S
+        dayFormatter.dateFormat = "EEEEE"
 
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d"       // 12, 13, 14
+        dateFormatter.dateFormat = "d"
 
         return (-10...10).map { offset in
             let date = Calendar.current.date(
@@ -297,7 +290,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         present(alert, animated: true)
     }
 
-    // Actions
     @IBAction func addTaskButton(_ sender: UIButton) {
         let isPast = Calendar.current.compare(
             selectedDate,
@@ -305,7 +297,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             toGranularity: .day
         ) == .orderedAscending
 
-        // Block adding to past
         guard !isPast else {
             showPastDateAlert()
             return
@@ -351,7 +342,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
 
 }
 
-// Calendar
 extension RoutineViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView,

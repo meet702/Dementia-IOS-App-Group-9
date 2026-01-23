@@ -59,9 +59,9 @@ class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, U
 
         do {
             try context.save()
-            print("✅ Person deleted")
+            print("Person deleted")
         } catch {
-            print("❌ Failed to delete person:", error)
+            print("Failed to delete person:", error)
         }
 
         loadPeople()
@@ -116,7 +116,7 @@ class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, U
                     return nil
                 }
 
-                // Pick latest face safely
+                // Pick latest face
                 let sortedFaces = faces.sorted {
                     ($0.createdAt ?? .distantPast) >
                     ($1.createdAt ?? .distantPast)
@@ -172,9 +172,9 @@ class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, U
 
         do {
             try context.save()
-            print("🆕 Person created with first face")
+            print("Person created with first face")
         } catch {
-            print("❌ Save failed:", error)
+            print("Save failed:", error)
         }
     }
 
@@ -206,9 +206,9 @@ class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, U
 
         do {
             try context.save()
-            print("➕ Face added to existing person")
+            print("Face added to existing person")
         } catch {
-            print("❌ Failed to add face:", error)
+            print("Failed to add face:", error)
         }
     }
 
@@ -275,7 +275,6 @@ class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, U
 
                 let embedding = result.embedding
                 let faceImage = result.faceImage
-//                let boundingBox = result.boundingBox
 
                 let clusterResult = FaceClusteringManager.shared.addFace(embedding: embedding)
 
@@ -289,11 +288,6 @@ class PeopleViewController: UIViewController, UIImagePickerControllerDelegate, U
                 face.createdAt = Date()
                 face.person = person
                 face.photo = photo
-
-//                face.faceRectX = boundingBox.origin.x
-//                face.faceRectY = boundingBox.origin.y
-//                face.faceRectW = boundingBox.size.width
-//                face.faceRectH = boundingBox.size.height
             }
 
             try? context.save()

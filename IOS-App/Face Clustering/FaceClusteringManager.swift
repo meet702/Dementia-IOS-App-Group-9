@@ -120,10 +120,10 @@ final class FaceClusteringManager {
                 )
             }
 
-            print("🔁 Bootstrapped clusters:", clusters.count)
+            print("Bootstrapped clusters:", clusters.count)
 
         } catch {
-            print("❌ Cluster bootstrap failed:", error)
+            print("Cluster bootstrap failed:", error)
         }
     }
 
@@ -154,7 +154,7 @@ final class FaceClusteringManager {
                 if sim >= 0.75 {
                     mergeCluster(at: j, into: i)
                     merged.insert(j)
-                    print("🔀 Merged clusters:", clusters[j].id, "→", clusters[i].id)
+                    print("Merged clusters:", clusters[j].id, "→", clusters[i].id)
                 }
             }
         }

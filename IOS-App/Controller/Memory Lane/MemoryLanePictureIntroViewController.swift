@@ -19,7 +19,7 @@ class MemoryLanePictureIntroViewController: UIViewController {
     @IBAction func screenTapped(_ sender: UIButton) {
 
       
-        let displayedImage = mainImageView.image ?? UIImage()
+        _ = mainImageView.image ?? UIImage()
 
      
         let peopleInPicture = ["Priyadarshan", "Priyamani", "Priya"]

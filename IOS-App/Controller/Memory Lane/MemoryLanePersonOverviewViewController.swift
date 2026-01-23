@@ -12,12 +12,12 @@ class MemoryLanePersonOverviewViewController: UIViewController {
     @IBOutlet weak var memoryLaneCollectionView: UICollectionView!
     
     @IBOutlet weak var finishButton: UIButton!
-    let personOverview: [MemoryLanePersonInfo] = [
-        MemoryLanePersonInfo(name: "Priyamani", summary: "Priyamani has been like family to you for years. Her warmth, understanding, and quiet support make every moment with her feel comforting and familiar.", hint: " ", personImage: "image_38"),
+    let personOverview: [PersonData] = [
+        PersonData(name: "Priyamani", summary: "Priyamani has been like family to you for years. Her warmth, understanding, and quiet support make every moment with her feel comforting and familiar.", hint: "", personImage: "image_38"),
         
-        MemoryLanePersonInfo(name: "Priyadarshan", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", hint: " ", personImage: "image_39"),
+        PersonData(name: "Priyadarshan", summary: "Priyadarshan has been like family to you for years. You’ve shared many dinners, long conversations, and festival celebrations together. He always makes you laugh with his stories.", hint: "", personImage: "image_39"),
         
-        MemoryLanePersonInfo(name: "Priya", summary: "Priya feels more like family than a friend. Her energy, laughter, and easy conversations always brighten your day.", hint: " ", personImage: "image_42")
+        PersonData(name: "Priya", summary: "Priya feels more like family than a friend. Her energy, laughter, and easy conversations always brighten your day.", hint: "", personImage: "image_42")
     ]
     
     override func viewDidLoad() {
@@ -31,15 +31,13 @@ class MemoryLanePersonOverviewViewController: UIViewController {
     
     func generateLayout() -> UICollectionViewLayout {
         return UICollectionViewCompositionalLayout { section, environment in
-            
-            // Cell item
+
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .estimated(260)   
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-            // Group (vertical stack of 1 item)
+            
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .estimated(260)
@@ -48,8 +46,6 @@ class MemoryLanePersonOverviewViewController: UIViewController {
                 layoutSize: groupSize,
                 subitems: [item]
             )
-
-            // Section settings
             let sectionLayout = NSCollectionLayoutSection(group: group)
             sectionLayout.interGroupSpacing = 20
             sectionLayout.contentInsets = NSDirectionalEdgeInsets(
