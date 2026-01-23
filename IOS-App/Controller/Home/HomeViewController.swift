@@ -25,6 +25,7 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        navigationItem.title = timeBasedGreeting()
         registerCell()
         homeCollectionView.dataSource = self
         homeCollectionView.delegate = self
@@ -190,6 +191,22 @@ class HomeViewController: UIViewController {
             UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
         }
     }
+    
+    private func timeBasedGreeting() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+
+        switch hour {
+        case 5..<12:
+            return "Good Morning"
+        case 12..<17:
+            return "Good Afternoon"
+        case 17..<21:
+            return "Good Evening"
+        default:
+            return "Good Night"
+        }
+    }
+
 }
 
 extension HomeViewController: LocationManagerDelegate {
