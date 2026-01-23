@@ -108,7 +108,7 @@
                                 </prototypes>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O32-VN-JCP">
-                                <rect key="frame" x="329" y="750" width="50" height="50"/>
+                                <rect key="frame" x="315" y="742" width="50" height="50"/>
                                 <color key="backgroundColor" systemColor="systemOrangeColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="QJM-km-1nJ"/>
@@ -128,7 +128,7 @@
                         <color key="backgroundColor" red="0.99607843137254903" green="0.97254901960784312" blue="0.93725490196078431" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="vo0-hi-PLB" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="85" id="1bW-fr-HTr"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="O32-VN-JCP" secondAttribute="bottom" constant="-16" id="7UE-Ag-VJh"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="O32-VN-JCP" secondAttribute="bottom" constant="-8" id="7UE-Ag-VJh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="hQB-Hg-0Cg" secondAttribute="trailing" id="GWJ-KC-QZq"/>
                             <constraint firstAttribute="bottom" secondItem="vo0-hi-PLB" secondAttribute="bottom" id="MW1-KG-iXk"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="hQB-Hg-0Cg" secondAttribute="bottom" constant="516" id="TUE-00-qiV"/>
@@ -136,7 +136,7 @@
                             <constraint firstItem="vo0-hi-PLB" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="i0Y-iH-ROI"/>
                             <constraint firstItem="hQB-Hg-0Cg" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="kA6-md-cDz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="O32-VN-JCP" secondAttribute="trailing" id="oet-L8-Chr"/>
-                            <constraint firstItem="O32-VN-JCP" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="329" id="tUW-gr-2hg"/>
+                            <constraint firstItem="O32-VN-JCP" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="315" id="tUW-gr-2hg"/>
                             <constraint firstItem="hQB-Hg-0Cg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="y31-eF-BVH"/>
                         </constraints>
                     </view>

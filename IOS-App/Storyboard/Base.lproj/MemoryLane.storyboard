@@ -583,9 +583,10 @@
                                 </constraints>
                             </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CKT-RV-Imw">
-                                <rect key="frame" x="130" y="144" width="134" height="134"/>
+                                <rect key="frame" x="130" y="144" width="133" height="134"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="134" id="2Pg-ox-fAX"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="133" id="8li-iq-7Hn"/>
                                     <constraint firstAttribute="height" constant="134" id="bXK-f8-1me"/>
                                 </constraints>
                             </imageView>
@@ -605,7 +606,7 @@
                             <constraint firstItem="CKT-RV-Imw" firstAttribute="leading" secondItem="h9t-V4-BFZ" secondAttribute="leading" constant="130" id="kDe-CU-Wx0"/>
                             <constraint firstItem="wcg-Z2-MUv" firstAttribute="leading" secondItem="h9t-V4-BFZ" secondAttribute="leading" constant="16" id="lvQ-qp-tNZ"/>
                             <constraint firstItem="wcg-Z2-MUv" firstAttribute="top" secondItem="x6P-Ww-ETl" secondAttribute="bottom" constant="29.999999999999943" id="v5Q-OC-lCI"/>
-                            <constraint firstItem="h9t-V4-BFZ" firstAttribute="trailing" secondItem="CKT-RV-Imw" secondAttribute="trailing" constant="129" id="w3A-KM-5zM"/>
+                            <constraint firstItem="h9t-V4-BFZ" firstAttribute="trailing" secondItem="CKT-RV-Imw" secondAttribute="trailing" constant="130" id="w3A-KM-5zM"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Memory Lane" id="kEj-tk-FK6"/>
