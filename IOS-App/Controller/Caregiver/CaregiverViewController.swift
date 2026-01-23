@@ -23,9 +23,16 @@ class CaregiverViewController: UIViewController {
         albumButton.layer.masksToBounds = false
     }
     
-    var todaysSessions: [ImageSession] {
-        ResponseDataStore.shared.imageSession
+//    var todaysSessions: [MemoryImageSession] {
+//        ResponseDataStore.shared.imageSession
+//    }
+    
+    private let memoryManager = MemorySessionManager.shared
+
+    var todaysSessions: [MemoryImageSession] {
+        memoryManager.completedImageSessions
     }
+
 
     
     @IBOutlet weak var caregiverCollectionView: UICollectionView!
@@ -77,23 +84,40 @@ class CaregiverViewController: UIViewController {
 
         guard indexPath.section == 1 else { return }
 
+//        let selectedSession = todaysSessions[indexPath.item]
+//
+//        ResponseDataStore.shared.currentImageSession = selectedSession
+//
+//        performSegue(withIdentifier: "showMemoryResponse", sender: nil)
+        
         let selectedSession = todaysSessions[indexPath.item]
+        performSegue(
+            withIdentifier: "showMemoryResponse",
+            sender: selectedSession
+        )
 
-        ResponseDataStore.shared.currentImageSession = selectedSession
-
-        performSegue(withIdentifier: "showMemoryResponse", sender: nil)
     }
 
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//
+//        guard segue.identifier == "showMemoryResponse" else { return }
+//
+//        if let destination = segue.destination as? ResponseViewController {
+//            destination.session = ResponseDataStore.shared.currentImageSession
+//            print("Prepared Memory Response via segue")
+//            
+//        }
+//    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == "showMemoryResponse",
+              let destination = segue.destination as? ResponseViewController,
+              let session = sender as? MemoryImageSession
+        else { return }
 
-        guard segue.identifier == "showMemoryResponse" else { return }
-
-        if let destination = segue.destination as? ResponseViewController {
-            destination.session = ResponseDataStore.shared.currentImageSession
-            print("Prepared Memory Response via segue")
-            
-        }
+        destination.session = session
     }
+
 
 
     
