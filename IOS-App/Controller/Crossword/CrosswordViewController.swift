@@ -415,7 +415,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
     }
     
     // Keyboard Input
-    @objc @IBAction func keyTapped(_ sender: UIButton) {
+    @IBAction func keyTapped(_ sender: UIButton) {
         playLightHaptic()
         if let char = sender.currentTitle?.first {
             insertLetter(char)
@@ -428,7 +428,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         }
     }
 
-    @objc @IBAction func deleteTapped(_ sender: UIButton) {
+    @IBAction func deleteTapped(_ sender: UIButton) {
         playLightHaptic()
         deleteLetter()
     }
