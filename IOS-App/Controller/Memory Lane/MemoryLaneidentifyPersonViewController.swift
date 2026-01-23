@@ -62,6 +62,13 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
         selectedAnswer = ""
         progressView.progress = MemorySessionManager.shared.currentProgress()
         restoreIfAlreadyAnswered()
+        
+        let personImageName = imageByPerson[correctAnswer] ?? "priyadarshanImage"
+        MemorySessionManager.shared.beginSession(
+            for: correctAnswer,
+            relation: relation,
+            image: personImageName
+        )
     }
 
     private func setupUI() {
@@ -114,9 +121,11 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
 
         guessButton.setTitle("Next", for: .normal)
     }
-    
     private func highlightCorrect() {
         MemorySessionManager.shared.setIdentificationResult(correct: true)
+        highlightCorrectUIOnly()
+    }
+    private func highlightCorrectUIOnly() {
         [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
             if $0?.title(for: .normal) == correctAnswer {
                 $0?.layer.borderWidth = 3
@@ -138,7 +147,7 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             }
         }
         
-        highlightCorrect()
+        highlightCorrectUIOnly()
     }
     
     @IBAction func hintButtonTapped(_ sender: UIButton) {
@@ -168,10 +177,7 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
 
     func moveToNextQuestion() {
-        MemorySessionManager.shared.beginSession(
-            for: correctAnswer,
-            relation: relation
-        )
+
 
         let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
         if let nextVC =

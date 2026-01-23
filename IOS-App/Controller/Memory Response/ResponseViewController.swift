@@ -9,7 +9,7 @@ import UIKit
 
 class ResponseViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    var session: ImageSession!
+    var session: MemoryImageSession?
     var people: [PersonSession] = []
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -42,33 +42,46 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        session = ResponseDataStore.shared.currentImageSession
-        people = session.personSessions
-        
-        guard let session1 = ResponseDataStore.shared.currentImageSession else {
-            assertionFailure("No session selected")
+        guard let session else {
+            assertionFailure("ResponseViewController requires a MemoryImageSession")
             return
         }
 
-        self.session = session1
+        people = session.personSessions
+
         tableView.delegate = self
         tableView.dataSource = self
-
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
 
-        let header = Bundle.main.loadNibNamed("MemoryHeaderView", owner: nil, options: nil)!.first as! MemoryHeaderView
-        
+        configureHeader(with: session)
+        configureNavigationTitle(date: session.timestamp)
+    }
+
+    
+    private func configureHeader(with session: MemoryImageSession) {
+        let header = Bundle.main.loadNibNamed(
+            "MemoryHeaderView",
+            owner: nil,
+            options: nil
+        )!.first as! MemoryHeaderView
+
         header.titleLabel.text = "Here's what Arjun said about this picture..."
         header.descriptionLabel.text = session.overallReflection
         header.headerImageView.image = UIImage(named: session.image)
+
         installTableHeaderView(header)
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy • h:mm a"
-        formatter.locale = .current
-        navigationItem.title = formatter.string(from: session.timestamp)
     }
+    
+    private func configureNavigationTitle(date: Date) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy, h:mm a"
+        formatter.locale = .current
+        navigationItem.title = formatter.string(from: date)
+    }
+
+
+
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -120,7 +133,6 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         
         let label = UILabel()
         label.text = "People in this memory"
-//        label.font = UIFont.boldSystemFont(ofSize: 17)
         label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = UIColor.black
         label.translatesAutoresizingMaskIntoConstraints = false

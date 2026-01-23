@@ -26,7 +26,7 @@ class MemoryLanePictureIntroViewController: UIViewController {
 
       
         MemorySessionManager.shared.startImageSession(
-            image: displayedImage,
+            image: "image_40",
             peopleShown: peopleInPicture
         )
 

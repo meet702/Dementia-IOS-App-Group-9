@@ -21,7 +21,7 @@ class MemorySessionManager {
 
     var lastStep: SessionStep = .pictureIntro
 
-    var currentSession: MemorySessionData?
+    var currentSession: PersonSession?
     var currentImageSession: MemoryImageSession?
     var completedImageSessions: [MemoryImageSession] = []
 
@@ -32,10 +32,10 @@ class MemorySessionManager {
     private let finalImageStep = 1
 
     // Session Lifecycle
-    func startImageSession(image: UIImage, peopleShown: [String]) {
+    func startImageSession(image: String, peopleShown: [String]) {
 
         currentImageSession = MemoryImageSession(
-            imageId: UUID().uuidString,
+//            imageId: UUID().uuidString,
             image: image,
             peopleShown: peopleShown,
             personSessions: [],
@@ -51,14 +51,14 @@ class MemorySessionManager {
         print("Total steps:", totalSteps)
     }
 
-    func beginSession(for person: String, relation: String) {
+    func beginSession(for person: String, relation: String, image: String) {
         sessionInProgress = true
         lastStep = .identifyPerson
 
-        currentSession = MemorySessionData(
+        currentSession = PersonSession(
             personName: person,
             relation: relation,
-            image: nil,
+            image: image,
             textAnswers: [],
             mcqAnswers: [],
             emotion: nil,
@@ -72,15 +72,15 @@ class MemorySessionManager {
         currentSession?.wasIdentifiedCorrectly = correct
     }
 
-    func addTextAnswer(question: String, answer: String) {
+    func addTextAnswer(question: Question, answer: String) {
         currentSession?.textAnswers.append(
-            TextAnswer(question: question, answer: answer)
+            TextAnswer(question: question.question, answer: answer, symbol: question.symbol)
         )
     }
 
-    func addMCQAnswer(question: String, selected: String) {
+    func addMCQAnswer(question: Question, selected: [String]) {
         currentSession?.mcqAnswers.append(
-            MCQAnswer(question: question, selectedOption: selected)
+            MCQAnswer(question: question.question, selectedOption: selected, symbol: question.symbol)
         )
     }
 
@@ -92,6 +92,31 @@ class MemorySessionManager {
     func completeSession() {
         guard let personSession = currentSession else { return }
 
+        print("----- PERSON SESSION COMPLETED -----")
+        print("Person Name:", personSession.personName)
+        print("Relation:", personSession.relation)
+
+        if let identified = personSession.wasIdentifiedCorrectly {
+            print("Identified Correctly:", identified)
+        }
+
+        print("\n--- MCQ Answers ---")
+        for mcq in personSession.mcqAnswers {
+            print("Question:", mcq.question)
+            print("Selected Option:", mcq.selectedOption)
+            print("------------------")
+        }
+
+        print("\n--- Text Answers ---")
+        for text in personSession.textAnswers {
+            print("Question:", text.question)
+            print("Answer:", text.answer)
+            print("------------------")
+        }
+        if let emotion = personSession.emotion {
+            print("Emotion:", emotion)
+        }
+        print("----- END SESSION -----\n")
         currentImageSession?.personSessions.append(personSession)
 
         currentSession = nil
