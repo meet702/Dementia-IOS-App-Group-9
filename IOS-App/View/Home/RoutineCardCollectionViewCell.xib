@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="RoutineCardCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="306" height="205"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="306" height="205"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sRE-dz-fGN">
+                        <rect key="frame" x="0.0" y="0.0" width="306" height="205"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ZvU-8a-YMZ">
+                                <rect key="frame" x="12" y="12" width="282" height="181"/>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="ZvU-8a-YMZ" secondAttribute="trailing" constant="12" id="2Td-GI-q9P"/>
+                            <constraint firstItem="ZvU-8a-YMZ" firstAttribute="leading" secondItem="sRE-dz-fGN" secondAttribute="leading" constant="12" id="HCB-qy-35u"/>
+                            <constraint firstItem="ZvU-8a-YMZ" firstAttribute="top" secondItem="sRE-dz-fGN" secondAttribute="top" constant="12" id="JNp-91-75u"/>
+                            <constraint firstAttribute="bottom" secondItem="ZvU-8a-YMZ" secondAttribute="bottom" constant="12" id="ZTE-eP-4pq"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="sRE-dz-fGN" secondAttribute="trailing" id="Fs9-V9-g0d"/>
+                <constraint firstItem="sRE-dz-fGN" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="QN9-rK-UFs"/>
+                <constraint firstItem="sRE-dz-fGN" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Zen-cU-cWg"/>
+                <constraint firstAttribute="bottom" secondItem="sRE-dz-fGN" secondAttribute="bottom" id="pQn-Tn-N2k"/>
+            </constraints>
+            <size key="customSize" width="306" height="205"/>
+            <connections>
+                <outlet property="cardView" destination="sRE-dz-fGN" id="mn5-m7-E04"/>
+                <outlet property="stackView" destination="ZvU-8a-YMZ" id="pdY-DX-V6c"/>
+            </connections>
+            <point key="canvasLocation" x="334.35114503816794" y="208.09859154929578"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

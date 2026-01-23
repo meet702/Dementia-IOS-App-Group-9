@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="U6b-Vx-4bR" customClass="HeaderView" customModule="IOS_App" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="327" height="95"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dsF-DV-b4c">
+                    <rect key="frame" x="9.9999999999999964" y="0.0" width="54.666666666666657" height="61"/>
+                    <gestureRecognizers/>
+                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="22"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="kJ1-Qn-05S">
+                    <rect key="frame" x="72.666666666666671" y="18.666666666666668" width="12.666666666666671" height="24.000000000000004"/>
+                    <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <gestureRecognizers/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="27.666666666666671" id="aVe-o7-KSe"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="VXr-Tz-HHm"/>
+            <gestureRecognizers/>
+            <constraints>
+                <constraint firstItem="kJ1-Qn-05S" firstAttribute="leading" secondItem="dsF-DV-b4c" secondAttribute="trailing" constant="8" id="Mxf-ey-bbf"/>
+                <constraint firstItem="dsF-DV-b4c" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="YeW-aa-3Ht"/>
+                <constraint firstItem="dsF-DV-b4c" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="10" id="he1-VZ-pgd"/>
+                <constraint firstItem="kJ1-Qn-05S" firstAttribute="centerY" secondItem="dsF-DV-b4c" secondAttribute="centerY" id="mXA-Gl-RMA"/>
+                <constraint firstItem="VXr-Tz-HHm" firstAttribute="bottom" secondItem="dsF-DV-b4c" secondAttribute="bottom" id="vZz-JI-dig"/>
+            </constraints>
+            <connections>
+                <outlet property="chevronImageView" destination="kJ1-Qn-05S" id="PEu-gT-PBx"/>
+                <outlet property="titleLabel" destination="dsF-DV-b4c" id="oqt-q6-82s"/>
+            </connections>
+            <point key="canvasLocation" x="142.74809160305344" y="169.36619718309859"/>
+        </collectionReusableView>
+    </objects>
+    <resources>
+        <image name="chevron.right" catalog="system" width="97" height="128"/>
+    </resources>
+</document>
