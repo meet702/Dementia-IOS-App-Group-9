@@ -26,6 +26,4 @@ class TitleCell: UITableViewCell, UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         onTextChanged?(textView.text)
     }
-
-
 }

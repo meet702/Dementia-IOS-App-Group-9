@@ -115,7 +115,6 @@ final class GridCell: UICollectionViewCell {
             return
         }
 
-        // Default Cell
         contentView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)
         layer.borderWidth = 1
         layer.borderColor = UIColor.orange.withAlphaComponent(0.5).cgColor

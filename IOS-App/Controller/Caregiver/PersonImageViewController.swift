@@ -143,34 +143,6 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
         return layout
     }
     
-//    func generateLayout() -> UICollectionViewLayout {
-//
-//        let itemSize = NSCollectionLayoutSize(
-//            widthDimension: .fractionalWidth(1.0),
-//            heightDimension: .fractionalHeight(1.0)
-//        )
-//
-//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//        item.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
-//
-//        let groupSize = NSCollectionLayoutSize(
-//            widthDimension: .fractionalWidth(1.0),
-//            heightDimension: .fractionalWidth(1.0 / 3.0)
-//        )
-//
-//        let group = NSCollectionLayoutGroup.horizontal(
-//            layoutSize: groupSize,
-//            subitem: item,
-//            count: 3
-//        )
-//
-//        let section = NSCollectionLayoutSection(group: group)
-//        section.interGroupSpacing = 1
-//
-//        return UICollectionViewCompositionalLayout(section: section)
-//    }
-
-    
     func loadPhotosForPerson() {
 
         let context = PersistenceController.shared.context

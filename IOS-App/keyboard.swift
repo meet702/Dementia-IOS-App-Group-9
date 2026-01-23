@@ -9,7 +9,6 @@ import UIKit
 
 extension UIViewController {
 
-    /// Call once (usually in viewDidLoad)
     func enableKeyboardDismissOnTap() {
         let tap = UITapGestureRecognizer(
             target: self,

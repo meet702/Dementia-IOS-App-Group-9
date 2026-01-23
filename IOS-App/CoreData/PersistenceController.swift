@@ -8,19 +8,14 @@
 internal import CoreData
 
 struct PersistenceController {
-
-    // Shared Instance
     static let shared = PersistenceController()
 
-    // Core Data Container
     let container: NSPersistentContainer
 
-    // Main Context
     var context: NSManagedObjectContext {
         container.viewContext
     }
 
-    // Initializer
     init(inMemory: Bool = false) {
 
         container = NSPersistentContainer(name: "PeopleDataModel")
@@ -30,7 +25,6 @@ struct PersistenceController {
                 URL(fileURLWithPath: "/dev/null")
         }
 
-        // Load persistent store
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
                 fatalError(
@@ -45,7 +39,6 @@ struct PersistenceController {
             NSMergeByPropertyObjectTrumpMergePolicy
     }
 
-    // Save Helper
     func saveContext() {
         let context = container.viewContext
         if context.hasChanges {

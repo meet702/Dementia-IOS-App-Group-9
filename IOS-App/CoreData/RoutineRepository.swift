@@ -39,7 +39,6 @@ final class RoutineRepository {
         }
     }
 
-    // Create
     func createTask(
         title: String,
         subtitle: String?,
@@ -85,12 +84,12 @@ final class RoutineRepository {
         let day = Calendar.current.startOfDay(for: date)
         let today = Calendar.current.startOfDay(for: Date())
 
-        // All past dates are auto completed
+        // all past dates are auto completed
         if day < today {
             return true
         }
 
-        // Check real completion of todays task
+        // check real completion of todays task
         guard let taskId = task.id else { return false }
         return fetchCompletion(taskId: taskId, date: day) != nil
     }
@@ -132,9 +131,6 @@ final class RoutineRepository {
         notifyChange()
     }
 
-
-
-    // Delete
     func delete(_ task: RoutineTask) {
         context.delete(task)
         save()
