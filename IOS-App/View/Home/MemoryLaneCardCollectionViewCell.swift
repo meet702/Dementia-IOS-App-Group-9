@@ -14,13 +14,17 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var cardView: UIView!
     @IBOutlet weak var subtitleLabel: UILabel!
 
+    // Tags / keys
     private let gradientOverlayTag = 999
 
+    // tuning
     private let cardCornerRadius: CGFloat = 31
     private let gradientBottomAlpha: CGFloat = 0.65
-    private let gradientTopPadding: CGFloat = 8.0
+    private let gradientTopPadding: CGFloat = 8.0 // how many pts above the text the gradient should start
+    // fallback height if text measurement fails
     private let fallbackGradientHeight: CGFloat = 120
 
+    // keep a reference to the overlay view so we can update/remove it easily
     private weak var overlayView: UIView?
 
     override func awakeFromNib() {
@@ -51,8 +55,10 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
+        // keep shadow matched to card bounds
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: cardCornerRadius).cgPath
 
+        // update gradient layer to match overlayView size (if present)
         if let overlay = overlayView {
             if let g = overlay.layer.sublayers?.first as? CAGradientLayer {
                 g.frame = overlay.bounds
@@ -85,7 +91,8 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         addOrUpdateOverlayPinnedToText()
     }
 
-    // Overlay logic
+    // MARK: - Overlay logic
+
     private func addOrUpdateOverlayPinnedToText() {
         overlayView?.removeFromSuperview()
         overlayView = nil

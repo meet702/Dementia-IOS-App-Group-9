@@ -76,7 +76,7 @@ class QuestionResponseViewController: UIViewController, UITextViewDelegate {
             : (responseTextView.text ?? "")
 
         MemorySessionManager.shared.addTextAnswer(
-            question: questions[currentIndex],
+            question: questions[currentIndex].question,
             answer: rawText
         )
 

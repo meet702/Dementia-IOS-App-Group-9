@@ -64,7 +64,7 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
         let context = PersistenceController.shared.context
         let person = context.object(with: personObjectID) as! PersonEntity
 
-        let facesToRemove = (person.faces as? Set<FaceImageEntity>)?
+        let facesToRemove = (person.faces as? Set<FaceEntity>)?
             .filter { $0.photo == photo } ?? []
 
         for face in facesToRemove {
@@ -79,7 +79,7 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
 
         let context = PersistenceController.shared.context
 
-        if let faces = photo.faces as? Set<FaceImageEntity> {
+        if let faces = photo.faces as? Set<FaceEntity> {
             for face in faces {
                 context.delete(face)
             }
@@ -144,15 +144,11 @@ class PersonImageViewController: UIViewController, UICollectionViewDataSource, U
     }
     
     func loadPhotosForPerson() {
-
         let context = PersistenceController.shared.context
         let person = context.object(with: personObjectID) as! PersonEntity
-
-        let faces = person.faces as? Set<FaceImageEntity> ?? []
-
+        let faces = person.faces as? Set<FaceEntity> ?? []
         let uniquePhotos = Set(faces.compactMap { $0.photo })
         photoEntities = Array(uniquePhotos)
-
         imageCollectionView.reloadData()
     }
 

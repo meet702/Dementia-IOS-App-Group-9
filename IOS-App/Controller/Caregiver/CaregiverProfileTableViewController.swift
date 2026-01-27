@@ -45,7 +45,7 @@ class CaregiverProfileTableViewController: UITableViewController {
         case 1: return 4
         
         default:
-            fatalError("fatal error")
+            fatalError("Chal")
         }
     }
 }

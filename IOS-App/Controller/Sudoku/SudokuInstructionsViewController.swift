@@ -29,6 +29,7 @@ class SudokuInstructionsViewController: UIViewController {
     }
     private var selectedDifficulty: Difficulty? {
         didSet {
+            // You can add additional side-effects here if needed
         }
     }
     
@@ -148,6 +149,7 @@ class SudokuInstructionsViewController: UIViewController {
 
     @IBAction func playTapped(_ sender: UIButton) {
         print("playTapped called")
+        // ensure a difficulty is selected before starting
         guard selectedDifficulty != nil else {
             let alert = UIAlertController(title: "Select Difficulty",
                                           message: "Please choose Easy, Medium, or Hard before playing.",

@@ -5,6 +5,7 @@ public struct CrosswordData {
     let clue: String
 }
 
+// Simple, easy, beginner-friendly clues
 let allCountries: [CrosswordData] = [
 
     // 5-letter
@@ -113,3 +114,14 @@ let allCountries: [CrosswordData] = [
     CrosswordData(name: "VENEZUELA", clue: "Country rich in oil"),
     CrosswordData(name: "GUATEMALA", clue: "Country known for volcanoes")
 ]
+
+// Filter countries by length for better crossword generation
+func getCountriesByLength(min: Int, max: Int) -> [CrosswordData] {
+    return allCountries.filter { $0.name.count >= min && $0.name.count <= max }
+}
+
+// Get random subset with variety of lengths
+func getRandomCountrySet(count: Int) -> [CrosswordData] {
+    let preferred = allCountries.filter { $0.name.count >= 4 && $0.name.count <= 7 }
+    return Array(preferred.shuffled().prefix(min(count, preferred.count)))
+}

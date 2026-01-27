@@ -25,7 +25,6 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        navigationItem.title = timeBasedGreeting()
         registerCell()
         homeCollectionView.dataSource = self
         homeCollectionView.delegate = self
@@ -176,37 +175,21 @@ class HomeViewController: UIViewController {
     private func triggerSOS() {
         print("SOS triggered")
 
-        // Initiate caregiver call
+        // Step 1: Initiate caregiver call
         callCaregiver()
 
-        // Request current location
+        // Step 2: Request current location
         LocationManager.shared.delegate = self
         LocationManager.shared.getLocationOnce()
     }
 
     private func callCaregiver() {
-        let number = "9920193798" // will replace with actual caregiver number from DB
+        let number = "9920193798" // replace with actual caregiver number from DB
         if let phoneURL = URL(string: "tel://\(number)"),
            UIApplication.shared.canOpenURL(phoneURL) {
             UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
         }
     }
-    
-    private func timeBasedGreeting() -> String {
-        let hour = Calendar.current.component(.hour, from: Date())
-
-        switch hour {
-        case 5..<12:
-            return "Good Morning"
-        case 12..<17:
-            return "Good Afternoon"
-        case 17..<21:
-            return "Good Evening"
-        default:
-            return "Good Night"
-        }
-    }
-
 }
 
 extension HomeViewController: LocationManagerDelegate {
@@ -214,12 +197,13 @@ extension HomeViewController: LocationManagerDelegate {
         let mapsLink = "https://maps.google.com/?q=\(lat),\(long)"
         print("Maps link: \(mapsLink)")
 
+
+        // Optionally send via SMS:
         sendLocationSMS(mapsLink)
     }
 }
 
 private func sendLocationSMS(_ link: String) {
-    print("Location sent via SMS")
     let message = "SOS! I need help. My location: \(link)"
     let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     

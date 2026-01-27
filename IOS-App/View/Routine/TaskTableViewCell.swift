@@ -32,13 +32,10 @@ class TaskTableViewCell: UITableViewCell {
     }
 
     func configure(task: RoutineTask, isCompleted: Bool) {
-
         titleLabel.text = task.title
-
         if let time = task.time {
             timePicker.date = time
         }
-
         updateCheckState(isChecked: isCompleted)
 
         if let subtitle = task.subtitle, !subtitle.isEmpty {
@@ -56,7 +53,6 @@ class TaskTableViewCell: UITableViewCell {
             descriptionLabel.textColor = .secondaryLabel
         }
     }
-
 
     func updateCheckState(isChecked: Bool) {
         checkButton.isSelected = isChecked

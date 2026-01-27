@@ -61,14 +61,6 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
 
         selectedAnswer = ""
         progressView.progress = MemorySessionManager.shared.currentProgress()
-        restoreIfAlreadyAnswered()
-        
-        let personImageName = imageByPerson[correctAnswer] ?? "priyadarshanImage"
-        MemorySessionManager.shared.beginSession(
-            for: correctAnswer,
-            relation: relation,
-            image: personImageName
-        )
     }
 
     private func setupUI() {
@@ -87,7 +79,6 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
     
     @IBAction func optionTapped(_ sender: UIButton) {
-        guard guessButton.title(for: .normal) == "Guess" else { return }
         [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
             $0?.backgroundColor = UIColor(white: 0.95, alpha: 1)
             $0?.layer.borderWidth = 0
@@ -108,8 +99,7 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             moveToNextQuestion()
             return
         }
-        MemorySessionManager.shared.currentSession?.selectedIdentificationAnswer = selectedAnswer
-
+        
         if selectedAnswer == correctAnswer {
             highlightCorrect()
         } else {
@@ -121,11 +111,9 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
 
         guessButton.setTitle("Next", for: .normal)
     }
+    
     private func highlightCorrect() {
         MemorySessionManager.shared.setIdentificationResult(correct: true)
-        highlightCorrectUIOnly()
-    }
-    private func highlightCorrectUIOnly() {
         [optionOneButton, optionTwoButton, optionThreeButton, optionFourButton].forEach {
             if $0?.title(for: .normal) == correctAnswer {
                 $0?.layer.borderWidth = 3
@@ -147,7 +135,7 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             }
         }
         
-        highlightCorrectUIOnly()
+        highlightCorrect()
     }
     
     @IBAction func hintButtonTapped(_ sender: UIButton) {
@@ -177,7 +165,10 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
     }
 
     func moveToNextQuestion() {
-
+        MemorySessionManager.shared.beginSession(
+            for: correctAnswer,
+            relation: relation
+        )
 
         let sb = UIStoryboard(name: "MemoryLane", bundle: nil)
         if let nextVC =
@@ -202,45 +193,4 @@ class MemoryLaneidentifyPersonViewController: UIViewController {
             )
         }
     }
-    private func restoreIfAlreadyAnswered() {
-        guard
-            let imageSession = MemorySessionManager.shared.currentImageSession,
-            personIndex < imageSession.personSessions.count
-        else { return }
-
-        let previousSession = imageSession.personSessions[personIndex]
-
-        guard
-            let selected = previousSession.selectedIdentificationAnswer,
-            let wasCorrect = previousSession.wasIdentifiedCorrectly
-        else { return }
-
-        // Lock buttons
-        let buttons = [
-            optionOneButton,
-            optionTwoButton,
-            optionThreeButton,
-            optionFourButton
-        ]
-
-        buttons.forEach { $0?.isEnabled = false }
-        guessButton.isEnabled = false
-
-        // Highlight selected answer
-        for button in buttons {
-            guard button?.title(for: .normal) == selected else { continue }
-
-            button?.layer.borderWidth = 3
-            button?.layer.borderColor =
-                wasCorrect ? UIColor.green.cgColor : UIColor.red.cgColor
-
-            button?.backgroundColor =
-                wasCorrect
-                ? UIColor(red: 0.78, green: 1.0, blue: 0.78, alpha: 1)
-                : UIColor(red: 1.0, green: 0.75, blue: 0.75, alpha: 1)
-        }
-
-        guessButton.setTitle("Next", for: .normal)
-    }
-
 }

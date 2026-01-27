@@ -9,7 +9,7 @@ struct CrosswordCell {
     let row: Int
     let col: Int
 
-    var numbers: [Int] = []
+    var numbers: [Int] = []  // CHANGED: Array instead of single Int
     var letter: Character?
     var correctLetter: Character?
 

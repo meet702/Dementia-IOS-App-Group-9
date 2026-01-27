@@ -16,6 +16,7 @@ class AddEditTaskTableViewController: UITableViewController {
     private var originalRepeatDaily: Bool = false
 
     var onSave: (() -> Void)?
+    
     var shouldRepeatDaily = false
     var repository: RoutineRepository!
 
@@ -65,15 +66,13 @@ class AddEditTaskTableViewController: UITableViewController {
 
             titleText = originalTitle
             hasChanges = false
-            
+
             titleText = task.title ?? ""
             notesText = task.subtitle ?? ""
 
-            
             shouldRepeatDaily = task.isRepeatDaily
             selectedDate = task.scheduledDate ?? selectedDate
 
-            
             selectedTimeValue = task.time ?? Date()
             
             dateCell.datePicker.isEnabled = true
@@ -167,7 +166,7 @@ class AddEditTaskTableViewController: UITableViewController {
             date: selectedDateValue,
             time: selectedTimeValue
         )
-        print("SAVING TASK FOR DATE:", selectedDateValue)
+        print("saving task for date:", selectedDateValue)
 
 
         switch mode {

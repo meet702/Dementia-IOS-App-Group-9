@@ -19,14 +19,14 @@ class MemoryLanePictureIntroViewController: UIViewController {
     @IBAction func screenTapped(_ sender: UIButton) {
 
       
-        _ = mainImageView.image ?? UIImage()
+        let displayedImage = mainImageView.image ?? UIImage()
 
      
         let peopleInPicture = ["Priyadarshan", "Priyamani", "Priya"]
 
       
         MemorySessionManager.shared.startImageSession(
-            image: "image_40",
+            image: displayedImage,
             peopleShown: peopleInPicture
         )
 

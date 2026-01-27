@@ -39,11 +39,10 @@ class CalendarCollectionViewCell: UICollectionViewCell {
         if isSelected {
             backgroundCard.backgroundColor = .systemOrange
             dateLabel.textColor = .white
-
             dayLabel.textColor = .lightGray
             return
         }
-
+        
         if isToday {
             backgroundCard.backgroundColor = UIColor(
                 red: 1.0,

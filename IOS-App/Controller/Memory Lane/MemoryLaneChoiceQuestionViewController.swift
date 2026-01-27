@@ -84,8 +84,8 @@ class MemoryLaneChoiceQuestionViewController: UIViewController {
                 .map { options[$0] }
 
         MemorySessionManager.shared.addMCQAnswer(
-            question: q,
-            selected: selectedOptions,
+            question: q.question,
+            selected: selectedOptions.joined(separator: ", ")
         )
 
         let progress = MemorySessionManager.shared.advanceProgress()

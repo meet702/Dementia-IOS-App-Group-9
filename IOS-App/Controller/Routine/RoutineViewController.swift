@@ -3,10 +3,12 @@ internal import CoreData
 
 final class RoutineViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
+    // MARK: - Outlets
     @IBOutlet weak var routineCollectionView: UICollectionView!
     @IBOutlet weak var tasksTableView: UITableView!
     @IBOutlet weak var addTaskButtonOutlet: UIButton!
 
+    // MARK: - State
     var dates: [DateModel] = []
     var selectedDate: Date = Date()
 
@@ -17,11 +19,14 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     let repository = RoutineRepository()
     let context = PersistenceController.shared.context
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
         repository.createBaselineRoutineIfNeeded()
         registerCells()
+        repository.debugPrintAllTasks()
+
         routineCollectionView.dataSource = self
         routineCollectionView.delegate = self
 
@@ -34,6 +39,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         dates = generateDates()
         selectedDate = Date()
 
+//        ensureDailyTasks(for: selectedDate)
         splitTasksByTime()
 
         tasksTableView.reloadData()
@@ -41,6 +47,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         selectDateInCollectionView(selectedDate, animated: false)
     }
 
+    // MARK: - TABLE VIEW
     func numberOfSections(in tableView: UITableView) -> Int { 3 }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -94,6 +101,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
 
+    // MARK: - SWIPE ACTIONS
     func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
@@ -154,6 +162,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         return UISwipeActionsConfiguration(actions: actions)
     }
 
+    // MARK: - HELPERS
     private func getTaskAt(_ indexPath: IndexPath) -> RoutineTask {
         switch indexPath.section {
         case 0: return morningTasks[indexPath.row]
@@ -168,44 +177,34 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         let allTasks = repository.fetchAllTasks()
 
         let visibleTasks = allTasks.filter { task in
-            if task.isRepeatDaily { return true }
+            if task.isRepeatDaily {
+                return true
+            }
+
             if let date = task.scheduledDate {
                 return calendar.isDate(date, inSameDayAs: selectedDate)
             }
+
             return false
         }
 
-        morningTasks = visibleTasks
-            .filter {
-                let h = calendar.component(.hour, from: $0.time!)
-                return h >= 5 && h < 12
-            }
-            .sorted(by: compareByTime)
+        morningTasks = visibleTasks.filter {
+            guard let time = $0.time else { return false }
+            let hour = calendar.component(.hour, from: time)
+            return hour >= 5 && hour < 12
+        }
 
-        afternoonTasks = visibleTasks
-            .filter {
-                let h = calendar.component(.hour, from: $0.time!)
-                return h >= 12 && h < 17
-            }
-            .sorted(by: compareByTime)
+        afternoonTasks = visibleTasks.filter {
+            guard let time = $0.time else { return false }
+            let hour = calendar.component(.hour, from: time)
+            return hour >= 12 && hour < 17
+        }
 
-        eveningTasks = visibleTasks
-            .filter {
-                let h = calendar.component(.hour, from: $0.time!)
-                return h >= 17 || h < 5
-            }
-            .sorted(by: compareByTime)
-    }
-    
-    private func compareByTime(_ t1: RoutineTask, _ t2: RoutineTask) -> Bool {
-        let cal = Calendar.current
-        let c1 = cal.dateComponents([.hour, .minute], from: t1.time!)
-        let c2 = cal.dateComponents([.hour, .minute], from: t2.time!)
-
-        let m1 = (c1.hour ?? 0) * 60 + (c1.minute ?? 0)
-        let m2 = (c2.hour ?? 0) * 60 + (c2.minute ?? 0)
-
-        return m1 < m2
+        eveningTasks = visibleTasks.filter {
+            guard let time = $0.time else { return false }
+            let hour = calendar.component(.hour, from: time)
+            return hour >= 17 || hour < 5
+        }
     }
 
     func autoSelectToday() {
@@ -226,10 +225,10 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         let today = Date()
 
         let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "EEEEE"
+        dayFormatter.dateFormat = "EEEEE"   // M T W T F S S
 
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d"
+        dateFormatter.dateFormat = "d"       // 12, 13, 14
 
         return (-10...10).map { offset in
             let date = Calendar.current.date(
@@ -290,6 +289,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         present(alert, animated: true)
     }
 
+    // MARK: - ACTIONS
     @IBAction func addTaskButton(_ sender: UIButton) {
         let isPast = Calendar.current.compare(
             selectedDate,
@@ -297,6 +297,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             toGranularity: .day
         ) == .orderedAscending
 
+        // ❌ Block adding to past
         guard !isPast else {
             showPastDateAlert()
             return
@@ -342,6 +343,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
 
 }
 
+// MARK: - CALENDAR
 extension RoutineViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView,
@@ -375,10 +377,12 @@ extension RoutineViewController: UICollectionViewDataSource, UICollectionViewDel
 
         selectedDate = dates[indexPath.item].date
 
+//        ensureDailyTasks(for: selectedDate)
         splitTasksByTime()
 
         tasksTableView.reloadData()
 
+        // 🔑 Re-apply selection after reload
         selectDateInCollectionView(selectedDate, animated: true)
     }
 

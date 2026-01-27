@@ -23,13 +23,13 @@ class CaregiverViewController: UIViewController {
         albumButton.layer.masksToBounds = false
     }
     
-    private let memoryManager = MemorySessionManager.shared
-
-    var todaysSessions: [MemoryImageSession] {
-        memoryManager.completedImageSessions
+    var todaysSessions: [ImageSession] {
+        ResponseDataStore.shared.imageSession
     }
 
+    
     @IBOutlet weak var caregiverCollectionView: UICollectionView!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,23 +77,25 @@ class CaregiverViewController: UIViewController {
 
         guard indexPath.section == 1 else { return }
 
-        
         let selectedSession = todaysSessions[indexPath.item]
-        performSegue(
-            withIdentifier: "showMemoryResponse",
-            sender: selectedSession
-        )
 
+        ResponseDataStore.shared.currentImageSession = selectedSession
+
+        performSegue(withIdentifier: "showMemoryResponse", sender: nil)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard segue.identifier == "showMemoryResponse",
-              let destination = segue.destination as? ResponseViewController,
-              let session = sender as? MemoryImageSession
-        else { return }
 
-        destination.session = session
+        guard segue.identifier == "showMemoryResponse" else { return }
+
+        if let destination = segue.destination as? ResponseViewController {
+            destination.session = ResponseDataStore.shared.currentImageSession
+            print("Prepared Memory Response via segue")
+            
+        }
     }
+
+
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout(sectionProvider: {section, env in
@@ -145,6 +147,7 @@ class CaregiverViewController: UIViewController {
         caregiverCollectionView.register(UINib(nibName: "RoutineCardCaregiver", bundle: nil), forCellWithReuseIdentifier: "routineCardCaregiver")
         caregiverCollectionView.register(UINib(nibName: "TodaySessionsCard", bundle: nil), forCellWithReuseIdentifier: "todaySessionsCard")
         caregiverCollectionView.register(UINib(nibName: "HeaderView", bundle: nil), forSupplementaryViewOfKind: "header", withReuseIdentifier: "header_cell")
+        
     }
 
 }

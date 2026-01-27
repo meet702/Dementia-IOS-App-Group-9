@@ -12,6 +12,7 @@ class OptionTableViewCell: UITableViewCell {
     @IBOutlet weak var selectButton: UIButton!
     @IBOutlet weak var optionLabel: UILabel!
 
+    // Called from VC to update the look
     func configure(title: String, selected: Bool) {
         optionLabel.text = title
 

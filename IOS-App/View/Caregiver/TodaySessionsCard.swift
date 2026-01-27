@@ -33,7 +33,7 @@ class TodaySessionsCard: UICollectionViewCell {
         layer.masksToBounds = false
     }
     
-    func configureTodaysSession(todaysSession: MemoryImageSession) {
+    func configureTodaysSession(todaysSession: ImageSession) {
         dateLabel.text = todaysSession.timestamp.formattedDate()
         timeLabel.text = todaysSession.timestamp.formattedTime()
         imageView.image = UIImage(named: todaysSession.image)

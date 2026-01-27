@@ -1,64 +1,62 @@
 //
-//  MemorySessionData.swift
-//  MemoryLane
+//  Model.swift
+//  MemoryLaneResponseFeature
 //
-//  Created by SDC-User on 17/12/25.
+//  Created by SDC-USER on 09/12/25.
 //
 
 import Foundation
 import UIKit
 
-struct PersonData {
+struct ImageSession {
+    var imageId: UUID = UUID()
+    var image: String
+
+    var peopleShown: [String] = []
+    var personSessions: [PersonSession] = []
+
+    var overallReflection: String? = nil
+    var timestamp: Date = Date()
+}
+
+struct MemoryLanePersonOverviewModelCaregiver {
     var name: String
     var summary: String
-    var hint: String
     var personImage: String
 }
 
-struct TextAnswer {
+
+struct TextAnswerCaregiver {
     let question: String
     let answer: String
-    let symbol: String?
+    let symbol: String
 }
 
-struct MCQAnswer {
+struct MCQAnswerCaregiver {
     let question: String
     let selectedOption: [String]
-    let symbol: String?
+    let symbol: String
 }
 
 struct PersonSession {
     var personName: String
     var relation: String
     var image: String
-    var textAnswers: [TextAnswer] = []
-    var mcqAnswers: [MCQAnswer] = []
+    
+    var textAnswers: [TextAnswerCaregiver] = []
+    var mcqAnswers: [MCQAnswerCaregiver] = []
     
     var emotion: String?
-    
-    var selectedIdentificationAnswer: String? // Using this only for locking the answer, not useful for caregiver side
-    
+    var finalReflection: String?
     var wasIdentifiedCorrectly: Bool?
     
     var timestamp: Date = Date()
 }
 
-struct MemoryImageSession {
-//    let imageId: String
-    let image: String
-
-    var peopleShown: [String] = []              // All people in picture
-    var personSessions: [PersonSession] = [] // Sessions per person
-
-    var overallReflection: String? = nil        // Final answer for entire picture
-
-    var timestamp: Date = Date()
-}
 
 enum ResponseRow {
     case text(question: String, answer: String, symbol: String)
 }
-
 extension PersonSession {
 
     func buildResponseRows() -> [ResponseRow] {
@@ -83,7 +81,7 @@ extension PersonSession {
                 .text(
                     question: mcq.question,
                     answer: combinedOptions,
-                    symbol: mcq.symbol ?? ""
+                    symbol: mcq.symbol
                 )
             )
         }
@@ -92,7 +90,7 @@ extension PersonSession {
                 .text(
                     question: text.question,
                     answer: text.answer,
-                    symbol: text.symbol ?? ""
+                    symbol: text.symbol
                 )
             )
         }
@@ -100,3 +98,8 @@ extension PersonSession {
         return rows
     }
 }
+
+
+
+
+

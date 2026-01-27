@@ -1,6 +1,14 @@
 import Foundation
 
+// =================================
+// CONFIG
+// =================================
+
 public let BOARD_SIZE = 32
+
+// =================================
+// GLOBAL STATE
+// =================================
 
 public var board: [[Character?]] = []
 public var wordArr: [String] = []
@@ -8,6 +16,10 @@ public var wordBank: [WordObj] = []
 public var wordsActive: [WordObj] = []
 
 public let bounds = Bounds()
+
+// =================================
+// BOUNDS
+// =================================
 
 public final class Bounds {
     public var top = 999
@@ -42,6 +54,10 @@ public final class Bounds {
     }
 }
 
+// =================================
+// WORD OBJECT
+// =================================
+
 public final class WordObj {
     public let string: String
     public let chars: [Character]
@@ -59,6 +75,10 @@ public final class WordObj {
         self.chars = Array(value)
     }
 }
+
+// =================================
+// SPREAD SCORING HELPERS
+// =================================
 
 @MainActor
 func distanceScore(x: Int, y: Int) -> Int {
@@ -115,6 +135,10 @@ func chooseBestSpreadPlacement(
     return bestCandidates.randomElement()!.0
 }
 
+// =================================
+// COMPACTNESS CHECK
+// =================================
+
 @MainActor
 func isCompactCrossword() -> Bool {
     let width = bounds.width()
@@ -125,17 +149,24 @@ func isCompactCrossword() -> Bool {
         return false
     }
     
+    // Check for weird clusters - ensure words are well connected
     let wordCount = wordsActive.count
     if wordCount < 3 {
         return false
     }
     
+    // Calculate density - should not be too sparse
     let usedCells = board.flatMap { $0 }.compactMap { $0 }.count
     let gridArea = width * height
     let density = Double(usedCells) / Double(gridArea)
     
+    // Density should be between 0.25 and 0.85 for good looking crosswords
     return density >= 0.20 && density <= 0.90
 }
+
+// =================================
+// GENERATION CORE
+// =================================
 
 @MainActor public func cleanVars() {
     bounds.clean()
@@ -171,6 +202,10 @@ func isCompactCrossword() -> Bool {
     }
     return true
 }
+
+// =================================
+// ADD WORD TO BOARD
+// =================================
 
 @MainActor
 func addWordToBoard() -> Bool {
@@ -244,6 +279,10 @@ func addWordToBoard() -> Bool {
     return true
 }
 
+// =================================
+// VALIDATION
+// =================================
+
 @MainActor
 func isValidPlacement(word: WordObj, x: Int, y: Int, dir: Int) -> Bool {
     let length = word.chars.count
@@ -264,9 +303,14 @@ func isValidPlacement(word: WordObj, x: Int, y: Int, dir: Int) -> Bool {
     return true
 }
 
+// =================================
+// PUBLIC API — OPTIMIZED VERSION
+// =================================
+
 @MainActor
 public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
 
+    // OPTIMIZED: Limit to 5-6 words only
     wordArr = words.filter { $0.count >= 4 && $0.count <= 8 }
     wordArr = Array(wordArr.prefix(6))  // Max 6 words
 
@@ -274,6 +318,7 @@ public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
         return ([], [])
     }
 
+    // OPTIMIZED: Reduced attempts from 100 to 30
     var success = false
     var attempts = 0
     let maxAttempts = 30
@@ -282,6 +327,7 @@ public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
         cleanVars()
         success = populateBoard()
         
+        // Check if crossword is compact and well-formed
         if success {
             success = isCompactCrossword()
         }
@@ -291,6 +337,10 @@ public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
 
     return success ? (board, wordsActive) : ([], [])
 }
+
+// =================================
+// GENERATE MULTIPLE UNIQUE PUZZLES - OPTIMIZED
+// =================================
 
 @MainActor
 public func generateUniqueCrosswords(
@@ -307,6 +357,7 @@ public func generateUniqueCrosswords(
         
         while !foundUnique && attempts < 20 {
             
+            // ⬇️ FIXED — use provided items, NOT countries
             let shuffled = items.shuffled()
             let subset = Array(shuffled.prefix(min(6, shuffled.count)))
             

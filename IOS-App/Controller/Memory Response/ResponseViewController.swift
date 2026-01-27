@@ -9,7 +9,7 @@ import UIKit
 
 class ResponseViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    var session: MemoryImageSession?
+    var session: ImageSession!
     var people: [PersonSession] = []
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -21,67 +21,54 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         let person = people[indexPath.row]
         cell.configure(person: person)
         cell.onChevronTapped = { [weak self] in
-            self?.openPersonDetail(person)
+            self?.performSegue(
+                withIdentifier: "showResponseDetail",
+                sender: person
+            )
         }
         return cell
     }
     
-    func openPersonDetail(_ person: PersonSession) {
-        let vc = storyboard!.instantiateViewController(identifier: "ResponseDetailViewController") as! ResponseDetailViewController
-
-        vc.person = person
-
-        vc.modalPresentationStyle = .pageSheet
-
-        present(vc, animated: true)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showResponseDetail",
+           let vc = segue.destination as? ResponseDetailViewController,
+           let person = sender as? PersonSession {
+            vc.person = person
+        }
     }
-
 
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        guard let session else {
-            assertionFailure("ResponseViewController requires a MemoryImageSession")
+        session = ResponseDataStore.shared.currentImageSession
+        people = session.personSessions
+        
+        guard let session1 = ResponseDataStore.shared.currentImageSession else {
+            assertionFailure("No session selected")
             return
         }
 
-        people = session.personSessions
-
+        self.session = session1
         tableView.delegate = self
         tableView.dataSource = self
+
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
 
-        configureHeader(with: session)
-        configureNavigationTitle(date: session.timestamp)
-    }
-
-    
-    private func configureHeader(with session: MemoryImageSession) {
-        let header = Bundle.main.loadNibNamed(
-            "MemoryHeaderView",
-            owner: nil,
-            options: nil
-        )!.first as! MemoryHeaderView
-
+        let header = Bundle.main.loadNibNamed("MemoryHeaderView", owner: nil, options: nil)!.first as! MemoryHeaderView
+        
         header.titleLabel.text = "Here's what Arjun said about this picture..."
         header.descriptionLabel.text = session.overallReflection
         header.headerImageView.image = UIImage(named: session.image)
-
         installTableHeaderView(header)
-    }
-    
-    private func configureNavigationTitle(date: Date) {
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM yyyy, h:mm a"
         formatter.locale = .current
-        navigationItem.title = formatter.string(from: date)
+        navigationItem.title = formatter.string(from: session.timestamp)
     }
-
-
-
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
