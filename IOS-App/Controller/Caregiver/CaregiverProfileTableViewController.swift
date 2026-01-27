@@ -24,7 +24,7 @@ class CaregiverProfileTableViewController: UITableViewController {
         addressLabel.text = profileInfo.patientAddress
         contactLabel.text = profileInfo.patientContact
     }
-    
+    // TEST
     override func viewDidLoad() {
         super.viewDidLoad()
         
