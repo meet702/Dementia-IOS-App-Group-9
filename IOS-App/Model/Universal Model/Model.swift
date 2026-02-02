@@ -75,7 +75,20 @@ struct Question: Identifiable, Codable {
     let options: [String]?
 
     var id: UUID { qid }
+
+    init(
+        qid: UUID = UUID(),
+        type: QuestionType,
+        prompt: String,
+        options: [String]? = nil
+    ) {
+        self.qid = qid
+        self.type = type
+        self.prompt = prompt
+        self.options = options
+    }
 }
+
 
 enum QuestionType: String, Codable {
     case mcq
