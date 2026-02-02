@@ -79,9 +79,14 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
         formatter.locale = .current
         navigationItem.title = formatter.string(from: date)
     }
-
-
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showResponseDetail",
+           let vc = segue.destination as? ResponseDetailViewController,
+           let person = sender as? PersonSession {
+            vc.person = person
+        }
+    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

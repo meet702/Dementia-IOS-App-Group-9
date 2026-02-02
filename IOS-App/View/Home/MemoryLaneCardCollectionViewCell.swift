@@ -69,7 +69,7 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
 
     func configureMemoryLaneCell(imageName: String? = "image 102",
                                  title: String = "Memory Lane",
-                                 subtitle: String = "Recall moments through guided questions") {
+                                 subtitle: String = "Revisit moments through guided questions") {
         cardTextLabel.text = title
         subtitleLabel.text = subtitle
 

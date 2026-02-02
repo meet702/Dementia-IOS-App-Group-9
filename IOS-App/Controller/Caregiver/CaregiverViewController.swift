@@ -75,7 +75,7 @@ class CaregiverViewController: UIViewController {
             return
         }
 
-        guard indexPath.section == 1 else { return }
+        guard indexPath.section == 0 else { return }
 
         
         let selectedSession = todaysSessions[indexPath.item]
@@ -87,13 +87,25 @@ class CaregiverViewController: UIViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard segue.identifier == "showMemoryResponse",
-              let destination = segue.destination as? ResponseViewController,
-              let session = sender as? MemoryImageSession
-        else { return }
 
-        destination.session = session
+        // 🔹 Memory response flow
+        if segue.identifier == "showMemoryResponse",
+           let destination = segue.destination as? ResponseViewController,
+           let session = sender as? MemoryImageSession {
+
+            destination.session = session
+            return
+        }
+
+        // 🔹 Caregiver → My Routine flow
+        if segue.identifier == "showRoutine",
+           let destination = segue.destination as? RoutineViewController {
+
+            destination.userRole = .caregiver
+            return
+        }
     }
+
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout(sectionProvider: {section, env in
@@ -102,6 +114,68 @@ class CaregiverViewController: UIViewController {
             let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: "header", alignment: .top)
             
             if section == 0 {
+
+                let isEmpty = self.todaysSessions.isEmpty
+
+                let section: NSCollectionLayoutSection
+
+                if isEmpty {
+                    // 🔵 EMPTY STATE (full-width, short)
+
+                    let itemSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .estimated(96)
+                    )
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                    let groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .estimated(96)
+                    )
+                    let group = NSCollectionLayoutGroup.vertical(
+                        layoutSize: groupSize,
+                        subitems: [item]
+                    )
+
+                    section = NSCollectionLayoutSection(group: group)
+
+                } else {
+                    // 🟢 NORMAL STATE (restore original layout)
+
+                    let itemSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .fractionalHeight(1.0)
+                    )
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                    let groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(0.37),
+                        heightDimension: .absolute(148)
+                    )
+                    let group = NSCollectionLayoutGroup.horizontal(
+                        layoutSize: groupSize,
+                        subitems: [item]
+                    )
+                    group.interItemSpacing = .fixed(10)
+
+                    section = NSCollectionLayoutSection(group: group)
+                    section.orthogonalScrollingBehavior = .groupPaging
+                }
+
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(
+                    top: 5,
+                    leading: 20,
+                    bottom: 20,
+                    trailing: 20
+                )
+                section.boundarySupplementaryItems = [headerItem]
+
+                return section
+            }
+
+            else {
+                
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .estimated(200)
@@ -121,22 +195,6 @@ class CaregiverViewController: UIViewController {
                 section.boundarySupplementaryItems = [headerItem]
                 return section
             }
-            else {
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.37), heightDimension: .absolute(148))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                group.interItemSpacing = .fixed(10)
-                
-                let section = NSCollectionLayoutSection(group: group)
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 20, bottom: 20, trailing: 20)
-
-                section.orthogonalScrollingBehavior = .groupPaging
-                section.boundarySupplementaryItems = [headerItem]
-                return section
-            }
         }
         )
         return layout
@@ -145,6 +203,10 @@ class CaregiverViewController: UIViewController {
         caregiverCollectionView.register(UINib(nibName: "RoutineCardCaregiver", bundle: nil), forCellWithReuseIdentifier: "routineCardCaregiver")
         caregiverCollectionView.register(UINib(nibName: "TodaySessionsCard", bundle: nil), forCellWithReuseIdentifier: "todaySessionsCard")
         caregiverCollectionView.register(UINib(nibName: "HeaderView", bundle: nil), forSupplementaryViewOfKind: "header", withReuseIdentifier: "header_cell")
+        caregiverCollectionView.register(
+            UINib(nibName: "EmptyStateCollectionViewCell", bundle: nil),
+            forCellWithReuseIdentifier: "emptyStateCell"
+        )
     }
 
 }
@@ -156,24 +218,44 @@ extension CaregiverViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return todaysSessions.isEmpty ? 1 : todaysSessions.count
         }
         else {
-            return todaysSessions.count
+            return 1
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCaregiver", for: indexPath) as! RoutineCardCaregiver
-            let tasks = routineRepository.fetchTasks(for: selectedDate)
-            cell.configureRoutineCell(tasks: tasks, date: selectedDate)
+            if todaysSessions.isEmpty {
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: "emptyStateCell",
+                    for: indexPath
+                ) as! EmptyStateCollectionViewCell
+
+                cell.configure(
+                    title: "No activity yet",
+                    subtitle: "Patient hasn’t completed any sessions today"
+                )
+
+                return cell
+            }
+
+            // 🔹 NORMAL SESSION CELL
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "todaySessionsCard",
+                for: indexPath
+            ) as! TodaySessionsCard
+
+            let todaySession = todaysSessions[indexPath.row]
+            cell.configureTodaysSession(todaysSession: todaySession)
+
             return cell
         }
         else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "todaySessionsCard", for: indexPath) as! TodaySessionsCard
-            let todaySessions = todaysSessions[indexPath.row]
-            cell.configureTodaysSession(todaysSession: todaySessions)
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCaregiver", for: indexPath) as! RoutineCardCaregiver
+            let tasks = routineRepository.fetchTasks(for: selectedDate)
+            cell.configureRoutineCell(tasks: tasks, date: selectedDate)
             return cell
         }
     }
@@ -181,6 +263,10 @@ extension CaregiverViewController: UICollectionViewDataSource {
         // Create the header view
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
         if indexPath.section == 0 {
+            headerView.configureHeaderCell(text: "Session History", showChevron: false, isTappable: false)
+            
+        }
+        else {
             headerView.configureHeaderCell(text: "Arjun's Routine",
                                            showChevron: true,
                                            isTappable: true,
@@ -188,9 +274,6 @@ extension CaregiverViewController: UICollectionViewDataSource {
                                                self?.performSegue(withIdentifier: "showRoutine", sender: nil)
                                            }
             )
-        }
-        else {
-            headerView.configureHeaderCell(text: "Session History", showChevron: false, isTappable: false)
         }
         return headerView
     }

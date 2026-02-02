@@ -32,10 +32,6 @@ class HomeViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dataStoreUpdated(_:)), name: .DataStoreDidUpdateRoutines, object: nil)
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
-        
-        //for SOS
-        LocationManager.shared.delegate = self
-        LocationManager.shared.requestPermission()
 
     }
     
@@ -153,45 +149,6 @@ class HomeViewController: UIViewController {
         homeCollectionView.register(UINib(nibName: "RoutineCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "routineCardCollectionViewCell")
     }
     
-    
-    @IBAction func sosButtonTapped(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(
-            title: "Contact Your Caregiver?",
-            message: "A call and your location will be shared with your caregiver.",
-            preferredStyle: .alert
-        )
-
-        let yesAction = UIAlertAction(title: "Yes, Get Help", style: .default) { _ in
-            self.triggerSOS()
-        }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-
-        alert.addAction(yesAction)
-        alert.addAction(cancelAction)
-
-        present(alert, animated: true)
-    }
-
-    private func triggerSOS() {
-        print("SOS triggered")
-
-        // Initiate caregiver call
-        callCaregiver()
-
-        // Request current location
-        LocationManager.shared.delegate = self
-        LocationManager.shared.getLocationOnce()
-    }
-
-    private func callCaregiver() {
-        let number = "9920193798" // will replace with actual caregiver number from DB
-        if let phoneURL = URL(string: "tel://\(number)"),
-           UIApplication.shared.canOpenURL(phoneURL) {
-            UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
-        }
-    }
-    
     private func timeBasedGreeting() -> String {
         let hour = Calendar.current.component(.hour, from: Date())
 
@@ -208,26 +165,6 @@ class HomeViewController: UIViewController {
     }
 
 }
-
-extension HomeViewController: LocationManagerDelegate {
-    func didReceiveLocation(lat: Double, long: Double) {
-        let mapsLink = "https://maps.google.com/?q=\(lat),\(long)"
-        print("Maps link: \(mapsLink)")
-
-        sendLocationSMS(mapsLink)
-    }
-}
-
-private func sendLocationSMS(_ link: String) {
-    print("Location sent via SMS")
-    let message = "SOS! I need help. My location: \(link)"
-    let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-    
-    if let smsURL = URL(string: "sms:&body=\(encodedMessage)") {
-        UIApplication.shared.open(smsURL)
-    }
-}
-
 
 extension HomeViewController: UICollectionViewDataSource {
     

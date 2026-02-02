@@ -50,21 +50,13 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Good Morning" largeTitleDisplayMode="always" id="BGq-8e-mi1">
-                        <rightBarButtonItems>
-                            <barButtonItem title="Item" id="O3R-HU-IG7">
-                                <imageReference key="image" image="person.crop.circle.fill" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <segue destination="Usa-ne-cuV" kind="presentation" id="eRI-rD-tSg"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem title="Item" image="sos.circle.fill" catalog="system" id="fVx-zX-4gR">
-                                <color key="tintColor" systemColor="systemRedColor"/>
-                                <connections>
-                                    <action selector="sosButtonTapped:" destination="BYZ-38-t0r" id="8vk-IU-ZRB"/>
-                                </connections>
-                            </barButtonItem>
-                        </rightBarButtonItems>
+                        <barButtonItem key="rightBarButtonItem" title="Item" id="O3R-HU-IG7">
+                            <imageReference key="image" image="person.crop.circle.fill" catalog="system" symbolScale="large"/>
+                            <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <segue destination="Usa-ne-cuV" kind="presentation" id="eRI-rD-tSg"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="homeCollectionView" destination="0fL-m1-u87" id="6ee-GL-XLc"/>
@@ -523,12 +515,8 @@
     <resources>
         <image name="chevron.right" catalog="system" width="97" height="128"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
-        <image name="sos.circle.fill" catalog="system" width="128" height="123"/>
         <systemColor name="systemOrangeColor">
             <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
