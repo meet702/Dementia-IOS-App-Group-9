@@ -1,32 +1,85 @@
 import UIKit
 
-class ResponseDetailViewController: UIViewController {
+final class ResponseDetailViewController: UIViewController {
+
+    // MARK: - Outlets
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var personImage: UIImageView!
     @IBOutlet weak var identification: UILabel!
     @IBOutlet weak var navTitle: UINavigationItem!
 
-    private var rows: [ResponseRow] = []
-    var person: PersonSession?
+    // MARK: - Data (NEW MODEL)
+
+    var personSession: PersonSession!
+
+    private var responses: [PersonSessionQuestion] = []
+    var imageID: UUID!
+
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        guard let person else {
-            assertionFailure("ResponseDetailViewController requires a PersonSession")
-            return
+        assert(personSession != nil, "ResponseDetailViewController requires PersonSession")
+
+        configureNavigation()
+        configureLayout()
+        configureTableView()
+        loadResponses()
+    }
+
+    // MARK: - Navigation
+
+    private func configureNavigation() {
+
+        if let person = PersonStore.shared.person(by: personSession.personID),
+           let name = person.name,
+           !name.isEmpty {
+            navTitle.title = name
+        } else {
+            navTitle.title = "Someone in this memory"
+        }
+    }
+
+    // MARK: - Layout
+
+    private func configureLayout() {
+
+        // Face image (if available)
+        if let face = FaceStore.shared.face(
+            for: personSession.personID,
+            in: imageID
+        ),
+        let url = face.faceImageURL {
+
+            personImage.image = UIImage(contentsOfFile: url.path)
+        } else {
+            personImage.image = UIImage(systemName: "person.crop.circle")
         }
 
-        configureNavigation(for: person)
-        configureTableView()
-        configureLayout(for: person)
-        buildRows(from: person)
+
+        personImage.layer.cornerRadius = 45
+        personImage.clipsToBounds = true
+
+        // Identification / engagement badge (neutral wording)
+        let hasResponses = !responses.isEmpty
+
+        identification.text = hasResponses ? "Engaged" : "No response"
+        identification.layer.cornerRadius = 15
+        identification.clipsToBounds = true
+
+        identification.backgroundColor = hasResponses
+            ? UIColor(red: 218/255, green: 246/255, blue: 221/255, alpha: 1)
+            : UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
+
+        identification.textColor = hasResponses
+            ? UIColor(red: 39/255, green: 139/255, blue: 64/255, alpha: 1)
+            : UIColor.darkGray
     }
 
-    private func configureNavigation(for person: PersonSession) {
-        navTitle.title = person.personName
-    }
+    // MARK: - Table
 
     private func configureTableView() {
         tableView.delegate = self
@@ -40,29 +93,15 @@ class ResponseDetailViewController: UIViewController {
         )
     }
 
-    private func buildRows(from person: PersonSession) {
-        rows = person.buildResponseRows()
+    private func loadResponses() {
+
+        responses = PersonSessionQuestionStore.shared
+            .questions(for: personSession.psid)
+
         tableView.reloadData()
     }
 
-    private func configureLayout(for person: PersonSession) {
-        personImage.image = UIImage(named: person.image)
-        personImage.layer.cornerRadius = 45
-        personImage.clipsToBounds = true
-
-        let identified = person.wasIdentifiedCorrectly ?? false
-        identification.text = identified ? "Identified" : "Not Identified"
-        identification.layer.cornerRadius = 15
-        identification.clipsToBounds = true
-
-        identification.backgroundColor = identified
-            ? UIColor(red: 218/255, green: 246/255, blue: 221/255, alpha: 1)
-            : UIColor(red: 246/255, green: 218/255, blue: 218/255, alpha: 1)
-
-        identification.textColor = identified
-            ? UIColor(red: 39/255, green: 139/255, blue: 64/255, alpha: 1)
-            : UIColor(red: 191/255, green: 29/255, blue: 32/255, alpha: 1)
-    }
+    // MARK: - Actions
 
     @IBAction func closeTapped(_ sender: Any) {
         dismiss(animated: true)
@@ -72,28 +111,42 @@ class ResponseDetailViewController: UIViewController {
 extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        rows.count
+        responses.count
     }
 
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
 
-        let row = rows[indexPath.row]
+        let response = responses[indexPath.row]
 
-        switch row {
-        case .text(let question, let answer, let symbol):
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "TextDetailsCell",
-                for: indexPath
-            ) as! TextDetailsTableViewCell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "TextDetailsCell",
+            for: indexPath
+        ) as! TextDetailsTableViewCell
 
-            cell.configure(
-                title: question,
-                text: answer,
-                symbol: symbol
-            )
-            return cell
-        }
+        let questionText = AppDataStore.shared
+            .mcqQuestions
+            .first { $0.qid == response.questionID }?
+            .prompt
+        ?? AppDataStore.shared
+            .textQuestions
+            .first { $0.qid == response.questionID }?
+            .prompt
+        ?? "Reflection"
+
+        let answerText =
+            response.responseText ??
+            response.selectedOption ??
+            "—"
+
+        cell.configure(
+            title: questionText,
+            text: answerText,
+            symbol: "quote.bubble"
+        )
+
+        return cell
     }
 }
-

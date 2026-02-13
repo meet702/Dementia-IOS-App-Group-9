@@ -299,10 +299,10 @@ extension HomeViewController: UICollectionViewDelegate {
             }
         }
         
-        if segue.identifier == "showMemoryLane" {
-            if let _ = segue.destination as? MemoryLaneHomeViewController {
-                print("Preparing Memory Lane (direct)")
-            }
-        }
+//        if segue.identifier == "showMemoryLane" {
+//            if let _ = segue.destination as? MemoryLaneHomeViewController {
+//                print("Preparing Memory Lane (direct)")
+//            }
+//        }
     }
 }

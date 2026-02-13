@@ -1,0 +1,468 @@
+import UIKit
+import AVFoundation
+
+final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
+
+    // MARK: - IBOutlets
+
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var playPauseButton: UIButton!
+    @IBOutlet private weak var progressSlider: UISlider!
+    @IBOutlet private weak var continueLabel: UILabel!
+    @IBOutlet weak var commentLabel: UILabel!
+    @IBOutlet weak var topBlurView: UIVisualEffectView!
+    @IBOutlet weak var bottomBlurView: UIVisualEffectView!
+    @IBOutlet weak var innerShadowView: UIView!
+    @IBOutlet weak var caregiverTextLabel: UILabel!
+    
+    // MARK: - Dependencies (Injected)
+    var portraitImage: UIImage!
+    var wholeImage: WholeImage!
+    var faces: [Face] = []
+    var people: [Person] = []
+    var questionsByPerson: [UUID: [Question]] = [:]
+    
+    private var isPlaying = false
+
+    // MARK: - Audio
+
+    private var audioPlayer: AVAudioPlayer?
+    private var progressTimer: Timer?
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        print("🔍 AudioVC viewDidLoad:")
+        print("   Faces: \(faces.count)")
+        print("   People: \(people.count)")
+//        print("   WholeImage ID: \(wholeImage.wid)")
+        
+        configureUI()
+        configureEdgeBlur()
+        styleSlider()
+        loadImage()
+        prepareForFadeIn()
+        configureMemoryAction()
+        setupTapGesture()
+    }
+    
+    private func animateControlsIn() {
+        UIView.animate(
+            withDuration: 0.6,
+            delay: 0.4,
+            options: [.curveEaseOut],
+            animations: {
+                self.continueLabel.alpha = 1
+                self.commentLabel.alpha = 1
+                self.playPauseButton.transform = .identity
+            }
+        )
+    }
+
+
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        guard let container = imageView.superview else { return }
+
+        container.bringSubviewToFront(innerShadowView)
+        container.bringSubviewToFront(topBlurView)
+        container.bringSubviewToFront(bottomBlurView)
+        container.bringSubviewToFront(playPauseButton)
+        container.bringSubviewToFront(progressSlider)
+        container.bringSubviewToFront(continueLabel)
+
+        animateControlsIn()
+
+        // 🔥 STEP 1: Show comment label first
+        commentLabel.alpha = 1
+
+        // 🔥 STEP 2: After 3 seconds, replace it
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.replaceCommentWithCaregiverContent()
+        }
+
+        animateContinueHint()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopAudio()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        addInnerShadow()
+        applyFadeMask(to: topBlurView, isTop: true)
+        applyFadeMask(to: bottomBlurView, isTop: false)
+    }
+
+    private func applyFadeMask(to blurView: UIVisualEffectView, isTop: Bool) {
+        let maskLayer = CAGradientLayer()
+        maskLayer.frame = blurView.bounds
+
+        if isTop {
+            maskLayer.colors = [
+                UIColor.black.cgColor,
+                UIColor.black.withAlphaComponent(0).cgColor
+            ]
+        } else {
+            maskLayer.colors = [
+                UIColor.black.withAlphaComponent(0).cgColor,
+                UIColor.black.cgColor
+            ]
+        }
+
+        maskLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
+        maskLayer.endPoint   = CGPoint(x: 0.5, y: 1.0)
+
+        blurView.layer.mask = maskLayer
+    }
+
+    private func replaceCommentWithCaregiverContent() {
+
+        UIView.animate(withDuration: 0.4, animations: {
+            self.commentLabel.alpha = 0
+        }) { _ in
+            
+            guard let action = self.pendingAction else { return }
+
+            switch action {
+
+            case .text(let text):
+                self.showText(text)
+
+                UIView.animate(withDuration: 0.4) {
+                    self.caregiverTextLabel.alpha = 1
+                }
+
+            case .voice:
+                self.showAudio(URL(fileURLWithPath: "")) // using bundled test audio
+
+                UIView.animate(withDuration: 0.4) {
+                    self.playPauseButton.alpha = 1
+                    self.progressSlider.alpha = 1
+                }
+
+                self.playAudio()
+
+            case .empty:
+                break
+            }
+        }
+    }
+
+    
+    private var pendingAction: MemoryActionContent?
+
+    private func configureMemoryAction() {
+        pendingAction = wholeImage.action
+    }
+
+    
+    private func hideAllActionViews() {
+        playPauseButton.isHidden = true
+        progressSlider.isHidden = true
+        caregiverTextLabel.isHidden = true
+    }
+    
+    private func showText(_ text: String) {
+        caregiverTextLabel.text = text
+        caregiverTextLabel.numberOfLines = 0
+        caregiverTextLabel.textAlignment = .center
+
+        caregiverTextLabel.isHidden = false
+
+        playPauseButton.isHidden = true
+        progressSlider.isHidden = true
+    }
+
+    
+    private func showEmpty(_ text: String) {
+        caregiverTextLabel.text = text
+        caregiverTextLabel.numberOfLines = 0
+        caregiverTextLabel.textAlignment = .center
+
+        caregiverTextLabel.isHidden = false
+
+        playPauseButton.isHidden = true
+        progressSlider.isHidden = true
+    }
+
+    private func showAudio(_ url: URL) {
+        caregiverTextLabel.isHidden = true
+
+        playPauseButton.isHidden = false
+        progressSlider.isHidden = false
+
+        setupAudio()
+    }
+    
+    private func setupAudio(from url: URL) {
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.delegate = self
+
+            progressSlider.minimumValue = 0
+            progressSlider.maximumValue = Float(audioPlayer?.duration ?? 0)
+        } catch {
+            print("Audio setup failed:", error)
+        }
+    }
+    
+    private func configureEdgeBlur() {
+        topBlurView.alpha = 0.9
+        bottomBlurView.alpha = 0.9
+        
+        innerShadowView.backgroundColor = .clear
+        innerShadowView.isUserInteractionEnabled = false
+
+        topBlurView.isUserInteractionEnabled = false
+        bottomBlurView.isUserInteractionEnabled = false
+    }
+    
+    private func prepareForFadeIn() {
+        playPauseButton.alpha = 0
+        progressSlider.alpha = 0
+        caregiverTextLabel.alpha = 0
+
+        commentLabel.alpha = 0
+        continueLabel.alpha = 0
+
+        playPauseButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+
+        playPauseButton.isHidden = true
+        progressSlider.isHidden = true
+        caregiverTextLabel.isHidden = true
+    }
+
+
+
+    // MARK: - UI Setup
+
+    private func configureUI() {
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = false
+
+        progressSlider.minimumValue = 0
+        progressSlider.value = 0
+        
+        commentLabel.text = "Here's what was said about this memory"
+
+        continueLabel.text = "Tap to continue"
+        continueLabel.alpha = 0
+        continueLabel.textColor = .systemGray3
+
+        playPauseButton.setImage(
+            UIImage(systemName: "play.fill"),
+            for: .normal
+        )
+    }
+
+    private func loadImage() {
+        // For testing: hardcoded portrait
+        imageView.image = portraitImage
+        
+        // TODO: When ready for real images:
+        // guard let image = UIImage(contentsOfFile: wholeImage.imageURL.path) else { return }
+        // imageView.image = image
+    }
+
+    // MARK: - Audio Setup
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        isPlaying = false
+        stopProgressTimer()
+        progressSlider.value = progressSlider.minimumValue
+        updatePlayPauseIcon()
+    }
+    
+    private func setupAudio() {
+        guard let url = Bundle.main.url(forResource: "memory_lane_audio", withExtension: "mp3") else {
+            print("Audio file not found")
+            return
+        }
+
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.delegate = self
+
+            progressSlider.minimumValue = 0
+            progressSlider.maximumValue = Float(audioPlayer?.duration ?? 0)
+        } catch {
+            print("Audio setup failed:", error)
+        }
+        
+        // TODO: When ready for real audio:
+        // guard let audioURL = wholeImage.audioDescriptionURL else { return }
+        // audioPlayer = try? AVAudioPlayer(contentsOf: audioURL)
+    }
+
+    private func playAudio() {
+        audioPlayer?.play()
+        isPlaying = true
+        updatePlayPauseIcon()
+        startProgressTimer()
+    }
+
+    private func pauseAudio() {
+        audioPlayer?.pause()
+        isPlaying = false
+        updatePlayPauseIcon()
+        stopProgressTimer()
+    }
+    
+    private func updatePlayPauseIcon() {
+        let iconName = isPlaying ? "pause.fill" : "play.fill"
+        playPauseButton.setImage(UIImage(systemName: iconName), for: .normal)
+    }
+
+    private func stopAudio() {
+        audioPlayer?.stop()
+        audioPlayer?.currentTime = 0
+        audioPlayer?.delegate = nil
+        audioPlayer = nil
+        
+        stopProgressTimer()
+        
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+
+    // MARK: - Timer
+
+    private func startProgressTimer() {
+        stopProgressTimer()
+
+        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self,
+                  let player = self.audioPlayer else { return }
+            self.progressSlider.value = Float(player.currentTime)
+        }
+    }
+    
+    private func styleSlider() {
+        progressSlider.minimumTrackTintColor = UIColor.white.withAlphaComponent(0.6)
+        progressSlider.maximumTrackTintColor = UIColor.white.withAlphaComponent(0.25)
+        progressSlider.backgroundColor = .clear
+
+        let thumb = makeCircleThumb(diameter: 18, color: .white)
+        progressSlider.setThumbImage(thumb, for: .normal)
+        progressSlider.setThumbImage(thumb, for: .highlighted)
+    }
+    
+    private func makeCircleThumb(diameter: CGFloat, color: UIColor) -> UIImage {
+        let size = CGSize(width: diameter, height: diameter)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        let ctx = UIGraphicsGetCurrentContext()!
+        ctx.setFillColor(color.cgColor)
+        ctx.fillEllipse(in: CGRect(origin: .zero, size: size))
+        let image = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return image
+    }
+
+    private func stopProgressTimer() {
+        progressTimer?.invalidate()
+        progressTimer = nil
+    }
+
+    // MARK: - Actions
+
+    @IBAction private func playPauseTapped(_ sender: UIButton) {
+        isPlaying ? pauseAudio() : playAudio()
+    }
+
+    @IBAction private func sliderChanged(_ sender: UISlider) {
+        audioPlayer?.currentTime = TimeInterval(sender.value)
+    }
+
+    private func addInnerShadow() {
+        innerShadowView.layer.sublayers?
+            .removeAll(where: { $0.name == "InnerShadow" })
+
+        let shadowLayer = CAShapeLayer()
+        shadowLayer.name = "InnerShadow"
+        shadowLayer.frame = innerShadowView.bounds
+
+        let cornerRadius: CGFloat = 0
+
+        let innerPath = UIBezierPath(
+            roundedRect: innerShadowView.bounds,
+            cornerRadius: cornerRadius
+        )
+
+        let outerPath = UIBezierPath(
+            rect: innerShadowView.bounds
+        )
+
+        outerPath.append(innerPath)
+        outerPath.usesEvenOddFillRule = true
+
+        shadowLayer.path = outerPath.cgPath
+        shadowLayer.fillRule = .evenOdd
+        shadowLayer.fillColor = UIColor.black.cgColor
+        shadowLayer.opacity = 0.28
+        shadowLayer.shadowColor = UIColor.black.cgColor
+        shadowLayer.shadowOffset = .zero
+        shadowLayer.shadowRadius = 0
+
+        shadowLayer.mask = {
+            let mask = CAShapeLayer()
+            mask.path = innerPath.cgPath
+            return mask
+        }()
+
+        innerShadowView.layer.addSublayer(shadowLayer)
+    }
+    
+    // MARK: - Tap Navigation
+
+    private func setupTapGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleScreenTap)
+        )
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc private func handleScreenTap() {
+        stopAudio()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.performSegue(withIdentifier: "showFirstFace", sender: nil)
+        }
+    }
+
+    // MARK: - Hint Animation
+
+    private func animateContinueHint() {
+        UIView.animate(
+            withDuration: 0,
+            delay: 0,
+            options: [.curveEaseInOut],
+            animations: {
+                self.continueLabel.alpha = 1
+            }
+        )
+    }
+    
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showFirstFace",
+           let faceVC = segue.destination as? FaceViewController {
+
+            faceVC.wholeImage = wholeImage
+            faceVC.faces = faces
+            faceVC.people = people
+            faceVC.questionsByPerson = questionsByPerson
+            faceVC.portraitImage = portraitImage   // 🔥 HERE
+        }
+    }
+}

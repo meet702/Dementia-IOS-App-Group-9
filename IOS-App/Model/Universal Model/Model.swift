@@ -1,12 +1,63 @@
 import Foundation
 import CoreGraphics
 
+enum MemoryActionContent: Codable {
+    case empty
+    case text(String)
+    case voice(URL)
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case value
+    }
+
+    enum ActionType: String, Codable {
+        case empty
+        case text
+        case voice
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        switch self {
+        case .empty:
+            try container.encode(ActionType.empty, forKey: .type)
+
+        case .text(let text):
+            try container.encode(ActionType.text, forKey: .type)
+            try container.encode(text, forKey: .value)
+
+        case .voice(let url):
+            try container.encode(ActionType.voice, forKey: .type)
+            try container.encode(url, forKey: .value)
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(ActionType.self, forKey: .type)
+
+        switch type {
+        case .empty:
+            self = .empty
+
+        case .text:
+            let text = try container.decode(String.self, forKey: .value)
+            self = .text(text)
+
+        case .voice:
+            let url = try container.decode(URL.self, forKey: .value)
+            self = .voice(url)
+        }
+    }
+}
 // MARK: - Whole Image (Memory Anchor)
 
 struct WholeImage: Identifiable, Codable {
     let wid: UUID
     let imageURL: URL
-    let audioDescriptionURL: URL?
+    let action: MemoryActionContent?
     let createdAt: Date
 
     // SwiftUI identity (UI concern)
@@ -73,19 +124,21 @@ struct Question: Identifiable, Codable {
     let type: QuestionType
     let prompt: String
     let options: [String]?
-
+    let positiveOptions: [String]?
     var id: UUID { qid }
 
     init(
         qid: UUID = UUID(),
         type: QuestionType,
         prompt: String,
-        options: [String]? = nil
+        options: [String]? = nil,
+        positiveOptions: [String]? = nil
     ) {
         self.qid = qid
         self.type = type
         self.prompt = prompt
         self.options = options
+        self.positiveOptions = positiveOptions
     }
 }
 
@@ -120,6 +173,8 @@ struct PersonSessionQuestion: Identifiable, Codable {
     let responseText: String?
     let selectedOption: String?
     let answeredAt: Date?
+    
+    let wasPositive: Bool?          // ⭐ ADD THIS ****NEW****
     let confidenceScore: Double?
 
     var id: UUID { psqid }

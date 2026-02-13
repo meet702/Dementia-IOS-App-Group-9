@@ -38,14 +38,47 @@ final class AppDataStore {
             Question(
                 type: .mcq,
                 prompt: "How does this person make you feel?",
-                options: ["Calm", "Warm", "Not sure"]
+                options: ["Calm", "Warm", "Happy", "Not sure"],
+                positiveOptions: ["Calm", "Warm", "Happy"]
             ),
             Question(
                 type: .mcq,
                 prompt: "Did this person feel close to you?",
-                options: ["Yes", "Somewhat", "Not sure"]
+                options: ["Yes", "Somewhat", "Not Close", "Not sure"],
+                positiveOptions: ["Yes", "Somewhat"]
+            ),
+            Question(
+                type: .mcq,
+                prompt: "Do you feel understood by this person?",
+                options: ["Yes", "Sometimes", "Not really", "Not sure"],
+                positiveOptions: ["Yes", "Sometimes"]
+            ),
+            Question(
+                type: .mcq,
+                prompt: "Does this person bring positive energy to your life?",
+                options: ["Yes", "A little", "Not really", "Not sure"],
+                positiveOptions: ["Yes", "A little"]
+            ),
+            Question(
+                type: .mcq,
+                prompt: "Do you enjoy spending time with this person?",
+                options: ["Always", "Sometimes", "Rarely", "Not sure"],
+                positiveOptions: ["Always", "Sometimes"]
+            ),
+            Question(
+                type: .mcq,
+                prompt: "Do you feel safe sharing things with this person?",
+                options: ["Yes", "Mostly", "Not really", "Not sure"],
+                positiveOptions: ["Yes", "Mostly"]
+            ),
+            Question(
+                type: .mcq,
+                prompt: "Does this person support you emotionally?",
+                options: ["Yes", "Sometimes", "Not really", "Not sure"],
+                positiveOptions: ["Yes", "Sometimes"]
             )
         ]
+
 
         // Text Questions (only if MCQ engagement is positive)
         textQuestions = [
@@ -56,8 +89,29 @@ final class AppDataStore {
             Question(
                 type: .text,
                 prompt: "What stands out about this moment?"
+            ),
+            Question(
+                type: .text,
+                prompt: "Is there anything this person does that makes you feel valued?"
+            ),
+            Question(
+                type: .text,
+                prompt: "What memory with this person makes you smile?"
+            ),
+            Question(
+                type: .text,
+                prompt: "What makes this connection meaningful to you?"
+            ),
+            Question(
+                type: .text,
+                prompt: "How would you could describe this person in one sentence?"
             )
+//            Question(
+//                type: .text,
+//                prompt: "What would you want to remember about this person years from now?"
+//            )
         ]
+
     }
 
     private func loadDefaultPrompts() {

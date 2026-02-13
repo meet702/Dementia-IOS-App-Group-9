@@ -1,5 +1,5 @@
 //
-//  TestResponseViewController.swift
+//  ResponseViewController.swift
 //  MemoryLaneResponseFeature
 //
 //  Created by SDC-USER on 11/12/25.
@@ -7,104 +7,102 @@
 
 import UIKit
 
-class ResponseViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    
-    var session: MemoryImageSession?
-    var people: [PersonSession] = []
+final class ResponseViewController: UIViewController {
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        people.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "person_cell", for: indexPath) as! PersonTableViewCell
-        let person = people[indexPath.row]
-        cell.configure(person: person)
-        cell.onChevronTapped = { [weak self] in
-            self?.openPersonDetail(person)
-        }
-        return cell
-    }
-    
-    func openPersonDetail(_ person: PersonSession) {
-        let vc = storyboard!.instantiateViewController(identifier: "ResponseDetailViewController") as! ResponseDetailViewController
+    // MARK: - Dependencies (NEW MODEL)
 
-        vc.person = person
+    var imageSession: ImageSession?
+    private var people: [PersonSession] = []
 
-        vc.modalPresentationStyle = .pageSheet
-
-        present(vc, animated: true)
-    }
-
+    // MARK: - Outlets
 
     @IBOutlet weak var tableView: UITableView!
-    
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        guard let session else {
-            assertionFailure("ResponseViewController requires a MemoryImageSession")
+        guard let imageSession else {
+            assertionFailure("ResponseViewController requires an ImageSession")
             return
         }
 
-        people = session.personSessions
+        // Fetch people involved in this session
+        people = PersonSessionStore.shared.personSessions(for: imageSession.isid)
 
         tableView.delegate = self
         tableView.dataSource = self
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
 
-        configureHeader(with: session)
-        configureNavigationTitle(date: session.timestamp)
+        configureHeader(with: imageSession)
+        configureNavigationTitle(date: imageSession.startedAt)
     }
 
-    
-    private func configureHeader(with session: MemoryImageSession) {
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateTableHeaderSize()
+    }
+
+    // MARK: - Header Configuration
+
+    private func configureHeader(with session: ImageSession) {
+
         let header = Bundle.main.loadNibNamed(
             "MemoryHeaderView",
             owner: nil,
             options: nil
         )!.first as! MemoryHeaderView
 
-        header.titleLabel.text = "Here's what Arjun said about this picture..."
-        header.descriptionLabel.text = session.overallReflection
-        header.headerImageView.image = UIImage(named: session.image)
+        header.titleLabel.text = "Here's what Arjun shared about this moment"
+
+        // Whole-moment reflection (optional)
+        header.descriptionLabel.text =
+            ImageSessionQuestionStore.shared
+                .overallReflection(for: session.isid)
+
+        // Load image from local storage
+        if let image = LocalImageStore.shared.fetchImage(by: session.imageID) {
+            header.headerImageView.image = image
+        } else {
+            header.headerImageView.image = UIImage(systemName: "photo")
+        }
 
         installTableHeaderView(header)
     }
-    
+
     private func configureNavigationTitle(date: Date) {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM yyyy, h:mm a"
         formatter.locale = .current
         navigationItem.title = formatter.string(from: date)
     }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showResponseDetail",
-           let vc = segue.destination as? ResponseDetailViewController,
-           let person = sender as? PersonSession {
-            vc.person = person
-        }
+
+    // MARK: - Navigation
+
+    private func openPersonDetail(_ person: PersonSession) {
+        let vc = storyboard!.instantiateViewController(
+            identifier: "ResponseDetailViewController"
+        ) as! ResponseDetailViewController
+
+        vc.personSession = person
+        vc.imageID = imageSession?.imageID
+        vc.modalPresentationStyle = .pageSheet
+
+        present(vc, animated: true)
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        updateTableHeaderSize()
-        if let header = tableView.tableHeaderView {
-            header.widthAnchor.constraint(equalTo: tableView.widthAnchor).isActive = true
-            updateTableHeaderSize()
-        }
-    }
-    
-    func installTableHeaderView(_ header: UIView) {
+
+    // MARK: - Table Header Helpers
+
+    private func installTableHeaderView(_ header: UIView) {
         tableView.tableHeaderView = header
         header.translatesAutoresizingMaskIntoConstraints = false
         header.widthAnchor.constraint(equalTo: tableView.widthAnchor).isActive = true
         updateTableHeaderSize()
     }
 
-    func updateTableHeaderSize() {
+    private func updateTableHeaderSize() {
         guard let header = tableView.tableHeaderView else { return }
 
         let targetSize = CGSize(width: tableView.bounds.width, height: 0)
@@ -120,59 +118,87 @@ class ResponseViewController: UIViewController, UITableViewDelegate, UITableView
             tableView.tableHeaderView = header
         }
     }
-    
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+}
+
+// MARK: - UITableViewDataSource
+
+extension ResponseViewController: UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        people.count
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "person_cell",
+            for: indexPath
+        ) as! PersonTableViewCell
+
+        let personSession = people[indexPath.row]
+        let imageID = (imageSession?.imageID)!
+        cell.configure(personSession: personSession, imageID: imageID)
+
+        cell.onChevronTapped = { [weak self] in
+            self?.openPersonDetail(personSession)
+        }
+
+        return cell
+    }
+}
+
+// MARK: - UITableViewDelegate
+
+extension ResponseViewController: UITableViewDelegate {
+
+    func tableView(
+        _ tableView: UITableView,
+        viewForHeaderInSection section: Int
+    ) -> UIView? {
+
         let headerView = UIView()
-        headerView.backgroundColor = UIColor.clear
-        
+        headerView.backgroundColor = .clear
+
         let icon = UIImageView()
         icon.image = UIImage(systemName: "person.2.fill")
         icon.tintColor = .black
-        icon.translatesAutoresizingMaskIntoConstraints = false
         icon.contentMode = .scaleAspectFit
+        icon.translatesAutoresizingMaskIntoConstraints = false
 
-        NSLayoutConstraint.activate([
-            icon.widthAnchor.constraint(equalToConstant: 22),
-            icon.heightAnchor.constraint(equalToConstant: 22)
-        ])
-        
         let label = UILabel()
         label.text = "People in this memory"
         label.font = .preferredFont(forTextStyle: .headline)
-        label.textColor = UIColor.black
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
-        
-        headerView.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
-            label.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
-            label.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 8),
-            label.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -8)
-        ])
-        
-        
-        let hStack = UIStackView(arrangedSubviews: [icon, label])
-        hStack.axis = .horizontal
-        hStack.spacing = 8
-        hStack.alignment = .center
-        hStack.translatesAutoresizingMaskIntoConstraints = false
 
-        headerView.addSubview(hStack)
+        let stack = UIStackView(arrangedSubviews: [icon, label])
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        headerView.addSubview(stack)
 
         NSLayoutConstraint.activate([
-            hStack.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
-            hStack.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
-            hStack.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 8),
-            hStack.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -8)
+            icon.widthAnchor.constraint(equalToConstant: 22),
+            icon.heightAnchor.constraint(equalToConstant: 22),
+
+            stack.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
+            stack.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 8),
+            stack.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -8)
         ])
-        
+
         return headerView
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 40
+    func tableView(
+        _ tableView: UITableView,
+        heightForHeaderInSection section: Int
+    ) -> CGFloat {
+        40
     }
-
-
 }
