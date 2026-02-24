@@ -13,7 +13,8 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var cardView: UIView!
     @IBOutlet weak var subtitleLabel: UILabel!
-
+    @IBOutlet weak var newBadgeLabel: UILabel!
+    
     private let gradientOverlayTag = 999
 
     private let cardCornerRadius: CGFloat = 31
@@ -39,6 +40,13 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
 
         subtitleLabel.textColor = .white
         subtitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        
+        newBadgeLabel.text = "NEW"
+        newBadgeLabel.backgroundColor = .systemRed
+        newBadgeLabel.textColor = .white
+        newBadgeLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        newBadgeLabel.layer.cornerRadius = 7
+        newBadgeLabel.clipsToBounds = true
 
         // cell shadow
         layer.shadowColor = UIColor.black.cgColor
@@ -65,19 +73,18 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         overlayView?.removeFromSuperview()
         overlayView = nil
         imageView.image = nil
+        //newBadgeLabel.isHidden = true
     }
 
-    func configureMemoryLaneCell(imageName: String? = "image 102",
+    func configureMemoryLaneCell(image: UIImage?,
                                  title: String = "Memory Lane",
-                                 subtitle: String = "Recall moments through guided questions") {
+                                 subtitle: String = "Revisit these moments") {
+
         cardTextLabel.text = title
         subtitleLabel.text = subtitle
 
-        if let name = imageName {
-            imageView.image = UIImage(named: name)
-        } else {
-            imageView.image = nil
-        }
+        imageView.image = image
+
         contentView.layoutIfNeeded()
         cardView.layoutIfNeeded()
         imageView.layoutIfNeeded()
@@ -162,5 +169,9 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         cardView.bringSubviewToFront(subtitleLabel)
         cardTextLabel.layer.zPosition = 100
         subtitleLabel.layer.zPosition = 100
+    }
+    
+    func showNewBadge(_ show: Bool) {
+        newBadgeLabel.isHidden = !show
     }
 }

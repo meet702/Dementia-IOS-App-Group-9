@@ -17,6 +17,12 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     let repository = RoutineRepository()
     let context = PersistenceController.shared.context
 
+    enum RoutineUserRole {
+        case patient
+        case caregiver
+    }
+    var userRole: RoutineUserRole = .patient
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -69,11 +75,21 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
 
 
         let isToday = Calendar.current.isDateInToday(selectedDate)
-        cell.checkButton.isEnabled = isToday
-        cell.checkButton.alpha = isToday ? 1.0 : 0.6
+        let canToggle = isToday && userRole == .patient
+
+        cell.checkButton.isEnabled = canToggle
+        cell.checkButton.alpha = canToggle ? 1.0 : 0.6
+
 
         cell.onCheckTapped = { [weak self] in
-            guard let self = self, isToday else { return }
+            guard
+                let self = self,
+                self.userRole == .patient,                      // 🔒 ROLE CHECK
+                Calendar.current.isDateInToday(self.selectedDate)
+            else {
+                return
+            }
+
             self.repository.toggleCompletion(task: task, date: self.selectedDate)
             self.splitTasksByTime()
             tableView.reloadData()

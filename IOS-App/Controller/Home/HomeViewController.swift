@@ -32,10 +32,6 @@ class HomeViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dataStoreUpdated(_:)), name: .DataStoreDidUpdateRoutines, object: nil)
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
-        
-        //for SOS
-        LocationManager.shared.delegate = self
-        LocationManager.shared.requestPermission()
 
     }
     
@@ -54,6 +50,18 @@ class HomeViewController: UIViewController {
     }
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func latestMemoryImage() -> UIImage? {
+
+        let images = LocalImageStore.shared.fetchAllImages()
+            .sorted { $0.createdAt > $1.createdAt }
+
+        guard let latest = images.first else {
+            return nil
+        }
+
+        return LocalImageStore.shared.fetchImage(by: latest.wid)
     }
     
     func generateLayout() -> UICollectionViewLayout {
@@ -153,45 +161,6 @@ class HomeViewController: UIViewController {
         homeCollectionView.register(UINib(nibName: "RoutineCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "routineCardCollectionViewCell")
     }
     
-    
-    @IBAction func sosButtonTapped(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(
-            title: "Contact Your Caregiver?",
-            message: "A call and your location will be shared with your caregiver.",
-            preferredStyle: .alert
-        )
-
-        let yesAction = UIAlertAction(title: "Yes, Get Help", style: .default) { _ in
-            self.triggerSOS()
-        }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-
-        alert.addAction(yesAction)
-        alert.addAction(cancelAction)
-
-        present(alert, animated: true)
-    }
-
-    private func triggerSOS() {
-        print("SOS triggered")
-
-        // Initiate caregiver call
-        callCaregiver()
-
-        // Request current location
-        LocationManager.shared.delegate = self
-        LocationManager.shared.getLocationOnce()
-    }
-
-    private func callCaregiver() {
-        let number = "9920193798" // will replace with actual caregiver number from DB
-        if let phoneURL = URL(string: "tel://\(number)"),
-           UIApplication.shared.canOpenURL(phoneURL) {
-            UIApplication.shared.open(phoneURL, options: [:], completionHandler: nil)
-        }
-    }
-    
     private func timeBasedGreeting() -> String {
         let hour = Calendar.current.component(.hour, from: Date())
 
@@ -206,28 +175,79 @@ class HomeViewController: UIViewController {
             return "Good Night"
         }
     }
-
-}
-
-extension HomeViewController: LocationManagerDelegate {
-    func didReceiveLocation(lat: Double, long: Double) {
-        let mapsLink = "https://maps.google.com/?q=\(lat),\(long)"
-        print("Maps link: \(mapsLink)")
-
-        sendLocationSMS(mapsLink)
-    }
-}
-
-private func sendLocationSMS(_ link: String) {
-    print("Location sent via SMS")
-    let message = "SOS! I need help. My location: \(link)"
-    let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     
-    if let smsURL = URL(string: "sms:&body=\(encodedMessage)") {
-        UIApplication.shared.open(smsURL)
-    }
-}
+    private func hasUnplayedMemory() -> Bool {
+        guard
+            let latestImage = LocalImageStore.shared
+                .fetchAllImages()
+                .sorted(by: { $0.createdAt > $1.createdAt })
+                .first,
+            let lastSession = ImageSessionStore.shared
+                .latestMemoryLaneSession()
+        else {
+            return false
+        }
 
+        return latestImage.createdAt > lastSession.startedAt
+    }
+    
+    // MARK: - Memory Recap Launch
+
+    private func launchMemoryRecap() {
+
+        // 1️⃣ Get oldest unviewed session
+        guard let session = ImageSessionStore.shared.oldestUnviewedSession() else {
+            showNoRecapAlert()
+            return
+        }
+
+        // 2️⃣ Get WholeImage
+        guard let wholeImage = LocalImageStore.shared.fetchImageModel(by: session.imageID),
+              let portraitImage = LocalImageStore.shared.fetchImage(by: wholeImage.wid)
+        else {
+            print("❌ Could not reconstruct image for recap")
+            return
+        }
+
+        // 3️⃣ Get faces + people from stores
+        let faces = FaceStore.shared.loadFaces(for: wholeImage.wid)
+        let people: [Person] = faces.compactMap { face in
+            guard let pid = face.personID else { return nil }
+            return PersonStore.shared.person(by: pid)
+        }
+
+        // 4️⃣ Instantiate FaceVC
+        let storyboard = UIStoryboard(name: "MemoryLane", bundle: nil)
+
+        guard let faceVC = storyboard.instantiateViewController(
+            withIdentifier: "FaceViewController"
+        ) as? FaceViewController else {
+            return
+        }
+
+        // 5️⃣ Configure for recap
+        faceVC.sessionMode = .recap
+        faceVC.recapImageSession = session
+        faceVC.wholeImage = wholeImage
+        faceVC.faces = faces
+        faceVC.people = people
+        faceVC.portraitImage = portraitImage
+        faceVC.questionsByPerson = [:] // not used in recap
+
+        navigationController?.pushViewController(faceVC, animated: true)
+    }
+    
+    private func showNoRecapAlert() {
+        let alert = UIAlertController(
+            title: "No Recaps Yet",
+            message: "Complete a Memory Lane session first.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+}
 
 extension HomeViewController: UICollectionViewDataSource {
     
@@ -252,7 +272,20 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryLaneCardCollectionViewCell", for: indexPath) as! MemoryLaneCardCollectionViewCell
-            cell.configureMemoryLaneCell()
+            let latestImage = latestMemoryImage()
+            if latestImage == nil {
+                    cell.configureMemoryLaneCell(
+                        image: UIImage(named: "photo_placeholder"),
+                        title: "Memory Lane",
+                        subtitle: "You can begin when memories are added."
+                    )
+                    cell.showNewBadge(false)   // 🔥 FORCE HIDE
+                } else {
+                    cell.configureMemoryLaneCell(image: latestImage)
+                    cell.showNewBadge(hasUnplayedMemory())
+                }
+
+                return cell
             return cell
         }
         else if indexPath.section == 1 {
@@ -305,11 +338,25 @@ extension HomeViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
+            let images = LocalImageStore.shared.fetchAllImages()
+            guard !images.isEmpty else {
+                let alert = UIAlertController(
+                    title: "No Memories Yet",
+                    message: "Please ask your family member to add a memory first.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+                print("No memories available. Blocking Memory Lane navigation.")
+                return
+            }
+
             performSegue(withIdentifier: "showMemoryLane", sender: nil)
             return
         }
+        
         if indexPath.section == 1 {
-            performSegue(withIdentifier: "showMemoryRecap", sender: nil)
+            launchMemoryRecap()
             return
         }
         
@@ -362,10 +409,5 @@ extension HomeViewController: UICollectionViewDelegate {
             }
         }
         
-        if segue.identifier == "showMemoryLane" {
-            if let _ = segue.destination as? MemoryLaneHomeViewController {
-                print("Preparing Memory Lane (direct)")
-            }
-        }
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24512" systemVersion="25C56" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
-    <entity name="FaceImageEntity" representedClassName="FaceImageEntity" syncable="YES" codeGenerationType="class">
+    <entity name="FaceEntity" representedClassName="FaceEntity" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="imagePath" optional="YES" attributeType="String"/>
@@ -16,13 +16,13 @@
         <attribute name="memoryHint" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="relation" optional="YES" attributeType="String"/>
-        <relationship name="faces" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FaceImageEntity" inverseName="person" inverseEntity="FaceImageEntity"/>
+        <relationship name="faces" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FaceEntity" inverseName="person" inverseEntity="FaceEntity"/>
     </entity>
     <entity name="PhotoEntity" representedClassName="PhotoEntity" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="imagePath" optional="YES" attributeType="String"/>
-        <relationship name="faces" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FaceImageEntity" inverseName="photo" inverseEntity="FaceImageEntity"/>
+        <relationship name="faces" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FaceEntity" inverseName="photo" inverseEntity="FaceEntity"/>
     </entity>
     <entity name="RoutineTask" representedClassName="RoutineTask" syncable="YES" codeGenerationType="class">
         <attribute name="completedDates" optional="YES" attributeType="Transformable"/>

@@ -11,35 +11,43 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="MemoryLaneCardCollectionViewCell" customModule="IOS_App" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="280" height="153"/>
+            <rect key="frame" x="0.0" y="0.0" width="306" height="153"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="280" height="153"/>
+                <rect key="frame" x="0.0" y="0.0" width="306" height="153"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VFi-Un-UFu">
-                        <rect key="frame" x="0.0" y="5" width="280" height="143"/>
+                        <rect key="frame" x="0.0" y="5" width="306" height="143"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vsv-ph-YmS">
-                                <rect key="frame" x="-4" y="0.0" width="288" height="143"/>
+                                <rect key="frame" x="-4" y="0.0" width="314" height="143"/>
                             </imageView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="mcA-GV-nW9">
-                                <rect key="frame" x="20" y="94" width="240" height="37"/>
+                                <rect key="frame" x="20" y="94" width="266" height="37"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r3q-Rn-yzQ">
-                                        <rect key="frame" x="0.0" y="0.0" width="240" height="20.333333333333332"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="266" height="20.333333333333332"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WzK-XQ-mR4">
-                                        <rect key="frame" x="0.0" y="21.333333333333329" width="240" height="15.666666666666664"/>
+                                        <rect key="frame" x="0.0" y="21.333333333333329" width="266" height="15.666666666666664"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
                             </stackView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="NEW" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cQq-n9-9nM">
+                                <rect key="frame" x="286" y="11" width="45" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemRedColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
@@ -61,19 +69,23 @@
                 <constraint firstItem="VFi-Un-UFu" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="gNj-y4-Vhg"/>
                 <constraint firstItem="VFi-Un-UFu" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="5" id="m1H-wt-fiD"/>
             </constraints>
-            <size key="customSize" width="280" height="153"/>
+            <size key="customSize" width="306" height="153"/>
             <connections>
                 <outlet property="cardTextLabel" destination="r3q-Rn-yzQ" id="c4q-cv-Rcw"/>
                 <outlet property="cardView" destination="VFi-Un-UFu" id="i9k-8D-uGQ"/>
                 <outlet property="imageView" destination="Vsv-ph-YmS" id="0Dj-It-9eT"/>
+                <outlet property="newBadgeLabel" destination="cQq-n9-9nM" id="y4n-3N-bZb"/>
                 <outlet property="subtitleLabel" destination="WzK-XQ-mR4" id="YBK-M4-doB"/>
             </connections>
-            <point key="canvasLocation" x="314.50381679389312" y="189.78873239436621"/>
+            <point key="canvasLocation" x="334.35114503816794" y="189.78873239436621"/>
         </collectionViewCell>
     </objects>
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.2196078431372549" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

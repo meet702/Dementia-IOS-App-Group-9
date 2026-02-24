@@ -33,13 +33,19 @@ class TodaySessionsCard: UICollectionViewCell {
         layer.masksToBounds = false
     }
     
-    func configureTodaysSession(todaysSession: MemoryImageSession) {
-        dateLabel.text = todaysSession.timestamp.formattedDate()
-        timeLabel.text = todaysSession.timestamp.formattedTime()
-        imageView.image = UIImage(named: todaysSession.image)
-        imageView.layer.cornerRadius = 18
-        imageView.clipsToBounds = true
-    }
+    func configure(imageSession: ImageSession) {
+
+            // Date & time
+            dateLabel.text = imageSession.startedAt.formattedDate()
+            timeLabel.text = imageSession.startedAt.formattedTime()
+
+            // Fetch image using imageID
+            if let image = LocalImageStore.shared.fetchImage(by: imageSession.imageID) {
+                imageView.image = image
+            } else {
+                imageView.image = UIImage(systemName: "photo")
+            }
+        }
     
     
 }

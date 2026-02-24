@@ -1,47 +1,25 @@
-//
-//  PatientInputDetailsViewController.swift
-//  onboardingScreen
-//
-//  Created by SDC-USER on 08/12/25.
-//
-
 import UIKit
 
 class PatientInputDetailsViewController: UIViewController {
 
-    // MARK: - IBOutlets (connect these in storyboard)
     @IBOutlet weak var progressView: UIProgressView!
-    @IBOutlet weak var stepLabel: UILabel!
-
     @IBOutlet weak var fullNameTextField: UITextField!
     @IBOutlet weak var dobTextField: UITextField!
     @IBOutlet weak var genderTextField: UITextField!
+    @IBOutlet weak var doneButton: UIButton!
 
-    @IBOutlet weak var doneButton: UIButton! // connect this but the segue should be triggered in code
-
-    // MARK: - Pickers and data
     private let datePicker = UIDatePicker()
     private let genderPicker = UIPickerView()
     private let genders = ["Male", "Female", "Other", "Prefer not to say"]
 
-    // Progress values
     private let totalStepsFloat: Float = 6
     private var currentStepFloat: Float = 1
 
-    // We'll generate questions dynamically and pass them on segue
-    // (keep this function if using dynamic MCQ)
-    private func createPatientQuestions() -> [OnboardingQuestions] {
-        return [
-            OnboardingQuestions(title: "1. What stage of memory loss do you experience?", options: ["Mild","Moderate","Severe","Not sure"], selectionType: .single),
-            OnboardingQuestions(title: "2. Do you have difficulty recognizing people?", options: ["Rarely","Sometimes","Often"], selectionType: .single),
-            OnboardingQuestions(title: "3. Do you prefer simple or detailed tasks?", options: ["Simple","Moderate","Detailed"], selectionType: .single),
-            OnboardingQuestions(title: "4. What relationships matter most to you?", options: ["Children","Siblings","Friends","Spouse","Grandchildren"], selectionType: .multiple),
-            OnboardingQuestions(title: "5. What type of memories do you enjoy revisiting?", options: ["Travel","Family gatherings","Festivals","Work life","Childhood","Pets"], selectionType: .multiple)
-        ]
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = UIColor(red: 0.99, green: 0.96, blue: 0.91, alpha: 1)
+
         enableKeyboardDismissOnTap()
         configureProgressUI()
         configureFields()
@@ -49,23 +27,18 @@ class PatientInputDetailsViewController: UIViewController {
         configureGenderPicker()
     }
 
-    // MARK: - Progress UI
-    private func configureProgressUI() {
-        stepLabel.text = "Step \(Int(currentStepFloat)) of \(Int(totalStepsFloat))"
-        progressView.progress = currentStepFloat / totalStepsFloat
+    // MARK: Progress
 
-        // Thicken & round the progress view
+    private func configureProgressUI() {
+        progressView.progress = currentStepFloat / totalStepsFloat
+        progressView.trackTintColor = .systemGray5
+        progressView.progressTintColor = .systemOrange
         progressView.layer.cornerRadius = 3
         progressView.clipsToBounds = true
-        if let last = progressView.layer.sublayers?.last {
-            last.cornerRadius = 3
-            last.masksToBounds = true
-        }
-        progressView.trackTintColor = UIColor.systemGray5
-        progressView.progressTintColor = UIColor.systemOrange
     }
 
-    // MARK: - Fields & buttons
+    // MARK: Figma Styled Fields
+
     private func configureFields() {
         
 
@@ -80,17 +53,25 @@ class PatientInputDetailsViewController: UIViewController {
 
         // Right view icons
         let calendarBtn = UIButton(type: .system)
-        calendarBtn.setImage(UIImage(systemName: "calendar"), for: .normal)
-        calendarBtn.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+        calendarBtn.setImage(UIImage(systemName: "chevron.up.chevron.down"), for: .normal)
+        calendarBtn.tintColor = .systemGray3
+        calendarBtn.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         calendarBtn.addTarget(self, action: #selector(dobTapped), for: .touchUpInside)
-       // dobTextField.rightView = calendarBtn
+
+        dobTextField.rightView = calendarBtn
         dobTextField.rightViewMode = .always
 
-        let chevron = UIImageView(image: UIImage(systemName: "chevron.down"))
-        chevron.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
-        chevron.contentMode = .scaleAspectFit
-       // genderTextField.rightView = chevron
+
+        let genderChevron = UIButton(type: .system)
+        genderChevron.setImage(UIImage(systemName: "chevron.up.chevron.down"), for: .normal)
+        genderChevron.tintColor = .systemGray3
+        genderChevron.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        genderChevron.addTarget(self, action: #selector(genderTapped), for: .touchUpInside)
+
+
+        genderTextField.rightView = genderChevron
         genderTextField.rightViewMode = .always
+
 
         // Basic textfield styling
         [fullNameTextField, dobTextField, genderTextField].forEach { tf in
@@ -100,8 +81,8 @@ class PatientInputDetailsViewController: UIViewController {
             tf?.setLeftPadding(12)
         }
     }
+    // MARK: Date Picker
 
-    // MARK: - Date picker
     private func configureDatePicker() {
         if #available(iOS 13.4, *) {
             datePicker.preferredDatePickerStyle = .wheels
@@ -121,6 +102,9 @@ class PatientInputDetailsViewController: UIViewController {
     @objc private func dobTapped() {
         dobTextField.becomeFirstResponder()
     }
+    @objc private func genderTapped() {
+        genderTextField.becomeFirstResponder()
+    }
 
     @objc private func dateDone() {
         let df = DateFormatter()
@@ -131,7 +115,8 @@ class PatientInputDetailsViewController: UIViewController {
 
     }
 
-    // MARK: - Gender picker
+    // MARK: Gender Picker
+
     private func configureGenderPicker() {
         genderPicker.delegate = self
         genderPicker.dataSource = self
@@ -153,63 +138,55 @@ class PatientInputDetailsViewController: UIViewController {
 
     }
 
-    // MARK: - Done action (validate, then perform segue to MCQ)
+    // MARK: Actions
+
     @IBAction func doneTapped(_ sender: UIButton) {
-        // Validate
-        guard let name = fullNameTextField.text, !name.trimmingCharacters(in: .whitespaces).isEmpty else {
-            showAlert("Please enter your full name.")
-            return
-        }
-        guard let _ = dobTextField.text, !(dobTextField.text?.isEmpty ?? true) else {
-            showAlert("Please pick your date of birth.")
-            return
-        }
-        guard let _ = genderTextField.text, !(genderTextField.text?.isEmpty ?? true) else {
-            showAlert("Please select your gender.")
+
+        guard let name = fullNameTextField.text, !name.isEmpty else {
+            showAlert("Enter full name")
             return
         }
 
-        // If you set the segue from the view controller to MCQ with identifier "showMCQ", call it:
-        performSegue(withIdentifier: "showMCQ", sender: self)
+        guard let dob = dobTextField.text, !dob.isEmpty else {
+            showAlert("Select date of birth")
+            return
+        }
+
+        guard let gender = genderTextField.text, !gender.isEmpty else {
+            showAlert("Select gender")
+            return
+        }
+
+        performSegue(withIdentifier: "showMCQ", sender: nil)
     }
 
-    // MARK: - Prepare for segue (pass data to MCQ)
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showMCQ",
            let mcqVC = segue.destination as? MCQViewController {
 
-            mcqVC.questions = createPatientQuestions()
-            mcqVC.headerTitles = PatientMCQFactory.headers
+            mcqVC.questions = OnboardingQuestionBank.patientQuestions()
+            mcqVC.headerTitles = OnboardingQuestionBank.patientHeaders
             mcqVC.startingStep = 2
             mcqVC.totalSteps = 6
         }
     }
 
-
-    // MARK: - Helper
     private func showAlert(_ msg: String) {
-        let a = UIAlertController(title: nil, message: msg, preferredStyle: .alert)
-        a.addAction(UIAlertAction(title: "OK", style: .default))
-        present(a, animated: true)
+        let alert = UIAlertController(title: nil, message: msg, preferredStyle: .alert)
+        alert.addAction(.init(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 
-// MARK: - UIPicker delegates
 extension PatientInputDetailsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return genders.count
-    }
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return genders[row]
-    }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { genders.count }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { genders[row] }
 }
 
-// MARK: - UITextField left padding helper
 private extension UITextField {
     func setLeftPadding(_ amount: CGFloat) {
-        let v = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
-        leftView = v
+        leftView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: 1))
         leftViewMode = .always
     }
 }

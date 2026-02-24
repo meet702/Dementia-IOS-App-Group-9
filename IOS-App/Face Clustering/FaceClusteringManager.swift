@@ -91,7 +91,7 @@ final class FaceClusteringManager {
 
                 guard
                     let clusterId = person.clusterId,
-                    let faces = person.faces as? Set<FaceImageEntity>,
+                    let faces = person.faces as? Set<FaceEntity>,
                     !faces.isEmpty
                 else { continue }
 
@@ -199,7 +199,7 @@ final class FaceClusteringManager {
         let source = people.first { $0.clusterId == sourceId }!
         let target = people.first { $0.clusterId == targetId }!
 
-        if let faces = source.faces as? Set<FaceImageEntity> {
+        if let faces = source.faces as? Set<FaceEntity> {
             for face in faces {
                 face.person = target
             }
