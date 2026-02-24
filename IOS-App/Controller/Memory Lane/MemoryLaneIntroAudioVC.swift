@@ -10,11 +10,10 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     @IBOutlet private weak var progressSlider: UISlider!
     @IBOutlet private weak var continueLabel: UILabel!
     @IBOutlet weak var commentLabel: UILabel!
-    @IBOutlet weak var topBlurView: UIVisualEffectView!
-    @IBOutlet weak var bottomBlurView: UIVisualEffectView!
     @IBOutlet weak var innerShadowView: UIView!
     @IBOutlet weak var caregiverTextLabel: UILabel!
     
+    @IBOutlet weak var backgroundImageView: UIImageView!
     // MARK: - Dependencies (Injected)
     var portraitImage: UIImage!
     var wholeImage: WholeImage!
@@ -40,7 +39,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 //        print("   WholeImage ID: \(wholeImage.wid)")
         
         configureUI()
-        configureEdgeBlur()
         styleSlider()
         loadImage()
         prepareForFadeIn()
@@ -69,8 +67,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         guard let container = imageView.superview else { return }
 
         container.bringSubviewToFront(innerShadowView)
-        container.bringSubviewToFront(topBlurView)
-        container.bringSubviewToFront(bottomBlurView)
         container.bringSubviewToFront(playPauseButton)
         container.bringSubviewToFront(progressSlider)
         container.bringSubviewToFront(continueLabel)
@@ -96,8 +92,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         addInnerShadow()
-        applyFadeMask(to: topBlurView, isTop: true)
-        applyFadeMask(to: bottomBlurView, isTop: false)
     }
 
     private func applyFadeMask(to blurView: UIVisualEffectView, isTop: Bool) {
@@ -127,8 +121,11 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         UIView.animate(withDuration: 0.4, animations: {
             self.commentLabel.alpha = 0
         }) { _ in
-            
-            guard let action = self.pendingAction else { return }
+
+            guard let action = self.wholeImage.action else {
+                self.goToNextScreen()
+                return
+            }
 
             switch action {
 
@@ -139,20 +136,28 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
                     self.caregiverTextLabel.alpha = 1
                 }
 
-            case .voice:
-                self.showAudio(URL(fileURLWithPath: "")) // using bundled test audio
+            case .voice(let url):
+                self.showAudio(from: url)
 
                 UIView.animate(withDuration: 0.4) {
                     self.playPauseButton.alpha = 1
                     self.progressSlider.alpha = 1
                 }
 
-                self.playAudio()
-
             case .empty:
-                break
+                self.goToNextScreen()
             }
         }
+    }
+    
+    private func showAudio(from url: URL) {
+
+        caregiverTextLabel.isHidden = true
+
+        playPauseButton.isHidden = false
+        progressSlider.isHidden = false
+
+        setupAudio(from: url)
     }
 
     
@@ -198,7 +203,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         playPauseButton.isHidden = false
         progressSlider.isHidden = false
 
-        setupAudio()
+        setupAudio(from: url)
     }
     
     private func setupAudio(from url: URL) {
@@ -214,16 +219,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         }
     }
     
-    private func configureEdgeBlur() {
-        topBlurView.alpha = 0.9
-        bottomBlurView.alpha = 0.9
-        
-        innerShadowView.backgroundColor = .clear
-        innerShadowView.isUserInteractionEnabled = false
 
-        topBlurView.isUserInteractionEnabled = false
-        bottomBlurView.isUserInteractionEnabled = false
-    }
     
     private func prepareForFadeIn() {
         playPauseButton.alpha = 0
@@ -264,12 +260,12 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     }
 
     private func loadImage() {
-        // For testing: hardcoded portrait
-        imageView.image = portraitImage
-        
-        // TODO: When ready for real images:
-        // guard let image = UIImage(contentsOfFile: wholeImage.imageURL.path) else { return }
-        // imageView.image = image
+        guard let image = LocalImageStore.shared.fetchImage(by: wholeImage.wid) else {
+            print("❌ Failed to load image from LocalImageStore")
+            return
+        }
+        imageView.image = image
+        backgroundImageView.image = image
     }
 
     // MARK: - Audio Setup
@@ -281,27 +277,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         updatePlayPauseIcon()
     }
     
-    private func setupAudio() {
-        guard let url = Bundle.main.url(forResource: "memory_lane_audio", withExtension: "mp3") else {
-            print("Audio file not found")
-            return
-        }
-
-        do {
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.prepareToPlay()
-            audioPlayer?.delegate = self
-
-            progressSlider.minimumValue = 0
-            progressSlider.maximumValue = Float(audioPlayer?.duration ?? 0)
-        } catch {
-            print("Audio setup failed:", error)
-        }
-        
-        // TODO: When ready for real audio:
-        // guard let audioURL = wholeImage.audioDescriptionURL else { return }
-        // audioPlayer = try? AVAudioPlayer(contentsOf: audioURL)
-    }
 
     private func playAudio() {
         audioPlayer?.play()
@@ -463,6 +438,12 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             faceVC.people = people
             faceVC.questionsByPerson = questionsByPerson
             faceVC.portraitImage = portraitImage   // 🔥 HERE
+        }
+    }
+    
+    private func goToNextScreen() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.performSegue(withIdentifier: "showFirstFace", sender: nil)
         }
     }
 }

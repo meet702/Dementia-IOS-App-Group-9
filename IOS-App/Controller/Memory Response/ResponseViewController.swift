@@ -12,7 +12,7 @@ final class ResponseViewController: UIViewController {
     // MARK: - Dependencies (NEW MODEL)
 
     var imageSession: ImageSession?
-    private var people: [PersonSession] = []
+    private var personSessions: [PersonSession] = []
 
     // MARK: - Outlets
 
@@ -29,7 +29,7 @@ final class ResponseViewController: UIViewController {
         }
 
         // Fetch people involved in this session
-        people = PersonSessionStore.shared.personSessions(for: imageSession.isid)
+        personSessions = PersonSessionStore.shared.personSessions(for: imageSession.isid)
 
         tableView.delegate = self
         tableView.dataSource = self
@@ -58,9 +58,12 @@ final class ResponseViewController: UIViewController {
         header.titleLabel.text = "Here's what Arjun shared about this moment"
 
         // Whole-moment reflection (optional)
-        header.descriptionLabel.text =
-            ImageSessionQuestionStore.shared
-                .overallReflection(for: session.isid)
+        let reflection = ImageSessionQuestionStore.shared
+            .overallReflection(for: session.isid)
+
+        header.descriptionLabel.text = reflection.isEmpty
+            ? "This memory was revisited together."
+            : reflection
 
         // Load image from local storage
         if let image = LocalImageStore.shared.fetchImage(by: session.imageID) {
@@ -87,7 +90,7 @@ final class ResponseViewController: UIViewController {
         ) as! ResponseDetailViewController
 
         vc.personSession = person
-        vc.imageID = imageSession?.imageID
+        vc.imageID = imageSession!.imageID
         vc.modalPresentationStyle = .pageSheet
 
         present(vc, animated: true)
@@ -125,7 +128,7 @@ final class ResponseViewController: UIViewController {
 extension ResponseViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        people.count
+        personSessions.count
     }
 
     func tableView(
@@ -138,8 +141,11 @@ extension ResponseViewController: UITableViewDataSource {
             for: indexPath
         ) as! PersonTableViewCell
 
-        let personSession = people[indexPath.row]
-        let imageID = (imageSession?.imageID)!
+        let personSession = personSessions[indexPath.row]
+        guard let imageID = imageSession?.imageID else {
+            fatalError("Missing imageID")
+        }
+        
         cell.configure(personSession: personSession, imageID: imageID)
 
         cell.onChevronTapped = { [weak self] in

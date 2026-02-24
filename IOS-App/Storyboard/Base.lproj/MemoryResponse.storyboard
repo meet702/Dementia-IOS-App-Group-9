@@ -109,39 +109,20 @@
                                     <rect key="frame" x="0.0" y="0.0" width="393" height="198"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <subviews>
-                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="nDh-5M-UBE">
-                                            <rect key="frame" x="76" y="48" width="240" height="130"/>
-                                            <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="priyadarshanImage" translatesAutoresizingMaskIntoConstraints="NO" id="xj0-CW-pmv">
-                                                    <rect key="frame" x="74" y="0.0" width="92" height="92"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="92" id="K8g-of-7cr"/>
-                                                        <constraint firstAttribute="width" constant="92" id="hfJ-Qo-o7A"/>
-                                                    </constraints>
-                                                </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PCB-Hq-oz2">
-                                                    <rect key="frame" x="65" y="100" width="110" height="30"/>
-                                                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="30" id="i04-Jz-GTA"/>
-                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="110" id="we2-s4-npE"/>
-                                                    </constraints>
-                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="xj0-CW-pmv">
+                                            <rect key="frame" x="141" y="45" width="110" height="110"/>
                                             <constraints>
-                                                <constraint firstItem="xj0-CW-pmv" firstAttribute="top" secondItem="nDh-5M-UBE" secondAttribute="top" id="bcZ-7Z-o8O"/>
+                                                <constraint firstAttribute="height" constant="110" id="K8g-of-7cr"/>
+                                                <constraint firstAttribute="width" constant="110" id="hfJ-Qo-o7A"/>
                                             </constraints>
-                                        </stackView>
+                                        </imageView>
                                     </subviews>
                                     <color key="backgroundColor" red="0.99607843137254903" green="0.97254901960784312" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <constraints>
-                                        <constraint firstAttribute="bottom" secondItem="nDh-5M-UBE" secondAttribute="bottom" constant="20" id="2ck-GG-HIv"/>
-                                        <constraint firstAttribute="trailing" secondItem="nDh-5M-UBE" secondAttribute="trailing" constant="77" id="GLq-CL-Yzm"/>
-                                        <constraint firstItem="nDh-5M-UBE" firstAttribute="leading" secondItem="rYu-vs-UUt" secondAttribute="leading" constant="76" id="nwP-wV-B9g"/>
-                                        <constraint firstItem="nDh-5M-UBE" firstAttribute="top" secondItem="rYu-vs-UUt" secondAttribute="top" constant="48" id="pYt-QQ-4cv"/>
+                                        <constraint firstAttribute="trailing" secondItem="xj0-CW-pmv" secondAttribute="trailing" constant="142" id="HdN-x0-rMC"/>
+                                        <constraint firstAttribute="bottom" secondItem="xj0-CW-pmv" secondAttribute="bottom" constant="43" id="Lut-hF-Nip"/>
+                                        <constraint firstItem="xj0-CW-pmv" firstAttribute="leading" secondItem="rYu-vs-UUt" secondAttribute="leading" constant="141" id="UCk-RN-hvY"/>
+                                        <constraint firstItem="xj0-CW-pmv" firstAttribute="top" secondItem="rYu-vs-UUt" secondAttribute="top" constant="45" id="oKo-FE-wCE"/>
                                     </constraints>
                                 </view>
                                 <prototypes>
@@ -212,7 +193,6 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="identification" destination="PCB-Hq-oz2" id="Zaj-8Z-Oo8"/>
                         <outlet property="navTitle" destination="KwW-aX-bfU" id="BH8-dI-4O1"/>
                         <outlet property="personImage" destination="xj0-CW-pmv" id="H5Q-HB-b3A"/>
                         <outlet property="tableView" destination="xNH-vD-yol" id="ow7-us-s9I"/>
@@ -243,6 +223,5 @@
     </scenes>
     <resources>
         <image name="chevron.right" catalog="system" width="97" height="128"/>
-        <image name="priyadarshanImage" width="52" height="52"/>
     </resources>
 </document>

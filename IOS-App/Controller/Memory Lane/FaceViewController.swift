@@ -14,6 +14,7 @@ final class FaceViewController: UIViewController {
     @IBOutlet weak var textAnswerTextView: UITextView!
     @IBOutlet weak var transitionLabel: UILabel!
 
+    @IBOutlet weak var backgroundImageView: UIImageView!
     // MARK: - Injected Data
 
     var wholeImage: WholeImage!
@@ -28,6 +29,7 @@ final class FaceViewController: UIViewController {
     private var currentQuestionIndex = 0
     private var isFaceComplete = false
     private var isInFinalReflection = false
+    private var hasShownFinalReflectionInRecap = false
 
     // MARK: - Session Data
     
@@ -36,16 +38,35 @@ final class FaceViewController: UIViewController {
     private var personSessions: [PersonSession] = []
     private var personSessionAnswers: [PersonSessionQuestion] = []
     private var imageSessionAnswers: [ImageSessionQuestion] = []
+    
+    enum SessionMode {
+        case play
+        case recap
+    }
+    
+    // MARK: - Session Mode
+
+    var sessionMode: SessionMode = .play
+
+    // Inject this when launching recap
+    var recapImageSession: ImageSession?
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        initializeSession()
+        if sessionMode == .play {
+            initializeSession()
+        }
         configureUI()
         loadImage()
-        injectSamplePeopleIfNeeded()
+        
+        print("People received in FaceVC:")
+        for person in people {
+            print(person.name ?? "nil")
+        }
+        
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -62,13 +83,15 @@ final class FaceViewController: UIViewController {
     // MARK: - Session Management
     
     private func initializeSession() {
+        guard sessionMode == .play else { return }
         currentImageSession = ImageSession(
             isid: UUID(),
             imageID: wholeImage.wid,
             sessionType: .memoryLane,
             playedBy: "Patient",  // TODO: Get from user context
             startedAt: Date(),
-            endedAt: nil
+            endedAt: nil,
+            hasBeenViewedAsRecap: false
         )
         
         print("\n🟢 IMAGE SESSION STARTED")
@@ -88,6 +111,7 @@ final class FaceViewController: UIViewController {
         
         currentPersonSession = personSession
         personSessions.append(personSession)
+        PersonSessionStore.shared.add(personSession)
         
         print("\n👤 PERSON SESSION STARTED")
         if let person = people.first(where: { $0.pid == personID }) {
@@ -122,6 +146,7 @@ final class FaceViewController: UIViewController {
 
         
         personSessionAnswers.append(answer)
+        PersonSessionQuestionStore.shared.add(answer)
         
         print("\n💾 PERSON RESPONSE SAVED")
         print("   Question: \(question.prompt)")
@@ -138,7 +163,8 @@ final class FaceViewController: UIViewController {
     }
     
     private func saveFinalReflection(text: String) {
-        let questionID = UUID()  // Or use fixed UUID for final reflection
+        //let questionID = UUID()  // Or use fixed UUID for final reflection
+        let questionID = AppDataStore.shared.reflectionQuestion.qid
         
         let answer = ImageSessionQuestion(
             isqid: UUID(),
@@ -152,6 +178,7 @@ final class FaceViewController: UIViewController {
 
         
         imageSessionAnswers.append(answer)
+        ImageSessionQuestionStore.shared.add(answer)
         
         print("\n💭 FINAL REFLECTION SAVED")
         print("   Reflection: \"\(text)\"")
@@ -160,8 +187,14 @@ final class FaceViewController: UIViewController {
     }
     
     private func completeSession() {
+
         currentImageSession.endedAt = Date()
-        
+
+        // 🔥 Persist session
+        ImageSessionStore.shared.addSession(currentImageSession)
+
+        print("✅ ImageSession persisted")
+
         printSessionSummary()
     }
     
@@ -276,7 +309,13 @@ final class FaceViewController: UIViewController {
     }
 
     private func loadImage() {
-        imageView.image = portraitImage
+        guard let image = LocalImageStore.shared.fetchImage(by: wholeImage.wid) else {
+            print("Failed to load image from LocalImageStore")
+            return
+        }
+
+        imageView.image = image
+        backgroundImageView.image = image
     }
 
     // MARK: - Keyboard Handling
@@ -331,6 +370,29 @@ final class FaceViewController: UIViewController {
 
     private func showFace(at index: Int) {
         guard index < faces.count else {
+
+            if sessionMode == .recap,
+               let session = recapImageSession {
+
+                // Reset zoom first
+                resetZoom {
+                    let reflection =
+                        ImageSessionQuestionStore.shared
+                            .overallReflection(for: session.isid)
+
+                    self.transitionLabel.text = "\"\(reflection)\""
+                    self.transitionLabel.alpha = 0
+
+                    UIView.animate(withDuration: 0.5) {
+                        self.transitionLabel.alpha = 1
+                    }
+
+                    self.isFaceComplete = true
+                }
+
+                return
+            }
+
             finishFlow()
             return
         }
@@ -347,7 +409,9 @@ final class FaceViewController: UIViewController {
         let face = faces[index]
         
         // Create person session
-        createPersonSession(for: face)
+        if sessionMode == .play {
+            createPersonSession(for: face)
+        }
 
         if index == 0 {
             zoomToFace(face)
@@ -391,7 +455,11 @@ final class FaceViewController: UIViewController {
         UIView.animate(withDuration: 0.8) {
             self.imageView.transform = transform
         } completion: { _ in
-            self.showPersonIntroThenQuestions()
+            if self.sessionMode == .recap {
+                self.presentNextRecapSummary()
+            } else {
+                self.showPersonIntroThenQuestions()
+            }
         }
     }
 
@@ -544,46 +612,44 @@ final class FaceViewController: UIViewController {
         }
     }
 
-    private func injectSamplePeopleIfNeeded() {
-        if people.isEmpty {
-            let samplePeople = [
-                Person(pid: UUID(), name: "Meet", relationLabel: nil),
-                Person(pid: UUID(), name: "Arjun", relationLabel: nil),
-                Person(pid: UUID(), name: "Aayudh", relationLabel: nil)
-            ]
-
-            people = samplePeople
-
-            for i in 0..<min(faces.count, people.count) {
-                faces[i] = Face(
-                    fid: faces[i].fid,
-                    faceImageURL: faces[i].faceImageURL,
-                    boundingBox: faces[i].boundingBox,
-                    orderIndex: faces[i].orderIndex,
-                    imageID: faces[i].imageID,
-                    personID: people[i].pid
-                )
-            }
-        }
-    }
 
     // MARK: - Transition
     
+//    private func showPersonIntroThenQuestions() {
+//        let personIntroMessages = [
+//            "That was beautiful.\nLet's continue your journey.",
+//            "A moment worth remembering.\nLet's move ahead.",
+//            "Thanks for sharing this memory.\nLet's see what's next.",
+//            "That was meaningful.\nLet's keep going.",
+//            "A memory to hold onto.\nLet's move forward.",
+//            "That was special.\nLet's continue.",
+//            "Thanks for taking a moment to look back.\nLet's go ahead.",
+//            "A piece of your story.\nLet's keep moving.",
+//            "That was a nice moment to revisit.\nLet's continue forward.",
+//            "A memory that mattered.\nLet's move to the next one."
+//        ]
+//
+//        let message = personIntroMessages.randomElement() ?? ""
+//
+//        transitionLabel.text = message
+//        transitionLabel.alpha = 0
+//
+//        UIView.animate(withDuration: 0.4) {
+//            self.transitionLabel.alpha = 1
+//        } completion: { _ in
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+//                UIView.animate(withDuration: 0.3) {
+//                    self.transitionLabel.alpha = 0
+//                } completion: { _ in
+//                    self.presentNextQuestion()
+//                }
+//            }
+//        }
+//    }
+    
     private func showPersonIntroThenQuestions() {
-        let personIntroMessages = [
-            "That was beautiful.\nLet's continue your journey.",
-            "A moment worth remembering.\nLet's move ahead.",
-            "Thanks for sharing this memory.\nLet's see what's next.",
-            "That was meaningful.\nLet's keep going.",
-            "A memory to hold onto.\nLet's move forward.",
-            "That was special.\nLet's continue.",
-            "Thanks for taking a moment to look back.\nLet's go ahead.",
-            "A piece of your story.\nLet's keep moving.",
-            "That was a nice moment to revisit.\nLet's continue forward.",
-            "A memory that mattered.\nLet's move to the next one."
-        ]
 
-        let message = personIntroMessages.randomElement() ?? ""
+        let message = AppDataStore.shared.randomPersonIntro()
 
         transitionLabel.text = message
         transitionLabel.alpha = 0
@@ -602,14 +668,15 @@ final class FaceViewController: UIViewController {
     }
 
     private func showTransitionAndMoveToNextFace() {
-        let messages = [
-            "That was wonderful!\nLet's move ahead.",
-            "Thank you for sharing!\nLet's continue.",
-            "Beautiful memories!\nLet's see what's next.",
-            "Lovely!\nMoving forward."
-        ]
-        
-        transitionLabel.text = messages.randomElement()
+//        let messages = [
+//            "That was wonderful!\nLet's move ahead.",
+//            "Thank you for sharing!\nLet's continue.",
+//            "Beautiful memories!\nLet's see what's next.",
+//            "Lovely!\nMoving forward."
+//        ]
+//        
+//        transitionLabel.text = messages.randomElement()
+        transitionLabel.text = AppDataStore.shared.randomFallbackStatement()
         
         UIView.animate(withDuration: 0.6, delay: 0, options: .curveEaseOut) {
             self.imageView.transform = .identity
@@ -641,7 +708,8 @@ final class FaceViewController: UIViewController {
     }
 
     private func showReflectionQuestion() {
-        questionLabel.text = "What was happening in this moment?"
+        //questionLabel.text = "What was happening in this moment?"
+        questionLabel.text = AppDataStore.shared.randomMomentPrompt()
         
         textAnswerContainerView.isHidden = false
         textAnswerContainerView.isUserInteractionEnabled = true
@@ -678,7 +746,11 @@ final class FaceViewController: UIViewController {
     }
     
     private func exitMemoryLane() {
-        completeSession()
+
+        if sessionMode == .play {
+            completeSession()
+        }
+
         navigationController?.popToRootViewController(animated: true)
     }
     
@@ -686,7 +758,12 @@ final class FaceViewController: UIViewController {
 
     @objc private func handleTap() {
         guard isFaceComplete else { return }
-        showFace(at: currentFaceIndex + 1)
+
+        if sessionMode == .recap {
+            handleRecapTap()
+        } else {
+            showFace(at: currentFaceIndex + 1)
+        }
     }
 
     private func finishFlow() {
@@ -709,6 +786,113 @@ final class FaceViewController: UIViewController {
             width: faceRect.width * scaleX,
             height: faceRect.height * scaleY
         )
+    }
+    
+    
+    private func personSessionsForRecap() -> [PersonSession] {
+        guard let session = recapImageSession else { return [] }
+
+        return PersonSessionStore.shared
+            .personSessions(for: session.isid)
+    }
+    
+    private func answersForPersonSession(_ personSession: PersonSession) -> [PersonSessionQuestion] {
+
+        PersonSessionQuestionStore.shared
+            .questions(for: personSession.psid)
+            .sorted { ($0.answeredAt ?? Date()) < ($1.answeredAt ?? Date()) }
+    }
+    
+    private func presentNextRecapSummary() {
+
+        guard let session = recapImageSession else { return }
+
+        let personSessions = personSessionsForRecap()
+
+        guard currentFaceIndex < personSessions.count else {
+            finishRecap()
+            return
+        }
+
+        let personSession = personSessions[currentFaceIndex]
+        let answers = answersForPersonSession(personSession)
+
+        guard currentQuestionIndex < answers.count else {
+            isFaceComplete = true
+            return
+        }
+
+        let answer = answers[currentQuestionIndex]
+
+        let prompt = AppDataStore.shared.prompt(for: answer.questionID)
+
+        let summaryText = answer.recapSummaryText
+
+        transitionLabel.text = summaryText
+
+        UIView.animate(withDuration: 0.4) {
+            self.questionLabel.alpha = 0
+            self.transitionLabel.alpha = 1
+        } completion: { _ in
+            self.isFaceComplete = true
+        }
+    }
+    
+    private func handleRecapTap() {
+
+        guard isFaceComplete else { return }
+
+        isFaceComplete = false
+        currentQuestionIndex += 1
+
+        let personSessions = personSessionsForRecap()
+
+        if currentFaceIndex < personSessions.count {
+            let answers = answersForPersonSession(personSessions[currentFaceIndex])
+
+            if currentQuestionIndex < answers.count {
+                presentNextRecapSummary()
+                return
+            }
+        }
+
+        // Move to next face
+        currentQuestionIndex = 0
+        currentFaceIndex += 1
+
+        if currentFaceIndex < faces.count {
+            showFace(at: currentFaceIndex)
+            return
+        }
+
+        // All faces done — show final reflection once
+        currentQuestionIndex = 0
+        currentFaceIndex += 1
+
+        showFace(at: currentFaceIndex)
+
+        // After reflection tap → finish
+        finishRecap()
+    }
+    
+    private func finishRecap() {
+
+        guard var session = recapImageSession else { return }
+
+        transitionLabel.text = "These memories are part of your story."
+
+        UIView.animate(withDuration: 0.5) {
+            self.transitionLabel.alpha = 1
+        } completion: { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+
+                // Mark as viewed
+                session.hasBeenViewedAsRecap = true
+                ImageSessionStore.shared.updateSession(session)
+
+                self.navigationController?.popToRootViewController(animated: true)
+            }
+        }
     }
 }
 
@@ -775,6 +959,8 @@ extension FaceViewController: UITextViewDelegate {
             }
         }
     }
+
+    
 }
 
 extension UIImageView {

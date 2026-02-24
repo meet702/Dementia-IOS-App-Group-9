@@ -6,7 +6,6 @@ final class ResponseDetailViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var personImage: UIImageView!
-    @IBOutlet weak var identification: UILabel!
     @IBOutlet weak var navTitle: UINavigationItem!
 
     // MARK: - Data (NEW MODEL)
@@ -22,7 +21,13 @@ final class ResponseDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        assert(personSession != nil, "ResponseDetailViewController requires PersonSession")
+        guard personSession != nil else {
+            fatalError("ResponseDetailViewController requires PersonSession")
+        }
+
+        guard imageID != nil else {
+            fatalError("ResponseDetailViewController requires imageID")
+        }
 
         configureNavigation()
         configureLayout()
@@ -44,39 +49,23 @@ final class ResponseDetailViewController: UIViewController {
     }
 
     // MARK: - Layout
-
+    
     private func configureLayout() {
 
-        // Face image (if available)
         if let face = FaceStore.shared.face(
             for: personSession.personID,
             in: imageID
         ),
-        let url = face.faceImageURL {
+        let image = FaceStore.shared.faceImage(for: face) {
 
-            personImage.image = UIImage(contentsOfFile: url.path)
+            personImage.image = image
+
         } else {
-            personImage.image = UIImage(systemName: "person.crop.circle")
+            personImage.image = UIImage(systemName: "person.crop.circle.fill")
         }
 
-
-        personImage.layer.cornerRadius = 45
+        personImage.layer.cornerRadius = 54
         personImage.clipsToBounds = true
-
-        // Identification / engagement badge (neutral wording)
-        let hasResponses = !responses.isEmpty
-
-        identification.text = hasResponses ? "Engaged" : "No response"
-        identification.layer.cornerRadius = 15
-        identification.clipsToBounds = true
-
-        identification.backgroundColor = hasResponses
-            ? UIColor(red: 218/255, green: 246/255, blue: 221/255, alpha: 1)
-            : UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
-
-        identification.textColor = hasResponses
-            ? UIColor(red: 39/255, green: 139/255, blue: 64/255, alpha: 1)
-            : UIColor.darkGray
     }
 
     // MARK: - Table
@@ -94,9 +83,14 @@ final class ResponseDetailViewController: UIViewController {
     }
 
     private func loadResponses() {
-
         responses = PersonSessionQuestionStore.shared
             .questions(for: personSession.psid)
+
+        if responses.isEmpty {
+            tableView.setEmptyMessage("No responses were recorded.")
+        } else {
+            tableView.restore()
+        }
 
         tableView.reloadData()
     }
@@ -126,16 +120,9 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
             for: indexPath
         ) as! TextDetailsTableViewCell
 
-        let questionText = AppDataStore.shared
-            .mcqQuestions
-            .first { $0.qid == response.questionID }?
-            .prompt
-        ?? AppDataStore.shared
-            .textQuestions
-            .first { $0.qid == response.questionID }?
-            .prompt
-        ?? "Reflection"
-
+        //let questionText = QuestionStore.shared.prompt(for: response.questionID)
+        let questionText = questionPrompt(for: response.questionID)
+        
         let answerText =
             response.responseText ??
             response.selectedOption ??
@@ -148,5 +135,36 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
         )
 
         return cell
+    }
+    
+    private func questionPrompt(for id: UUID) -> String {
+
+        let allQuestions =
+            AppDataStore.shared.mcqQuestions +
+            AppDataStore.shared.textQuestions
+
+        return allQuestions
+            .first(where: { $0.qid == id })?
+            .prompt
+            ?? "Reflection"
+    }
+}
+
+
+extension UITableView {
+
+    func setEmptyMessage(_ message: String) {
+        let label = UILabel()
+        label.text = message
+        label.textAlignment = .center
+        label.textColor = .systemGray
+        label.numberOfLines = 0
+        backgroundView = label
+        separatorStyle = .none
+    }
+
+    func restore() {
+        backgroundView = nil
+        separatorStyle = .singleLine
     }
 }

@@ -274,4 +274,21 @@ extension CaregiverViewController: UICollectionViewDataSource {
 
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
+        if indexPath.section == 1 {
+            headerView.configureHeaderCell(text: "Arjun's Routine",
+                                           showChevron: true,
+                                           isTappable: true,
+                                           onTap: { [weak self] in
+                                               self?.performSegue(withIdentifier: "showRoutine", sender: nil)
+                                           }
+            )
+        }
+        else {
+            headerView.configureHeaderCell(text: "Session History", showChevron: false, isTappable: false)
+        }
+        return headerView
+    }
 }

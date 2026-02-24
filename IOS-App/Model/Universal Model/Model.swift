@@ -56,7 +56,8 @@ enum MemoryActionContent: Codable {
 
 struct WholeImage: Identifiable, Codable {
     let wid: UUID
-    let imageURL: URL
+    //let imageURL: URL
+    let fileName: String                     // storing filename instead of url to persist image upon rerun
     let action: MemoryActionContent?
     let createdAt: Date
 
@@ -78,7 +79,8 @@ struct Person: Identifiable, Codable, Equatable {
 
 struct Face: Identifiable, Codable {
     let fid: UUID
-    let faceImageURL: URL?
+    //let faceImageURL: URL?
+    let fileName: String     // storing filename instead of url to persist image upon rerun
     let boundingBox: CGRect
     let orderIndex: Int
 
@@ -98,6 +100,7 @@ struct ImageSession: Identifiable, Codable {
     let playedBy: String?
     let startedAt: Date
     var endedAt: Date?
+    var hasBeenViewedAsRecap: Bool   // added for memory recap
 
     var id: UUID { isid }
 }
@@ -190,4 +193,71 @@ struct ImageSessionComment: Identifiable, Codable {
     let createdAt: Date
 
     var id: UUID { icid }
+}
+
+extension PersonSessionQuestion {
+    
+    var recapSummaryText: String {
+        
+        if let selected = selectedOption {
+            let lower = selected.lowercased()
+            
+            switch lower {
+                
+            case "calm":
+                return "This person made you feel calm."
+                
+            case "warm":
+                return "This person made you feel warm."
+                
+            case "happy":
+                return "This person made you feel happy."
+                
+            case "yes":
+                return "You felt close to this person."
+                
+            case "somewhat":
+                return "You felt somewhat close to this person."
+                
+            case "not close":
+                return "You didn't feel very close to them."
+                
+            case "sometimes":
+                return "You sometimes felt understood by them."
+                
+            case "not really":
+                return "You didn't always feel understood."
+                
+            case "always":
+                return "You always enjoyed spending time together."
+                
+            case "rarely":
+                return "You rarely spent time together."
+                
+            case "a little":
+                return "This person brought positive energy to your life."
+                
+            case "mostly":
+                return "You mostly felt safe sharing with them."
+                
+            case "not sure":
+                return "You weren't quite sure how you felt."
+                
+            default:
+                return "You felt \(lower) about this person."
+            }
+        }
+        
+        if let text = responseText, !text.isEmpty {
+            return "\"\(text)\""
+        }
+        
+        return ""
+    }
+    
+    var hasContent: Bool {
+        if selectedOption != nil { return true }
+        if let text = responseText, !text.isEmpty { return true }
+        return false
+    }
 }

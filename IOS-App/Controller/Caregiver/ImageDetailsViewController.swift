@@ -52,6 +52,10 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         )
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     private func loadHeroImageAndDetectFaces() {
         
         print("Loaded action:", memoryActionContent)
@@ -60,7 +64,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
            let stored = LocalImageStore.shared.fetchImageModel(by: id) {
 
             self.wholeImage = stored
-            self.memoryActionContent = stored.action!
+            self.memoryActionContent = stored.action ?? .empty
 
             print("📦 Loaded persisted action:", stored.action)
         }
@@ -70,7 +74,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             return
         }
 
-        let rawImage = UIImage(contentsOfFile: wholeImage.imageURL.path)
+        let rawImage = LocalImageStore.shared.fetchImage(by: wholeImage.wid)
         let image = rawImage?.normalizedOrientation()
 
         guard let image else {
@@ -145,7 +149,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
                 merged.append(
                     Face(
                         fid: oldFace.fid,
-                        faceImageURL: newFace.faceImageURL,
+                        fileName: newFace.fileName,
                         boundingBox: newFace.boundingBox,
                         orderIndex: newFace.orderIndex,
                         imageID: newFace.imageID,
@@ -166,8 +170,9 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         for i in faces.indices where faces[i].personID == nil {
 
+            let url = FaceStore.shared.faceImageURL(for: faces[i].fileName)
+
             guard
-                let url = faces[i].faceImageURL,
                 let image = UIImage(contentsOfFile: url.path),
                 let embedding = FaceEmbedder.shared.embedding(from: image)
             else { continue }
@@ -177,7 +182,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
                 faces[i] = Face(
                     fid: faces[i].fid,
-                    faceImageURL: faces[i].faceImageURL,
+                    fileName: faces[i].fileName,
                     boundingBox: faces[i].boundingBox,
                     orderIndex: faces[i].orderIndex,
                     imageID: faces[i].imageID,
@@ -354,9 +359,8 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
     
     private func deleteFace(_ face: Face, at indexPath: IndexPath) {
 
-        if let url = face.faceImageURL {
-            try? FileManager.default.removeItem(at: url)
-        }
+        let url = FaceStore.shared.faceImageURL(for: face.fileName)
+        try? FileManager.default.removeItem(at: url)
 
         faces.remove(at: indexPath.item)
 
@@ -469,19 +473,19 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
             cell.onDelete = { [weak self] in
                 guard let self = self,
-                      var image = self.wholeImage else { return }
+                      let image = self.wholeImage else { return }
 
-                image = WholeImage(
+                let updated = WholeImage(
                     wid: image.wid,
-                    imageURL: image.imageURL,
+                    fileName: image.fileName,
                     action: .empty,
                     createdAt: image.createdAt
                 )
 
-                self.wholeImage = image
-                self.memoryActionContent = .empty
+                LocalImageStore.shared.update(updated)
 
-                LocalImageStore.shared.update(image)
+                self.wholeImage = updated
+                self.memoryActionContent = updated.action ?? .empty
 
                 self.collectionView.reloadSections(
                     IndexSet(integer: MemorySection.actions.rawValue)
@@ -497,7 +501,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             
             cell.onDeleteVoice = { [weak self] in
                 guard let self = self,
-                      var image = self.wholeImage else { return }
+                      let image = self.wholeImage else { return }
 
                 // 🔥 1. Delete physical audio file
                 if case let .voice(url) = image.action {
@@ -510,20 +514,18 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 }
 
                 // 🔥 2. Update model
-                image = WholeImage(
+                let updated = WholeImage(
                     wid: image.wid,
-                    imageURL: image.imageURL,
+                    fileName: image.fileName,
                     action: .empty,
                     createdAt: image.createdAt
                 )
 
-                self.wholeImage = image
-                self.memoryActionContent = image.action!
+                LocalImageStore.shared.update(updated)
 
-                // 🔥 3. Persist
-                LocalImageStore.shared.update(image)
+                self.wholeImage = updated
+                self.memoryActionContent = updated.action ?? .empty
 
-                // 🔥 4. Refresh UI
                 self.collectionView.reloadSections(
                     IndexSet(integer: MemorySection.actions.rawValue)
                 )
@@ -542,8 +544,12 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
             let face = faces[indexPath.item]
 
-            if let url = face.faceImageURL {
+            let url = FaceStore.shared.faceImageURL(for: face.fileName)
+
+            if FileManager.default.fileExists(atPath: url.path) {
                 cell.faceImageView.image = UIImage(contentsOfFile: url.path)
+            } else {
+                cell.faceImageView.image = UIImage(systemName: "person.crop.circle.fill")
             }
 
             if let pid = face.personID,
@@ -584,7 +590,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
                 let updatedFace = Face(
                     fid: face.fid,
-                    faceImageURL: face.faceImageURL,
+                    fileName: face.fileName,
                     boundingBox: face.boundingBox,
                     orderIndex: face.orderIndex,
                     imageID: face.imageID,
@@ -596,8 +602,9 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
                 self.collectionView.reloadItems(at: [indexPath])
                 
-                if let url = face.faceImageURL,
-                   let image = UIImage(contentsOfFile: url.path),
+                let url = FaceStore.shared.faceImageURL(for: face.fileName)
+
+                if let image = UIImage(contentsOfFile: url.path),
                    let embedding = FaceEmbedder.shared.embedding(from: image) {
 
                     PersonEmbeddingStore.shared.addEmbedding(
@@ -694,31 +701,22 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             sheet.preferredCornerRadius = 20
         }
 
-//        vc.onSave = { [weak self] text in
-//            guard let self else { return }
-//
-//            self.memoryActionContent = .text(text)
-//
-//            self.collectionView.reloadSections(
-//                IndexSet(integer: MemorySection.actions.rawValue)
-//            )
-//        }
         
         vc.onSave = { [weak self] text in
             guard let self = self,
-                  var image = self.wholeImage else { return }
+                  let image = self.wholeImage else { return }
 
-            image = WholeImage(
+            let updated = WholeImage(
                 wid: image.wid,
-                imageURL: image.imageURL,
+                fileName: image.fileName,
                 action: .text(text),
                 createdAt: image.createdAt
             )
 
-            self.wholeImage = image
-            self.memoryActionContent = image.action!
+            LocalImageStore.shared.update(updated)
 
-            LocalImageStore.shared.update(image)
+            self.wholeImage = updated
+            self.memoryActionContent = updated.action ?? .empty
 
             self.collectionView.reloadSections(
                 IndexSet(integer: MemorySection.actions.rawValue)
@@ -761,19 +759,19 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         
         vc.onSave = { [weak self] text in
             guard let self = self,
-                  var image = self.wholeImage else { return }
+                  let image = self.wholeImage else { return }
 
-            image = WholeImage(
+            let updated = WholeImage(
                 wid: image.wid,
-                imageURL: image.imageURL,
+                fileName: image.fileName,
                 action: .text(text),
                 createdAt: image.createdAt
             )
 
-            self.wholeImage = image
-            self.memoryActionContent = image.action!
+            LocalImageStore.shared.update(updated)
 
-            LocalImageStore.shared.update(image)
+            self.wholeImage = updated
+            self.memoryActionContent = updated.action ?? .empty
 
             self.collectionView.reloadSections(
                 IndexSet(integer: MemorySection.actions.rawValue)
@@ -815,19 +813,19 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         
         vc.onRecordingFinished = { [weak self] url in
             guard let self = self,
-                  var image = self.wholeImage else { return }
+                  let image = self.wholeImage else { return }
 
-            image = WholeImage(
+            let updated = WholeImage(
                 wid: image.wid,
-                imageURL: image.imageURL,
+                fileName: image.fileName,
                 action: .voice(url),
                 createdAt: image.createdAt
             )
 
-            self.wholeImage = image
-            self.memoryActionContent = image.action!
+            LocalImageStore.shared.update(updated)
 
-            LocalImageStore.shared.update(image)
+            self.wholeImage = updated
+            self.memoryActionContent = updated.action ?? .empty
 
             self.collectionView.reloadSections(
                 IndexSet(integer: MemorySection.actions.rawValue)

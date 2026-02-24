@@ -1,140 +1,112 @@
-//
-//  MCQViewController.swift
-//  onboardingScreen
-//
-//  Created by SDC-USER on 15/12/25.
-//
-
 import UIKit
-class MCQViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+class MCQViewController: UIViewController {
 
     @IBOutlet weak var progressView: UIProgressView!
-    @IBOutlet weak var stepLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var questionLabel: UILabel!
-
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var nextButton: UIButton!
 
-    var questions: [OnboardingQuestions] = []
+    var questions: [OnboardingQuestion] = []
+    var headerTitles: [String] = []
+
     var currentIndex = 0
     var startingStep = 2
-    var totalSteps: Int = 0
+    var totalSteps = 0
 
-    var headerTitles: [String] = []
+    private let bgColor = UIColor(red: 0.99, green: 0.96, blue: 0.91, alpha: 1)
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.delegate = self
-        tableView.dataSource = self
-       
-        nextButton.layer.cornerRadius = 27
-        tableView.rowHeight = 48
-     
-        navigationItem.hidesBackButton = true
-
-        let backButton = UIButton(type: .system)
-        backButton.setImage(UIImage(systemName: "chevron.left"), for: .normal)
-        backButton.tintColor = .black
-        backButton.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-        
+        setupUI()
         updateUI()
     }
 
-    @objc func backTapped() {
-        if currentIndex > 0 {
-            currentIndex -= 1
-            updateUI()
-        }
-        else {
-            navigationController?.popViewController(animated: true)
-        }
+    private func setupUI() {
+
+
+        tableView.delegate = self
+        tableView.dataSource = self
+
+       
+        tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = false
+
+        nextButton.layer.cornerRadius = 27
+
+        progressView.trackTintColor = .systemGray5
+        progressView.progressTintColor = .systemOrange
     }
 
-    func updateUI() {
-        let stepNumber = startingStep + currentIndex
+    private func updateUI() {
 
-        stepLabel.text = "Step \(stepNumber) of \(totalSteps)"
+        let stepNumber = startingStep + currentIndex
         progressView.progress = Float(stepNumber) / Float(totalSteps)
 
         titleLabel.text = headerTitles[currentIndex]
         questionLabel.text = questions[currentIndex].title
 
-        let isLastMCQ = currentIndex == questions.count - 1
-        nextButton.setTitle(isLastMCQ ? "Next" : "Next", for: .normal)
-
-
         tableView.reloadData()
     }
 
     @IBAction func nextTapped(_ sender: UIButton) {
+
         if currentIndex < questions.count - 1 {
-                currentIndex += 1
-                updateUI()
-        }
-        else {
+            currentIndex += 1
+            updateUI()
+        } else {
             performSegue(withIdentifier: "goToHomeScreen", sender: nil)
         }
     }
 }
 
-extension MCQViewController {
+extension MCQViewController: UITableViewDelegate, UITableViewDataSource {
 
-    func tableView(_ tableView: UITableView,
-                   numberOfRowsInSection section: Int) -> Int {
-        return questions[currentIndex].options.count
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        questions[currentIndex].options.count
     }
 
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: "OptionCell",
-            for: indexPath
-        )
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell", for: indexPath)
+
         let question = questions[currentIndex]
         let isSelected = question.selectedIndexes.contains(indexPath.row)
 
-        let imageName: String
-        if isSelected {
-            imageName = "largecircle.fill.circle"
-        } else {
-            imageName = "circle"
-        }
-
-        cell.imageView?.image = UIImage(systemName: imageName)
-        cell.imageView?.tintColor = UIColor.systemOrange
-        
         cell.backgroundColor = .clear
         cell.contentView.backgroundColor = .clear
-        cell.textLabel?.text = questions[currentIndex].options[indexPath.row]
-        cell.selectionStyle = .none
-        cell.textLabel?.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        cell.textLabel?.textColor = .black
 
+        cell.textLabel?.text = question.options[indexPath.row]
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 16)
+
+        cell.imageView?.image = UIImage(
+            systemName: isSelected ? "largecircle.fill.circle" : "circle"
+        )
+        cell.imageView?.tintColor = .systemOrange
+
+        cell.selectionStyle = .none
 
         return cell
     }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
-        var question = questions[currentIndex]
+        var q = questions[currentIndex]
 
-        if question.selectionType == .single {
-            question.selectedIndexes = [indexPath.row]
+        if q.selectionType == .single {
+            q.selectedIndexes = [indexPath.row]
         } else {
-            if question.selectedIndexes.contains(indexPath.row) {
-                question.selectedIndexes.remove(indexPath.row)
+            if q.selectedIndexes.contains(indexPath.row) {
+                q.selectedIndexes.remove(indexPath.row)
             } else {
-                question.selectedIndexes.insert(indexPath.row)
+                q.selectedIndexes.insert(indexPath.row)
             }
         }
 
-        questions[currentIndex] = question
+        questions[currentIndex] = q
         tableView.reloadData()
     }
 }
- 

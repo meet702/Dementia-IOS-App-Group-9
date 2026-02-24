@@ -71,6 +71,21 @@ final class FaceStore {
         let faces = loadFaces(for: imageID)
         return faces.first { $0.personID == personID }
     }
+    
+    func faceImage(for face: Face) -> UIImage? {
+        let url = faceImageURL(for: face.fileName)
+        return UIImage(contentsOfFile: url.path)
+    }
+
+    private func documentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+    
+    func faceImageURL(for fileName: String) -> URL {
+        let folder = documentsDirectory().appendingPathComponent("FaceImages")
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder.appendingPathComponent(fileName)
+    }
 
 }
 

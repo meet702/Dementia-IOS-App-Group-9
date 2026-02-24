@@ -52,12 +52,18 @@ final class PersonTableViewCell: UITableViewCell {
         if let face = FaceStore.shared.face(
             for: personSession.personID,
             in: imageID
-        ),
-        let url = face.faceImageURL {
+        ) {
 
-            personImageView.image = UIImage(contentsOfFile: url.path)
+            let url = FaceStore.shared.faceImageURL(for: face.fileName)
+
+            if FileManager.default.fileExists(atPath: url.path) {
+                personImageView.image = UIImage(contentsOfFile: url.path)
+            } else {
+                personImageView.image = UIImage(systemName: "person.crop.circle.fill")
+            }
+
         } else {
-            personImageView.image = UIImage(systemName: "person.crop.circle")
+            personImageView.image = UIImage(systemName: "person.crop.circle.fill")
         }
 
         // Load person name

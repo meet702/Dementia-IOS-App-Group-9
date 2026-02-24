@@ -91,8 +91,7 @@ class AlbumViewController: UIViewController {
     private func loadImages() {
         images = LocalImageStore.shared
             .fetchAllImages()
-            .filter { FileManager.default.fileExists(atPath: $0.imageURL.path) }
-            .sorted { $0.createdAt > $1.createdAt }
+            .filter { LocalImageStore.shared.fileExists(for: $0) }.sorted { $0.createdAt > $1.createdAt }
 
 
         albumCollectionView.reloadData()
@@ -212,10 +211,14 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
         ) as! AlbumCell
 
         let image = images[indexPath.item]
-        if UIImage(contentsOfFile: image.imageURL.path) == nil {
-            return UICollectionViewCell()
+        let url = LocalImageStore.shared.fileURL(for: image)
+
+        if let uiImage = UIImage(contentsOfFile: url.path) {
+            cell.configure(with: image)
+        } else {
+            print("❌ Failed loading image at:", url.path)
+            cell.configure(with: image) // or placeholder
         }
-        cell.configure(with: image)
 
         return cell
     }

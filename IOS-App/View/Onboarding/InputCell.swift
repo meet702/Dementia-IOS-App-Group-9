@@ -1,12 +1,4 @@
-//
-//  InputCell.swift
-//  onboardingScreen
-//
-//  Created by SDC-USER on 16/12/25.
-//
-
 import Foundation
-
 import UIKit
 
 class InputCell: UITableViewCell {
@@ -27,9 +19,6 @@ class InputCell: UITableViewCell {
         textField.layer.cornerRadius = 8
         textField.layer.borderWidth = 0.4
         textField.layer.borderColor = UIColor.systemGray5.cgColor
-        textField.addTarget(self,
-                            action: #selector(textDidChange),
-                            for: .editingChanged)
         addLeftPadding()
     }
 
@@ -41,22 +30,21 @@ class InputCell: UITableViewCell {
     @objc private func textDidChange() {
         onTextChanged?(textField.text ?? "")
     }
-    
-    private func addGenderChevron() {
-        let chevron = UIImageView(image: UIImage(systemName: "chevron.compact.up.chevron.compact.down"))
-        chevron.tintColor = .systemGray3
-        chevron.contentMode = .scaleAspectFit
-        chevron.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
 
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 24))
-        chevron.center = container.center
-        container.addSubview(chevron)
+    private func addGenderChevron() {
+        let chevronBtn = UIButton(type: .system)
+        chevronBtn.setImage(UIImage(systemName: "chevron.up.chevron.down"), for: .normal) // ← fix
+        chevronBtn.tintColor = .systemGray3
+        chevronBtn.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 30))
+        chevronBtn.center = container.center
+        container.addSubview(chevronBtn)
 
         textField.rightView = container
         textField.rightViewMode = .always
     }
 
-    
     private let genderPicker = UIPickerView()
     private let genders = ["Male", "Female", "Other", "Prefer not to say"]
 
@@ -106,11 +94,9 @@ class InputCell: UITableViewCell {
         textField.leftViewMode = .always
     }
 
-    
     @objc private func doneTapped() {
         textField.resignFirstResponder()
     }
-
 }
 
 extension InputCell: UIPickerViewDelegate, UIPickerViewDataSource {

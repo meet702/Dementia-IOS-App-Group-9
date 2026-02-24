@@ -16,7 +16,8 @@ final class LocalImageStore {
 
     func saveImage(_ image: UIImage) -> WholeImage {
         let wid = UUID()
-        let fileURL = imageURL(for: wid)
+        let fileName = "\(wid).jpg"
+        let fileURL = imageURL(forFileName: fileName)
 
         if let data = image.jpegData(compressionQuality: 0.9) {
             try? data.write(to: fileURL)
@@ -24,14 +25,14 @@ final class LocalImageStore {
 
         let wholeImage = WholeImage(
             wid: wid,
-            imageURL: fileURL,
+            fileName: fileName,
             action: .empty,
             createdAt: Date()
         )
 
         persist(wholeImage)
-        print("📁 Image saved at:", fileURL)
-        print("📄 Metadata at:", metadataURL())
+//        print("📁 Image saved at:", fileURL)
+//        print("📄 Metadata at:", metadataURL())
 
         return wholeImage
         
@@ -43,16 +44,23 @@ final class LocalImageStore {
     }
     
     func fetchImage(by id: UUID) -> UIImage? {
-        let url = imageURL(for: id)
+
+        guard let model = fetchImageModel(by: id) else { return nil }
+
+        let url = imageURL(forFileName: model.fileName)
+
         return UIImage(contentsOfFile: url.path)
     }
+    
     func fetchImageModel(by id: UUID) -> WholeImage? {
         loadPersistedImages().first { $0.wid == id }
     }
 
     
     func deleteImage(_ image: WholeImage) {
-        try? FileManager.default.removeItem(at: image.imageURL)
+
+        let fileURL = imageURL(forFileName: image.fileName)
+        try? FileManager.default.removeItem(at: fileURL)
 
         var all = loadPersistedImages()
         all.removeAll { $0.wid == image.wid }
@@ -80,7 +88,7 @@ final class LocalImageStore {
         guard let data = try? Data(contentsOf: url),
               let images = try? JSONDecoder().decode([WholeImage].self, from: data)
         else { return [] }
-        print("📦 Loading metadata from:", metadataURL())
+        print("📦 Loaded WholeImages:", images.count)
 
 
         return images
@@ -88,10 +96,10 @@ final class LocalImageStore {
 
     // MARK: - Paths
 
-    private func imageURL(for id: UUID) -> URL {
+    private func imageURL(forFileName fileName: String) -> URL {
         let folder = documentsDirectory().appendingPathComponent(folderName)
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        return folder.appendingPathComponent("\(id).jpg")
+        return folder.appendingPathComponent(fileName)
     }
 
     private func metadataURL() -> URL {
@@ -116,5 +124,15 @@ final class LocalImageStore {
             try? data.write(to: metadataURL())
         }
     }
+    
+    func fileURL(for image: WholeImage) -> URL {
+        imageURL(forFileName: image.fileName)
+    }
+
+    func fileExists(for image: WholeImage) -> Bool {
+        let url = imageURL(forFileName: image.fileName)
+        return FileManager.default.fileExists(atPath: url.path)
+    }
+    
 
 }

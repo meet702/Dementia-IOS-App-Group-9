@@ -11,10 +11,10 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="PersonFaceCell" customModule="IOS_App" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="150" height="206"/>
+            <rect key="frame" x="0.0" y="0.0" width="150" height="217"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="150" height="206"/>
+                <rect key="frame" x="0.0" y="0.0" width="150" height="217"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="J1m-qP-9LV">
@@ -25,13 +25,13 @@
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="akh-we-yDT">
-                        <rect key="frame" x="0.0" y="164" width="150" height="42"/>
+                        <rect key="frame" x="0.0" y="164" width="150" height="53"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <textField hidden="YES" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6dp-UQ-fCy">
-                        <rect key="frame" x="8" y="158" width="134" height="56"/>
+                        <rect key="frame" x="8" y="158" width="134" height="48"/>
                         <color key="backgroundColor" red="0.99607843137254903" green="0.97254901960784312" blue="0.93725490196078431" alpha="0.84705882352941175" colorSpace="calibratedRGB"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                         <textInputTraits key="textInputTraits" returnKeyType="done"/>
@@ -46,24 +46,24 @@
                 <constraint firstAttribute="bottom" secondItem="akh-we-yDT" secondAttribute="bottom" symbolic="YES" id="6b2-tE-wUx"/>
                 <constraint firstItem="6dp-UQ-fCy" firstAttribute="top" secondItem="J1m-qP-9LV" secondAttribute="bottom" constant="8" id="EQ6-fl-Lmz"/>
                 <constraint firstItem="akh-we-yDT" firstAttribute="top" secondItem="J1m-qP-9LV" secondAttribute="bottom" constant="14" id="To2-53-uEt"/>
-                <constraint firstAttribute="bottom" secondItem="6dp-UQ-fCy" secondAttribute="bottom" constant="-8" id="aH0-Gm-1GI"/>
+                <constraint firstAttribute="bottom" secondItem="6dp-UQ-fCy" secondAttribute="bottom" constant="11" id="aH0-Gm-1GI"/>
                 <constraint firstAttribute="trailing" secondItem="akh-we-yDT" secondAttribute="trailing" id="abA-Bh-uJ4"/>
                 <constraint firstItem="akh-we-yDT" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="e7n-q7-BxT"/>
                 <constraint firstAttribute="trailing" secondItem="6dp-UQ-fCy" secondAttribute="trailing" constant="8" id="pvA-6z-idb"/>
                 <constraint firstItem="6dp-UQ-fCy" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="xEc-qg-trH"/>
             </constraints>
-            <size key="customSize" width="149" height="207"/>
+            <size key="customSize" width="149" height="218"/>
             <connections>
                 <outlet property="faceImageView" destination="J1m-qP-9LV" id="ACU-Wl-GaD"/>
                 <outlet property="nameLabel" destination="akh-we-yDT" id="kRW-2c-ud9"/>
                 <outlet property="nameTextField" destination="6dp-UQ-fCy" id="ceA-W3-GLV"/>
             </connections>
-            <point key="canvasLocation" x="181.67938931297709" y="205.63380281690141"/>
+            <point key="canvasLocation" x="181.67938931297709" y="209.50704225352115"/>
         </collectionViewCell>
     </objects>
     <resources>
         <systemColor name="systemGray5Color">
-            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

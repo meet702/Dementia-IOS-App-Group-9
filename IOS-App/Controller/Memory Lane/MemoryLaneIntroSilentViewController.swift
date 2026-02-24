@@ -7,9 +7,9 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var hintLabel: UILabel!
     @IBOutlet weak var innerShadowView: UIView!
-    @IBOutlet weak var bottomBlurView: UIVisualEffectView!
-    @IBOutlet weak var topBlurView: UIVisualEffectView!
+
     
+    @IBOutlet weak var backgroundImageView: UIImageView!
     // MARK: - Dependencies (Injected)
 
     var wholeImage: WholeImage!
@@ -28,7 +28,6 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
         
         configureUI()
         loadImage()
-        configureEdgeBlur()
         setupTapGesture()
     }
 
@@ -40,8 +39,6 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         addInnerShadow()
-        applyFadeMask(to: topBlurView, isTop: true)
-        applyFadeMask(to: bottomBlurView, isTop: false)
     }
 
     // MARK: - UI Setup
@@ -81,18 +78,12 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
         blurView.layer.mask = maskLayer
     }
     
-    private func configureEdgeBlur() {
-        topBlurView.alpha = 0.9
-        bottomBlurView.alpha = 0.9
 
-        topBlurView.isUserInteractionEnabled = false
-        bottomBlurView.isUserInteractionEnabled = false
-    }
 
     private func loadImage() {
         // For testing: use hardcoded portrait
         imageView.image = portraitImage
-        
+        backgroundImageView.image = portraitImage
         // TODO: When ready for real images:
         // guard let image = UIImage(contentsOfFile: wholeImage.imageURL.path) else { return }
         // imageView.image = image

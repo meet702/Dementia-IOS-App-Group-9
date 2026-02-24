@@ -16,11 +16,16 @@ class EmptyStateCollectionViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-//        titleLabel.textColor = .systemGray
+        titleLabel.font = .preferredFont(forTextStyle: .callout)
+        //titleLabel.textColor = .systemGray
         subtitleLabel.textColor = .systemGray
-//        containerView.backgroundColor = .systemGray6
-        containerView.layer.cornerRadius = 20
+        containerView.layer.cornerRadius = 34
         containerView.layer.masksToBounds = true
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.12
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowRadius = 8
+        layer.masksToBounds = false
     }
     
     func configure(title: String, subtitle: String) {

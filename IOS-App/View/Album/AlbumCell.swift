@@ -18,7 +18,7 @@ class AlbumCell: UICollectionViewCell {
     }
 
     func configure(with image: WholeImage) {
-        imageView.image = UIImage(contentsOfFile: image.imageURL.path)
+        imageView.image = LocalImageStore.shared.fetchImage(by: image.wid)
     }
 
 }
