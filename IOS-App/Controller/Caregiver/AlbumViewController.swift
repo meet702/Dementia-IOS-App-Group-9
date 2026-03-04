@@ -27,9 +27,6 @@ class AlbumViewController: UIViewController {
         
         setupImagePicker()
         loadImages()
-//        print("📂 Documents path:",
-//        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0])
-
     }
     
     private func updateEmptyState() {
@@ -56,18 +53,15 @@ class AlbumViewController: UIViewController {
 
         let columns: CGFloat = 3
         let spacing: CGFloat = 1
-
         let sectionInset: CGFloat = 1
 
         let totalSpacing = (columns - 1) * spacing
         let totalInsets = sectionInset * 2
 
         let availableWidth = albumCollectionView.bounds.width - totalSpacing - totalInsets
-        
         let itemWidth = floor(availableWidth / columns)
 
         layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
-        layout.minimumInteritemSpacing = spacing
         layout.minimumInteritemSpacing = spacing
         layout.minimumLineSpacing = spacing
         layout.sectionInset = UIEdgeInsets(
@@ -79,7 +73,6 @@ class AlbumViewController: UIViewController {
 
         albumCollectionView.collectionViewLayout = layout
     }
-    
 
     private func setupImagePicker() {
         imagePicker.delegate = self
@@ -91,13 +84,78 @@ class AlbumViewController: UIViewController {
     private func loadImages() {
         images = LocalImageStore.shared
             .fetchAllImages()
-            .filter { LocalImageStore.shared.fileExists(for: $0) }.sorted { $0.createdAt > $1.createdAt }
-
+            .filter { LocalImageStore.shared.fileExists(for: $0) }
+            .sorted { $0.createdAt > $1.createdAt }
 
         albumCollectionView.reloadData()
         updateEmptyState()
     }
 
+    // MARK: - Face Detection
+
+    private func detectAndSaveFaces(for wholeImage: WholeImage, image: UIImage) {
+
+        let existingFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
+        guard existingFaces.isEmpty else {
+            print("⏭ Faces already detected for image \(wholeImage.wid), skipping.")
+            return
+        }
+
+        let normalizedImage = image.normalizedOrientation()
+        print("🔍 Starting face detection for image: \(wholeImage.wid)")
+
+        FaceDetectionService().detectFaces(
+            in: normalizedImage,
+            imageID: wholeImage.wid
+        ) { detectedFaces in
+
+            var facesWithPersonIDs = detectedFaces
+
+            // ✅ Try auto-matching known faces via embeddings first
+            for i in facesWithPersonIDs.indices {
+                let url = FaceStore.shared.faceImageURL(for: facesWithPersonIDs[i].fileName)
+
+                if let faceImage = UIImage(contentsOfFile: url.path),
+                   let embedding = FaceEmbedder.shared.embedding(from: faceImage),
+                   let matchedPersonID = FaceNameMatcher.shared.matchPerson(for: embedding) {
+
+                    facesWithPersonIDs[i] = Face(
+                        fid: facesWithPersonIDs[i].fid,
+                        fileName: facesWithPersonIDs[i].fileName,
+                        boundingBox: facesWithPersonIDs[i].boundingBox,
+                        orderIndex: facesWithPersonIDs[i].orderIndex,
+                        imageID: facesWithPersonIDs[i].imageID,
+                        personID: matchedPersonID
+                    )
+                    print("✅ Auto-matched face \(i) to existing person: \(matchedPersonID)")
+                }
+            }
+
+            // ✅ For any face still without a personID, create an anonymous person
+            // This guarantees FaceVC always has questions to ask, even for unnamed people
+            for i in facesWithPersonIDs.indices where facesWithPersonIDs[i].personID == nil {
+                let anonymousPerson = Person(
+                    pid: UUID(),
+                    name: nil,
+                    relationLabel: nil
+                )
+                PersonStore.shared.add(anonymousPerson)
+
+                facesWithPersonIDs[i] = Face(
+                    fid: facesWithPersonIDs[i].fid,
+                    fileName: facesWithPersonIDs[i].fileName,
+                    boundingBox: facesWithPersonIDs[i].boundingBox,
+                    orderIndex: facesWithPersonIDs[i].orderIndex,
+                    imageID: facesWithPersonIDs[i].imageID,
+                    personID: anonymousPerson.pid
+                )
+                print("👤 Anonymous person created for face \(i): \(anonymousPerson.pid)")
+            }
+
+            FaceStore.shared.saveFaces(facesWithPersonIDs)
+            print("✅ \(facesWithPersonIDs.count) face(s) saved with personIDs for image: \(wholeImage.wid)")
+        }
+    }
 
     // MARK: - Actions
 
@@ -135,7 +193,6 @@ class AlbumViewController: UIViewController {
         present(alertController, animated: true)
     }
 
-
     // MARK: - Image Picker Helpers
 
     private func openPhotoLibrary() {
@@ -152,46 +209,48 @@ class AlbumViewController: UIViewController {
 
     private func deleteImage(_ image: WholeImage, at indexPath: IndexPath) {
 
-        // Remove from disk + metadata
+        // ✅ Only delete the main album image file + metadata
+        // Do NOT delete face metadata or face images — they are needed
+        // by ResponseDetailViewController to show person images in session history
         LocalImageStore.shared.deleteImage(image)
 
-        // Update local array
+        // ✅ Update local array and animate removal
         images.remove(at: indexPath.item)
 
-        // Animate removal
         albumCollectionView.performBatchUpdates {
-            albumCollectionView.deleteItems(at: [indexPath])
+            self.albumCollectionView.deleteItems(at: [indexPath])
         } completion: { _ in
             self.updateEmptyState()
         }
     }
 
-
     func collectionView(
-            _ collectionView: UICollectionView,
-            contextMenuConfigurationForItemAt indexPath: IndexPath,
-            point: CGPoint
-        ) -> UIContextMenuConfiguration? {
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
 
-            let image = images[indexPath.item]
+        let image = images[indexPath.item]
 
-            return UIContextMenuConfiguration(
-                identifier: indexPath as NSIndexPath,
-                previewProvider: nil
+        return UIContextMenuConfiguration(
+            identifier: indexPath as NSIndexPath,
+            previewProvider: nil
+        ) { _ in
+
+            let deleteAction = UIAction(
+                title: "Delete",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
             ) { _ in
-
-                let deleteAction = UIAction(
-                    title: "Delete",
-                    image: UIImage(systemName: "trash"),
-                    attributes: .destructive
-                ) { _ in
-                    self.deleteImage(image, at: indexPath)
-                }
-
-                return UIMenu(title: "", children: [deleteAction])
+                self.deleteImage(image, at: indexPath)
             }
+
+            return UIMenu(title: "", children: [deleteAction])
         }
+    }
 }
+
+// MARK: - UICollectionViewDelegate + DataSource
 
 extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
@@ -204,21 +263,13 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
 
-
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "AlbumCell",
             for: indexPath
         ) as! AlbumCell
 
         let image = images[indexPath.item]
-        let url = LocalImageStore.shared.fileURL(for: image)
-
-        if let uiImage = UIImage(contentsOfFile: url.path) {
-            cell.configure(with: image)
-        } else {
-            print("❌ Failed loading image at:", url.path)
-            cell.configure(with: image) // or placeholder
-        }
+        cell.configure(with: image)
 
         return cell
     }
@@ -232,6 +283,8 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
 }
 
+// MARK: - UIImagePickerControllerDelegate
+
 extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     func imagePickerController(
@@ -242,7 +295,10 @@ extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationCont
 
         guard let image = info[.originalImage] as? UIImage else { return }
 
-        LocalImageStore.shared.saveImage(image)
+        // ✅ Save image and immediately trigger face detection in background
+        let savedWholeImage = LocalImageStore.shared.saveImage(image)
+        detectAndSaveFaces(for: savedWholeImage, image: image)
+
         loadImages()
 
         DispatchQueue.main.async {
@@ -256,11 +312,10 @@ extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationCont
         }
     }
 
-
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == "ShowImageDetails",
               let destination = segue.destination as? ImageDetailsViewController,
@@ -271,5 +326,4 @@ extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationCont
 
         destination.wholeImage = selectedImage
     }
-
 }

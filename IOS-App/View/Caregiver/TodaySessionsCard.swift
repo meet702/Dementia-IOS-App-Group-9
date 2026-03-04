@@ -35,17 +35,22 @@ class TodaySessionsCard: UICollectionViewCell {
     
     func configure(imageSession: ImageSession) {
 
-            // Date & time
-            dateLabel.text = imageSession.startedAt.formattedDate()
-            timeLabel.text = imageSession.startedAt.formattedTime()
+        // Date & time
+        dateLabel.text = imageSession.startedAt.formattedDate()
+        timeLabel.text = imageSession.startedAt.formattedTime()
 
-            // Fetch image using imageID
-            if let image = LocalImageStore.shared.fetchImage(by: imageSession.imageID) {
-                imageView.image = image
-            } else {
-                imageView.image = UIImage(systemName: "photo")
-            }
+        // ✅ Load from permanent session store (survives album deletion)
+        if let image = SessionImageStore.shared.fetchImage(by: imageSession.imageID) {
+            imageView.image = image
+        } else if let image = LocalImageStore.shared.fetchImage(by: imageSession.imageID) {
+            // Fallback for sessions played before SessionImageStore was added
+            imageView.image = image
+            // Save it now so future loads work too
+            SessionImageStore.shared.saveSessionImage(for: imageSession.imageID)
+        } else {
+            imageView.image = UIImage(named: "photo_placeholder")
         }
+    }
     
     
 }

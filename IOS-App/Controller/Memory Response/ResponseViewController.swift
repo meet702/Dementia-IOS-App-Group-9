@@ -65,9 +65,14 @@ final class ResponseViewController: UIViewController {
             ? "This memory was revisited together."
             : reflection
 
-        // Load image from local storage
-        if let image = LocalImageStore.shared.fetchImage(by: session.imageID) {
+        // ✅ Load from permanent session store (survives album deletion)
+        if let image = SessionImageStore.shared.fetchImage(by: session.imageID) {
             header.headerImageView.image = image
+        } else if let image = LocalImageStore.shared.fetchImage(by: session.imageID) {
+            // Fallback for sessions played before this update
+            header.headerImageView.image = image
+            // Save it now so future loads work too
+            SessionImageStore.shared.saveSessionImage(for: session.imageID)
         } else {
             header.headerImageView.image = UIImage(systemName: "photo")
         }

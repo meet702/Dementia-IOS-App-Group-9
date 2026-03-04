@@ -75,7 +75,7 @@ final class ImageSessionStore {
     
     func oldestUnviewedSession() -> ImageSession? {
         sessions
-            .filter { $0.sessionType == .memoryLane && !$0.hasBeenViewedAsRecap }
+            .filter { $0.sessionType == .memoryLane && $0.recapCount == 0 }
             .sorted { $0.startedAt < $1.startedAt }
             .first
     }

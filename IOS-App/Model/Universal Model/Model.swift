@@ -97,10 +97,10 @@ struct ImageSession: Identifiable, Codable {
     let isid: UUID
     let imageID: UUID
     let sessionType: SessionType
-    let playedBy: String?
+//    let playedBy: String?
     let startedAt: Date
     var endedAt: Date?
-    var hasBeenViewedAsRecap: Bool   // added for memory recap
+    var recapCount: Int
 
     var id: UUID { isid }
 }

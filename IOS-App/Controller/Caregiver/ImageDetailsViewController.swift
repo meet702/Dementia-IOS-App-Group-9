@@ -30,7 +30,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.collectionViewLayout = createLayout()
@@ -55,6 +54,34 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    // MARK: - Anonymous Person Creation
+
+    /// Creates an anonymous Person for any face that has no personID yet.
+    /// This ensures questions are always asked in FaceVC, even for unnamed faces.
+    private func createAnonymousPersonIfNeeded(for index: Int) {
+        guard faces[index].personID == nil else { return }
+
+        let anonymousPerson = Person(
+            pid: UUID(),
+            name: nil,
+            relationLabel: nil
+        )
+        PersonStore.shared.add(anonymousPerson)
+
+        faces[index] = Face(
+            fid: faces[index].fid,
+            fileName: faces[index].fileName,
+            boundingBox: faces[index].boundingBox,
+            orderIndex: faces[index].orderIndex,
+            imageID: faces[index].imageID,
+            personID: anonymousPerson.pid
+        )
+
+        print("👤 Anonymous person created for face at index \(index): \(anonymousPerson.pid)")
+    }
+    
+    // MARK: - Image + Face Loading
     
     private func loadHeroImageAndDetectFaces() {
         
@@ -93,6 +120,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         let savedFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
 
+        // ✅ Faces already detected in AlbumVC — just load and match them
         if !savedFaces.isEmpty {
             self.faces = savedFaces
 
@@ -102,10 +130,11 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
                     IndexSet(integer: MemorySection.people.rawValue)
                 )
             }
-
             return
         }
 
+        // ✅ Fallback: detect here only if somehow not pre-detected
+        // (e.g. images uploaded before this update was applied)
         FaceDetectionService().detectFaces(
             in: image,
             imageID: wholeImage.wid
@@ -113,26 +142,17 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             guard let self else { return }
 
             let existingFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
-
-            let finalFaces = self.mergeFaces(
-                detected: detectedFaces,
-                existing: existingFaces
-            )
+            let finalFaces = self.mergeFaces(detected: detectedFaces, existing: existingFaces)
 
             DispatchQueue.main.async {
                 self.faces = finalFaces
                 FaceStore.shared.saveFaces(finalFaces)
-                
                 self.autoMatchFacesIfPossible()
-
                 self.collectionView.reloadSections(
                     IndexSet(integer: MemorySection.people.rawValue)
                 )
             }
         }
-
-
-
     }
     
     private func mergeFaces(
@@ -193,6 +213,13 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             }
         }
 
+        // ✅ For any face still without a personID, create an anonymous person
+        // so that FaceViewController can always look up and ask questions
+        for i in faces.indices where faces[i].personID == nil {
+            createAnonymousPersonIfNeeded(for: i)
+            didUpdate = true
+        }
+
         if didUpdate {
             FaceStore.shared.saveFaces(faces)
             collectionView.reloadSections(
@@ -201,8 +228,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         }
     }
 
-
-
+    // MARK: - Cell Registration
     
     private func registerCells() {
         collectionView.register(
@@ -225,8 +251,9 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: "PeopleSectionHeaderView"
         )
-
     }
+    
+    // MARK: - Layout
     
     private func createLayout() -> UICollectionViewLayout {
 
@@ -357,6 +384,8 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         return section
     }
     
+    // MARK: - Face Deletion
+    
     private func deleteFace(_ face: Face, at indexPath: IndexPath) {
 
         let url = FaceStore.shared.faceImageURL(for: face.fileName)
@@ -370,6 +399,8 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             collectionView.deleteItems(at: [indexPath])
         }
     }
+    
+    // MARK: - Keyboard Handling
     
     @objc private func keyboardWillShow(_ notification: Notification) {
 
@@ -397,10 +428,9 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         collectionView.verticalScrollIndicatorInsets.bottom = 0
         activeFaceIndexPath = nil
     }
-
-
-
 }
+
+// MARK: - UICollectionViewDataSource
 
 extension ImageDetailsViewController: UICollectionViewDataSource {
 
@@ -494,7 +524,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 print("🗑 Text deleted & persisted")
             }
 
-            
             cell.onAddVoice = { [weak self] in
                 self?.presentVoiceRecorderSheet()
             }
@@ -503,7 +532,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 guard let self = self,
                       let image = self.wholeImage else { return }
 
-                // 🔥 1. Delete physical audio file
                 if case let .voice(url) = image.action {
                     do {
                         try FileManager.default.removeItem(at: url)
@@ -513,7 +541,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                     }
                 }
 
-                // 🔥 2. Update model
                 let updated = WholeImage(
                     wid: image.wid,
                     fileName: image.fileName,
@@ -552,11 +579,12 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 cell.faceImageView.image = UIImage(systemName: "person.crop.circle.fill")
             }
 
+            // ✅ Show "Add Name" for anonymous persons (nil name) or empty names
             if let pid = face.personID,
-               let person = PersonStore.shared.person(by: pid) {
-                cell.nameLabel.text = person.name?.isEmpty == false
-                    ? person.name
-                    : "Add Name"
+               let person = PersonStore.shared.person(by: pid),
+               let name = person.name,
+               !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                cell.nameLabel.text = name
             } else {
                 cell.nameLabel.text = "Add Name"
             }
@@ -567,6 +595,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 let personID: UUID
 
                 if let existingID = face.personID {
+                    // ✅ Reuse existing personID (could be anonymous person)
                     personID = existingID
 
                     if let existingPerson = PersonStore.shared.person(by: existingID) {
@@ -579,6 +608,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                     }
 
                 } else {
+                    // Fallback: create a brand new person (shouldn't happen
+                    // after our anonymous person fix, but kept as safety net)
                     let newPerson = Person(
                         pid: UUID(),
                         name: newName,
@@ -586,25 +617,24 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                     )
                     personID = newPerson.pid
                     PersonStore.shared.add(newPerson)
+
+                    let updatedFace = Face(
+                        fid: face.fid,
+                        fileName: face.fileName,
+                        boundingBox: face.boundingBox,
+                        orderIndex: face.orderIndex,
+                        imageID: face.imageID,
+                        personID: personID
+                    )
+                    self.faces[indexPath.item] = updatedFace
+                    FaceStore.shared.saveFaces(self.faces)
                 }
-
-                let updatedFace = Face(
-                    fid: face.fid,
-                    fileName: face.fileName,
-                    boundingBox: face.boundingBox,
-                    orderIndex: face.orderIndex,
-                    imageID: face.imageID,
-                    personID: personID
-                )
-
-                self.faces[indexPath.item] = updatedFace
-                FaceStore.shared.saveFaces(self.faces)
 
                 self.collectionView.reloadItems(at: [indexPath])
                 
-                let url = FaceStore.shared.faceImageURL(for: face.fileName)
+                let faceUrl = FaceStore.shared.faceImageURL(for: face.fileName)
 
-                if let image = UIImage(contentsOfFile: url.path),
+                if let image = UIImage(contentsOfFile: faceUrl.path),
                    let embedding = FaceEmbedder.shared.embedding(from: image) {
 
                     PersonEmbeddingStore.shared.addEmbedding(
@@ -622,7 +652,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 for: .editingDidBegin
             )
 
-            
             return cell
         }
     }
@@ -632,7 +661,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         activeFaceIndexPath = collectionView.indexPathForItem(at: point)
     }
 
-    
     func collectionView(
         _ collectionView: UICollectionView,
         viewForSupplementaryElementOfKind kind: String,
@@ -684,6 +712,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         }
     }
     
+    // MARK: - Sheets
+    
     private func presentAddTextSheet() {
 
         let vc = AddTextViewController(
@@ -701,7 +731,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             sheet.preferredCornerRadius = 20
         }
 
-        
         vc.onSave = { [weak self] text in
             guard let self = self,
                   let image = self.wholeImage else { return }
@@ -724,8 +753,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
             print("📝 Text persisted to album_metadata.json")
         }
-
-
 
         present(vc, animated: true)
     }
@@ -750,13 +777,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             sheet.preferredCornerRadius = 20
         }
 
-//        vc.onSave = { [weak self] text in
-//            self?.memoryActionContent = .text(text)
-//            self?.collectionView.reloadSections(
-//                IndexSet(integer: MemorySection.actions.rawValue)
-//            )
-//        }
-        
         vc.onSave = { [weak self] text in
             guard let self = self,
                   let image = self.wholeImage else { return }
@@ -780,7 +800,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             print("📝 Text persisted to album_metadata.json")
         }
 
-
         present(vc, animated: true)
     }
     
@@ -801,16 +820,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             sheet.preferredCornerRadius = 20
         }
 
-//        vc.onRecordingFinished = { [weak self] url in
-//            guard let self else { return }
-//
-//            self.memoryActionContent = .voice(url)
-//
-//            self.collectionView.reloadSections(
-//                IndexSet(integer: MemorySection.actions.rawValue)
-//            )
-//        }
-        
         vc.onRecordingFinished = { [weak self] url in
             guard let self = self,
                   let image = self.wholeImage else { return }
@@ -834,13 +843,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             print("🎤 Voice persisted to album_metadata.json")
         }
 
-
         present(vc, animated: true)
     }
-
-
-
-
 }
-
-

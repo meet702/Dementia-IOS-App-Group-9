@@ -86,6 +86,21 @@ final class FaceStore {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder.appendingPathComponent(fileName)
     }
+    
+    func deleteFaces(for imageID: UUID) {
+        let url = fileURL()
+
+        guard let data = try? Data(contentsOf: url),
+              var allFaces = try? JSONDecoder().decode([Face].self, from: data)
+        else { return }
+
+        allFaces.removeAll { $0.imageID == imageID }
+
+        guard let newData = try? JSONEncoder().encode(allFaces) else { return }
+        try? newData.write(to: url)
+
+        print("🗑 Faces deleted for imageID: \(imageID)")
+    }
 
 }
 

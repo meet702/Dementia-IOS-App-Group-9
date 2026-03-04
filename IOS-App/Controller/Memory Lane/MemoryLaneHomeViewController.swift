@@ -26,41 +26,48 @@ class MemoryLaneHomeViewController: UIViewController {
         configureCollageImages()
 
     }
+    
 
     // MARK: - Start Session
 
     @IBAction func newSessionButtonTapped(_ sender: UIButton) {
 
-        let images = LocalImageStore.shared.fetchAllImages()
+        let allImages = LocalImageStore.shared.fetchAllImages()
             .sorted { $0.createdAt > $1.createdAt }
 
-        guard let wholeImage = images.first else {
+        guard !allImages.isEmpty else {
             print("❌ No caregiver images available")
             return
         }
 
-        guard let uiImage = LocalImageStore.shared.fetchImage(by: wholeImage.wid) else {
-            print("❌ Could not load image from LocalImageStore")
-            return
+        let allSessions = ImageSessionStore.shared.allSessions()
+
+        // Count how many times each image has been played
+        let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
+            counts[image.wid] = allSessions.filter { $0.imageID == image.wid }.count
         }
 
-        let faces = FaceStore.shared.loadFaces(for: wholeImage.wid)
+        // Find the minimum play count across all images
+        let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
 
-        // ⚠️ Optional: If no faces, still allow reflection flow
-        if faces.isEmpty {
-            print("⚠️ No faces saved for this image")
-        }
+        // Next image = first image that has only been played `minPlayCount` times (not yet played in this round)
+        guard let nextImage = allImages.first(where: {
+            (playCountByImage[$0.wid] ?? 0) == minPlayCount
+        }) else { return }
 
-        // Resolve people from faces
-        let people: [Person] = faces.compactMap { face in
-            guard let pid = face.personID else { return nil }
+        guard let uiImage = LocalImageStore.shared.fetchImage(by: nextImage.wid) else { return }
+
+        let faces = FaceStore.shared.loadFaces(for: nextImage.wid)
+
+        let people: [Person] = faces.compactMap {
+            guard let pid = $0.personID else { return nil }
             return PersonStore.shared.person(by: pid)
         }
 
         let questions = buildQuestions(for: people)
 
         navigateToPictureIntro(
-            wholeImage: wholeImage,
+            wholeImage: nextImage,
             faces: faces,
             people: people,
             questions: questions,
@@ -140,26 +147,58 @@ class MemoryLaneHomeViewController: UIViewController {
         view.addSubview(centerImageView)
     }
     
-    private func latestThreeMemoryImages() -> [UIImage] {
-
-        let images = LocalImageStore.shared.fetchAllImages()
-            .sorted { $0.createdAt > $1.createdAt }
-        
-        return images.prefix(3).compactMap {
-            LocalImageStore.shared.fetchImage(by: $0.wid)
-        }
-    }
     
     private func configureCollageImages() {
 
-        let memoryImages = latestThreeMemoryImages()
-
-        // Safe fallback images
         let placeholder = UIImage(named: "photo_placeholder")
 
-        portraitImage = memoryImages.count > 0 ? memoryImages[0] : placeholder
-        leftImage     = memoryImages.count > 1 ? memoryImages[1] : placeholder
-        rightImage    = memoryImages.count > 2 ? memoryImages[2] : placeholder
+        let allImages = LocalImageStore.shared.fetchAllImages()
+            .sorted { $0.createdAt > $1.createdAt }
+
+        guard !allImages.isEmpty else {
+            portraitImage = placeholder
+            leftImage     = placeholder
+            rightImage    = placeholder
+            setupCollage()
+            return
+        }
+
+        let allSessions = ImageSessionStore.shared.allSessions()
+            .sorted { $0.startedAt > $1.startedAt }
+
+        // Count play count per image
+        let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
+            counts[image.wid] = allSessions.filter { $0.imageID == image.wid }.count
+        }
+
+        let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
+
+        // Images not yet played in the current round
+        let currentRoundUnplayed = allImages.filter {
+            (playCountByImage[$0.wid] ?? 0) == minPlayCount
+        }
+
+        // Center = next to play
+        let centerWI = currentRoundUnplayed.first
+
+        // Left = most recently played (by session date)
+        let leftWI = allSessions.first.flatMap {
+            LocalImageStore.shared.fetchImageModel(by: $0.imageID)
+        }
+
+        // Right = one after center, circular within allImages
+        let rightWI: WholeImage?
+        if let center = centerWI,
+           let centerIndex = allImages.firstIndex(where: { $0.wid == center.wid }) {
+            let nextIndex = (centerIndex + 1) % allImages.count
+            rightWI = nextIndex != centerIndex ? allImages[nextIndex] : nil
+        } else {
+            rightWI = nil
+        }
+
+        portraitImage = centerWI.flatMap { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
+        leftImage     = leftWI.flatMap   { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
+        rightImage    = rightWI.flatMap  { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
 
         setupCollage()
     }

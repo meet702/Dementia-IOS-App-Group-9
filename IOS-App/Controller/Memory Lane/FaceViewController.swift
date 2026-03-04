@@ -16,7 +16,8 @@ final class FaceViewController: UIViewController {
 
     @IBOutlet weak var backgroundImageView: UIImageView!
     // MARK: - Injected Data
-
+    
+    private var isRecapTransitioning = false
     var wholeImage: WholeImage!
     var faces: [Face] = []
     var people: [Person] = []
@@ -53,7 +54,7 @@ final class FaceViewController: UIViewController {
 
     // MARK: - Lifecycle
 
-    override func viewDidLoad() {
+    override func viewDidLoad(){
         super.viewDidLoad()
         
         if sessionMode == .play {
@@ -71,6 +72,7 @@ final class FaceViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
         view.layoutIfNeeded()
         imageView.layoutIfNeeded()
         startFaceFlow()
@@ -88,10 +90,10 @@ final class FaceViewController: UIViewController {
             isid: UUID(),
             imageID: wholeImage.wid,
             sessionType: .memoryLane,
-            playedBy: "Patient",  // TODO: Get from user context
+//            playedBy: "Patient",
             startedAt: Date(),
             endedAt: nil,
-            hasBeenViewedAsRecap: false
+            recapCount: 0
         )
         
         print("\n🟢 IMAGE SESSION STARTED")
@@ -159,7 +161,6 @@ final class FaceViewController: UIViewController {
             print("   Text: \"\(text)\"")
         }
         print("   Answer ID: \(answer.psqid)")
-        print("   Timestamp: \(answer.answeredAt)")
     }
     
     private func saveFinalReflection(text: String) {
@@ -183,12 +184,13 @@ final class FaceViewController: UIViewController {
         print("\n💭 FINAL REFLECTION SAVED")
         print("   Reflection: \"\(text)\"")
         print("   Answer ID: \(answer.isqid)")
-        print("   Timestamp: \(answer.answeredAt)")
     }
     
     private func completeSession() {
 
         currentImageSession.endedAt = Date()
+        
+        SessionImageStore.shared.saveSessionImage(for: currentImageSession.imageID)
 
         // 🔥 Persist session
         ImageSessionStore.shared.addSession(currentImageSession)
@@ -238,7 +240,6 @@ final class FaceViewController: UIViewController {
                     if let text = answer.responseText {
                         print("         Text: \"\(text)\"")
                     }
-                    print("         Time: \(answer.answeredAt)")
                 }
             }
         }
@@ -247,7 +248,6 @@ final class FaceViewController: UIViewController {
         print("\n💭 Final Reflection:")
         if let reflection = imageSessionAnswers.first {
             print("   Response: \"\(reflection.responseText ?? "N/A")\"")
-            print("   Time: \(reflection.answeredAt)")
         } else {
             print("   Not completed")
         }
@@ -269,12 +269,35 @@ final class FaceViewController: UIViewController {
         print("\n" + String(repeating: "=", count: 70))
         print("\n")
     }
+    
+    private func makeLowResolutionImage(from image: UIImage) -> UIImage {
+
+        let scale: CGFloat = 0.08   // 8% of original resolution
+
+        let targetSize = CGSize(
+            width: image.size.width * scale,
+            height: image.size.height * scale
+        )
+
+        UIGraphicsBeginImageContextWithOptions(targetSize, true, 1)
+
+        image.draw(in: CGRect(origin: .zero, size: targetSize))
+
+        let lowResImage = UIGraphicsGetImageFromCurrentImageContext()
+
+        UIGraphicsEndImageContext()
+
+        return lowResImage ?? image
+    }
 
     // MARK: - UI Setup
 
     private func configureUI() {
         imageView.contentMode = .scaleAspectFit
         zoomContainerView.clipsToBounds = true
+        
+        backgroundImageView.contentMode = .scaleAspectFill
+        backgroundImageView.clipsToBounds = true
 
         questionLabel.alpha = 0
         optionsStack.alpha = 0
@@ -309,13 +332,21 @@ final class FaceViewController: UIViewController {
     }
 
     private func loadImage() {
+        // ✅ For recap, load from SessionImageStore (survives album deletion)
+        if sessionMode == .recap,
+           let image = SessionImageStore.shared.fetchImage(by: wholeImage.wid) {
+            imageView.image = image
+            backgroundImageView.image = image
+            return
+        }
+
         guard let image = LocalImageStore.shared.fetchImage(by: wholeImage.wid) else {
             print("Failed to load image from LocalImageStore")
             return
         }
 
         imageView.image = image
-        backgroundImageView.image = image
+        backgroundImageView.image = makeLowResolutionImage(from: image)
     }
 
     // MARK: - Keyboard Handling
@@ -369,12 +400,12 @@ final class FaceViewController: UIViewController {
     }
 
     private func showFace(at index: Int) {
+
         guard index < faces.count else {
 
             if sessionMode == .recap,
                let session = recapImageSession {
 
-                // Reset zoom first
                 resetZoom {
                     let reflection =
                         ImageSessionQuestionStore.shared
@@ -407,8 +438,7 @@ final class FaceViewController: UIViewController {
         hideAllQuestionUI()
 
         let face = faces[index]
-        
-        // Create person session
+
         if sessionMode == .play {
             createPersonSession(for: face)
         }
@@ -429,6 +459,8 @@ final class FaceViewController: UIViewController {
     }
 
     private func zoomToFace(_ face: Face) {
+
+        view.isUserInteractionEnabled = false
         let faceRect = convertFaceRectToImageView(face.boundingBox)
         let imageFrame = imageView.displayedImageFrame
 
@@ -455,6 +487,7 @@ final class FaceViewController: UIViewController {
         UIView.animate(withDuration: 0.8) {
             self.imageView.transform = transform
         } completion: { _ in
+            self.view.isUserInteractionEnabled = true
             if self.sessionMode == .recap {
                 self.presentNextRecapSummary()
             } else {
@@ -466,21 +499,21 @@ final class FaceViewController: UIViewController {
     // MARK: - Questions Engine
 
     private func presentNextQuestion() {
+        
         let face = faces[currentFaceIndex]
 
-        guard let personID = face.personID,
-              let questions = questionsByPerson[personID]
-        else {
-            isFaceComplete = true
-            return
-        }
-
+        let personID = face.personID
+        let questions = personID.flatMap { questionsByPerson[$0] } ?? []
+        print("PersonID:", face.personID as Any)
+        print("Questions found:", questions.count)
+        
         if currentQuestionIndex >= questions.count {
             isFaceComplete = true
             return
         }
 
         showQuestion(questions[currentQuestionIndex])
+        
     }
 
     private func showQuestion(_ question: Question) {
@@ -583,21 +616,30 @@ final class FaceViewController: UIViewController {
     
     // MARK: - Display Name
     
-    private func getPersonName(for face: Face) -> String {
+    private func getPersonName(for face: Face) -> String? {
         guard let pid = face.personID,
-              let person = people.first(where: { $0.pid == pid })
-        else { return "Someone special" }
+              let person = people.first(where: { $0.pid == pid }),
+              let rawName = person.name,          // nil name = anonymous, skip
+              !rawName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              rawName.trimmingCharacters(in: .whitespacesAndNewlines) != "Add Name"
+        else { return nil }
 
-        return person.name ?? "Someone special"
+        return rawName.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func showPersonNameAndContinue() {
         let face = faces[currentFaceIndex]
-        let name = getPersonName(for: face)
+        if let name = getPersonName(for: face) {
+            transitionLabel.text = "This is \(name)."
+        } else {
+            // Skip name display and move forward immediately
+            showTransitionAndMoveToNextFace()
+            return
+        }
 
         hideAllQuestionUI()
         
-        transitionLabel.text = "This is \(name)."
+//        transitionLabel.text = "This is \(name)."
 
         UIView.animate(withDuration: 0.4) {
             self.transitionLabel.alpha = 1
@@ -611,41 +653,6 @@ final class FaceViewController: UIViewController {
             }
         }
     }
-
-
-    // MARK: - Transition
-    
-//    private func showPersonIntroThenQuestions() {
-//        let personIntroMessages = [
-//            "That was beautiful.\nLet's continue your journey.",
-//            "A moment worth remembering.\nLet's move ahead.",
-//            "Thanks for sharing this memory.\nLet's see what's next.",
-//            "That was meaningful.\nLet's keep going.",
-//            "A memory to hold onto.\nLet's move forward.",
-//            "That was special.\nLet's continue.",
-//            "Thanks for taking a moment to look back.\nLet's go ahead.",
-//            "A piece of your story.\nLet's keep moving.",
-//            "That was a nice moment to revisit.\nLet's continue forward.",
-//            "A memory that mattered.\nLet's move to the next one."
-//        ]
-//
-//        let message = personIntroMessages.randomElement() ?? ""
-//
-//        transitionLabel.text = message
-//        transitionLabel.alpha = 0
-//
-//        UIView.animate(withDuration: 0.4) {
-//            self.transitionLabel.alpha = 1
-//        } completion: { _ in
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-//                UIView.animate(withDuration: 0.3) {
-//                    self.transitionLabel.alpha = 0
-//                } completion: { _ in
-//                    self.presentNextQuestion()
-//                }
-//            }
-//        }
-//    }
     
     private func showPersonIntroThenQuestions() {
 
@@ -745,18 +752,29 @@ final class FaceViewController: UIViewController {
         }
     }
     
+    func navigateToHome() {
+       guard let navController = navigationController else { return }
+
+       if let homeVC = navController.viewControllers.first(where: { $0 is HomeViewController }) {
+           navController.popToViewController(homeVC, animated: true)
+       }
+   }
     private func exitMemoryLane() {
 
         if sessionMode == .play {
             completeSession()
         }
-
-        navigationController?.popToRootViewController(animated: true)
+        navigateToHome()
+         
     }
     
     // MARK: - Navigation
 
     @objc private func handleTap() {
+
+        // Ignore taps during reflection typing
+        if isInFinalReflection { return }
+
         guard isFaceComplete else { return }
 
         if sessionMode == .recap {
@@ -805,7 +823,7 @@ final class FaceViewController: UIViewController {
     
     private func presentNextRecapSummary() {
 
-        guard let session = recapImageSession else { return }
+        guard let _ = recapImageSession else { return }
 
         let personSessions = personSessionsForRecap()
 
@@ -824,7 +842,7 @@ final class FaceViewController: UIViewController {
 
         let answer = answers[currentQuestionIndex]
 
-        let prompt = AppDataStore.shared.prompt(for: answer.questionID)
+        let _ = AppDataStore.shared.prompt(for: answer.questionID)
 
         let summaryText = answer.recapSummaryText
 
@@ -840,18 +858,30 @@ final class FaceViewController: UIViewController {
     
     private func handleRecapTap() {
 
-        guard isFaceComplete else { return }
+        // Ignore taps after recap finished
+        if isRecapFinished { return }
+
+        // Prevent multiple rapid transitions
+        if isRecapTransitioning { return }
+        isRecapTransitioning = true
+
+        guard isFaceComplete else {
+            isRecapTransitioning = false
+            return
+        }
 
         isFaceComplete = false
         currentQuestionIndex += 1
 
         let personSessions = personSessionsForRecap()
 
+        // Continue showing recap answers for current face
         if currentFaceIndex < personSessions.count {
             let answers = answersForPersonSession(personSessions[currentFaceIndex])
 
             if currentQuestionIndex < answers.count {
                 presentNextRecapSummary()
+                isRecapTransitioning = false
                 return
             }
         }
@@ -862,35 +892,56 @@ final class FaceViewController: UIViewController {
 
         if currentFaceIndex < faces.count {
             showFace(at: currentFaceIndex)
+            isRecapTransitioning = false
             return
         }
 
-        // All faces done — show final reflection once
-        currentQuestionIndex = 0
-        currentFaceIndex += 1
-
-        showFace(at: currentFaceIndex)
-
-        // After reflection tap → finish
+        // All faces completed → finish recap
         finishRecap()
     }
     
+    private var isRecapFinished = false
     private func finishRecap() {
+
+        if isRecapFinished { return }
+        isRecapFinished = true
+
+        view.isUserInteractionEnabled = false
 
         guard var session = recapImageSession else { return }
 
-        transitionLabel.text = "These memories are part of your story."
+        // Step 1 — zoom out to full image first
+        resetZoom {
 
-        UIView.animate(withDuration: 0.5) {
-            self.transitionLabel.alpha = 1
-        } completion: { _ in
+            // Step 2 — show story message
+            self.transitionLabel.text = "These memories are part of your story."
+            self.transitionLabel.alpha = 0
+
+            UIView.animate(withDuration: 0.4) {
+                self.transitionLabel.alpha = 1
+            }
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
 
-                // Mark as viewed
-                session.hasBeenViewedAsRecap = true
-                ImageSessionStore.shared.updateSession(session)
+                // Step 3 — show patient's reflection
+                let reflection =
+                    ImageSessionQuestionStore.shared
+                        .overallReflection(for: session.isid)
 
-                self.navigationController?.popToRootViewController(animated: true)
+                self.transitionLabel.alpha = 0
+                self.transitionLabel.text = "\"\(reflection)\""
+
+                UIView.animate(withDuration: 0.4) {
+                    self.transitionLabel.alpha = 1
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+
+                    session.recapCount += 1
+                    ImageSessionStore.shared.updateSession(session)
+
+                    self.navigateToHome()
+                }
             }
         }
     }

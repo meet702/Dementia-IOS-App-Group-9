@@ -14,6 +14,8 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     @IBOutlet weak var caregiverTextLabel: UILabel!
     
     @IBOutlet weak var backgroundImageView: UIImageView!
+    
+    private var delayedPlaybackWorkItem: DispatchWorkItem?
     // MARK: - Dependencies (Injected)
     var portraitImage: UIImage!
     var wholeImage: WholeImage!
@@ -73,10 +75,8 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
         animateControlsIn()
 
-        // 🔥 STEP 1: Show comment label first
         commentLabel.alpha = 1
 
-        // 🔥 STEP 2: After 3 seconds, replace it
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
             self?.replaceCommentWithCaregiverContent()
         }
@@ -86,6 +86,8 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
+        delayedPlaybackWorkItem?.cancel()
         stopAudio()
     }
     
@@ -137,12 +139,18 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
                 }
 
             case .voice(let url):
+
                 self.showAudio(from: url)
 
                 UIView.animate(withDuration: 0.4) {
                     self.playPauseButton.alpha = 1
                     self.progressSlider.alpha = 1
                 }
+
+                // ⏳ Delay audio playback by 3 seconds
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+                self.playAudio()
+//                }
 
             case .empty:
                 self.goToNextScreen()
@@ -158,6 +166,11 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         progressSlider.isHidden = false
 
         setupAudio(from: url)
+
+        // ⏳ Delay audio playback by 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            self?.playAudio()
+        }
     }
 
     
@@ -243,6 +256,9 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     private func configureUI() {
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
+        
+        backgroundImageView.contentMode = .scaleAspectFill
+        backgroundImageView.clipsToBounds = true
 
         progressSlider.minimumValue = 0
         progressSlider.value = 0
@@ -258,6 +274,26 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             for: .normal
         )
     }
+    
+    private func makeLowResolutionImage(from image: UIImage) -> UIImage {
+
+        let scale: CGFloat = 0.08   // 8% of original resolution
+
+        let targetSize = CGSize(
+            width: image.size.width * scale,
+            height: image.size.height * scale
+        )
+
+        UIGraphicsBeginImageContextWithOptions(targetSize, true, 1)
+
+        image.draw(in: CGRect(origin: .zero, size: targetSize))
+
+        let lowResImage = UIGraphicsGetImageFromCurrentImageContext()
+
+        UIGraphicsEndImageContext()
+
+        return lowResImage ?? image
+    }
 
     private func loadImage() {
         guard let image = LocalImageStore.shared.fetchImage(by: wholeImage.wid) else {
@@ -265,7 +301,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             return
         }
         imageView.image = image
-        backgroundImageView.image = image
+        backgroundImageView.image = makeLowResolutionImage(from: image)
     }
 
     // MARK: - Audio Setup

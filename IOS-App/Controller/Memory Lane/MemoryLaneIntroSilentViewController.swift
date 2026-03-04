@@ -46,6 +46,9 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
     private func configureUI() {
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
+        
+        backgroundImageView.contentMode = .scaleAspectFill
+        backgroundImageView.clipsToBounds = true
 
         hintLabel.text = "Tap to zoom into the moment"
         hintLabel.textAlignment = .center
@@ -78,15 +81,34 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
         blurView.layer.mask = maskLayer
     }
     
+    private func makeLowResolutionImage(from image: UIImage) -> UIImage {
 
+        let scale: CGFloat = 0.08   // 8% of original resolution
+
+        let targetSize = CGSize(
+            width: image.size.width * scale,
+            height: image.size.height * scale
+        )
+
+        UIGraphicsBeginImageContextWithOptions(targetSize, true, 1)
+
+        image.draw(in: CGRect(origin: .zero, size: targetSize))
+
+        let lowResImage = UIGraphicsGetImageFromCurrentImageContext()
+
+        UIGraphicsEndImageContext()
+
+        return lowResImage ?? image
+    }
 
     private func loadImage() {
         // For testing: use hardcoded portrait
         imageView.image = portraitImage
-        backgroundImageView.image = portraitImage
+//        backgroundImageView.image = portraitImage
         // TODO: When ready for real images:
         // guard let image = UIImage(contentsOfFile: wholeImage.imageURL.path) else { return }
         // imageView.image = image
+        backgroundImageView.image = makeLowResolutionImage(from: portraitImage)
     }
 
     // MARK: - Tap Handling

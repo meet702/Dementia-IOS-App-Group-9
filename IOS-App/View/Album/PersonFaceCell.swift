@@ -42,7 +42,8 @@ class PersonFaceCell: UICollectionViewCell, UITextFieldDelegate {
     private func finishEditing() {
         let text = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let finalName = (text?.isEmpty == false) ? text! : "Add Name"
+        let finalName = (text?.isEmpty == false) ? text! : ""
+        nameLabel.text = finalName.isEmpty ? "Add Name" : finalName
         nameLabel.text = finalName
 
         nameTextField.resignFirstResponder()

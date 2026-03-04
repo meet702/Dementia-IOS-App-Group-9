@@ -54,14 +54,24 @@ class HomeViewController: UIViewController {
     
     private func latestMemoryImage() -> UIImage? {
 
-        let images = LocalImageStore.shared.fetchAllImages()
+        let allImages = LocalImageStore.shared.fetchAllImages()
             .sorted { $0.createdAt > $1.createdAt }
 
-        guard let latest = images.first else {
-            return nil
+        guard !allImages.isEmpty else { return nil }
+
+        let allSessions = ImageSessionStore.shared.allSessions()
+
+        let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
+            counts[image.wid] = allSessions.filter { $0.imageID == image.wid }.count
         }
 
-        return LocalImageStore.shared.fetchImage(by: latest.wid)
+        let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
+
+        let nextImage = allImages.first(where: {
+            (playCountByImage[$0.wid] ?? 0) == minPlayCount
+        }) ?? allImages.first
+
+        return nextImage.flatMap { LocalImageStore.shared.fetchImage(by: $0.wid) }
     }
     
     func generateLayout() -> UICollectionViewLayout {
@@ -195,56 +205,85 @@ class HomeViewController: UIViewController {
 
     private func launchMemoryRecap() {
 
-        // 1️⃣ Get oldest unviewed session
-        guard let session = ImageSessionStore.shared.oldestUnviewedSession() else {
-            showNoRecapAlert()
+        let allSessions = ImageSessionStore.shared.allSessions()
+            .sorted { $0.startedAt < $1.startedAt }
+
+        // AFTER
+        guard !allSessions.isEmpty else {
+            let alert = UIAlertController(
+                title: "No Memories Yet",
+                message: "No sessions have been played yet.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
             return
         }
 
-        // 2️⃣ Get WholeImage
-        guard let wholeImage = LocalImageStore.shared.fetchImageModel(by: session.imageID),
-              let portraitImage = LocalImageStore.shared.fetchImage(by: wholeImage.wid)
+        let allImages = LocalImageStore.shared.fetchAllImages()
+
+        guard let nextImageID = MemoryRecapManager.shared.nextImageID(from: allImages) else {
+
+            let alert = UIAlertController(
+                title: "No Recaps Yet",
+                message: "Start with a Memory Lane activity to explore a memory. After that, you can revisit it here.",
+                preferredStyle: .alert
+            )
+
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+
+            return
+        }
+
+        guard let nextSession = allSessions.first(where: {
+            $0.imageID == nextImageID
+        }) else {
+            return
+        }
+
+        // ✅ Try LocalImageStore first, construct minimal model if image was deleted from album
+        let wholeImage: WholeImage
+        if let stored = LocalImageStore.shared.fetchImageModel(by: nextSession.imageID) {
+            wholeImage = stored
+        } else {
+            wholeImage = WholeImage(
+                wid: nextSession.imageID,
+                fileName: "",
+                action: .empty,
+                createdAt: nextSession.startedAt
+            )
+        }
+
+        // ✅ Load portrait from SessionImageStore first, fall back to LocalImageStore
+        guard let portraitImage = SessionImageStore.shared.fetchImage(by: nextSession.imageID)
+                               ?? LocalImageStore.shared.fetchImage(by: nextSession.imageID)
         else {
             print("❌ Could not reconstruct image for recap")
             return
         }
 
-        // 3️⃣ Get faces + people from stores
-        let faces = FaceStore.shared.loadFaces(for: wholeImage.wid)
+        let faces = FaceStore.shared.loadFaces(for: nextSession.imageID)
         let people: [Person] = faces.compactMap { face in
             guard let pid = face.personID else { return nil }
             return PersonStore.shared.person(by: pid)
         }
 
-        // 4️⃣ Instantiate FaceVC
         let storyboard = UIStoryboard(name: "MemoryLane", bundle: nil)
 
         guard let faceVC = storyboard.instantiateViewController(
             withIdentifier: "FaceViewController"
-        ) as? FaceViewController else {
-            return
-        }
+        ) as? FaceViewController else { return }
 
-        // 5️⃣ Configure for recap
         faceVC.sessionMode = .recap
-        faceVC.recapImageSession = session
+        faceVC.recapImageSession = nextSession
         faceVC.wholeImage = wholeImage
         faceVC.faces = faces
         faceVC.people = people
         faceVC.portraitImage = portraitImage
-        faceVC.questionsByPerson = [:] // not used in recap
+        faceVC.questionsByPerson = [:]
 
         navigationController?.pushViewController(faceVC, animated: true)
-    }
-    
-    private func showNoRecapAlert() {
-        let alert = UIAlertController(
-            title: "No Recaps Yet",
-            message: "Complete a Memory Lane session first.",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
     }
 
 }
@@ -286,7 +325,6 @@ extension HomeViewController: UICollectionViewDataSource {
                 }
 
                 return cell
-            return cell
         }
         else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryRecapCardCollectionViewCell", for: indexPath) as! MemoryRecapCardCollectionViewCell

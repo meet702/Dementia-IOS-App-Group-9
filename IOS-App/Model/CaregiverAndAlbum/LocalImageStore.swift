@@ -41,6 +41,7 @@ final class LocalImageStore {
 
     func fetchAllImages() -> [WholeImage] {
         loadPersistedImages()
+            .sorted { $0.createdAt > $1.createdAt }
     }
     
     func fetchImage(by id: UUID) -> UIImage? {
