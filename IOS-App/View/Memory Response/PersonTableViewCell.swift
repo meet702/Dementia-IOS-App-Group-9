@@ -50,7 +50,7 @@ final class PersonTableViewCell: UITableViewCell {
 
         // Load face image (image-scoped)
         if let face = FaceStore.shared.face(
-            for: personSession.personID,
+            for: personSession.pid,
             in: imageID
         ) {
 
@@ -67,7 +67,7 @@ final class PersonTableViewCell: UITableViewCell {
         }
 
         // Load person name
-        if let person = PersonStore.shared.person(by: personSession.personID),
+        if let person = PersonStore.shared.person(by: personSession.pid),
            let name = person.name,
            !name.isEmpty {
 

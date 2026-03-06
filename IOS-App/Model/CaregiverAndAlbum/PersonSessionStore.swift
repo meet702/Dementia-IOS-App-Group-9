@@ -28,7 +28,7 @@ final class PersonSessionStore {
     }
 
     func personSessions(for imageSessionID: UUID) -> [PersonSession] {
-        sessions.filter { $0.imageSessionID == imageSessionID }
+        sessions.filter { $0.isid == imageSessionID }
     }
 
     private func save() {

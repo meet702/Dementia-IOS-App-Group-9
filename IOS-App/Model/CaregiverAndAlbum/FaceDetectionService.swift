@@ -67,13 +67,15 @@ final class FaceDetectionService {
                 let uiImage = UIImage(cgImage: cropped)
                 let fileName = self.saveFaceImage(uiImage)
                 
+                let box = BoundingBox(rect: rect)
+                
                 return Face(
                     fid: UUID(),
                     fileName: fileName!,
-                    boundingBox: rect,
+                    boundingBox: box,
                     orderIndex: index,
-                    imageID: imageID,
-                    personID: nil
+                    wid: imageID,
+                    pid: nil
                 )
             }
             

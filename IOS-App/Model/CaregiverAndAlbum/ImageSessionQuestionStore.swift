@@ -28,11 +28,11 @@ final class ImageSessionQuestionStore {
     }
 
     func questions(for imageSessionID: UUID) -> [ImageSessionQuestion] {
-        questions.filter { $0.imageSessionID == imageSessionID }
+        questions.filter { $0.isid == imageSessionID }
     }
 
     func overallReflection(for imageSessionID: UUID) -> String {
-        questions.first { $0.imageSessionID == imageSessionID }?.responseText
+        questions.first { $0.isid == imageSessionID }?.responseText
         ?? "This moment was revisited together."
     }
 

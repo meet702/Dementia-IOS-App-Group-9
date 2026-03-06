@@ -44,7 +44,7 @@ class MemoryLaneHomeViewController: UIViewController {
 
         // Count how many times each image has been played
         let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
-            counts[image.wid] = allSessions.filter { $0.imageID == image.wid }.count
+            counts[image.wid] = allSessions.filter { $0.wid == image.wid }.count
         }
 
         // Find the minimum play count across all images
@@ -60,7 +60,7 @@ class MemoryLaneHomeViewController: UIViewController {
         let faces = FaceStore.shared.loadFaces(for: nextImage.wid)
 
         let people: [Person] = faces.compactMap {
-            guard let pid = $0.personID else { return nil }
+            guard let pid = $0.pid else { return nil }
             return PersonStore.shared.person(by: pid)
         }
 
@@ -168,7 +168,7 @@ class MemoryLaneHomeViewController: UIViewController {
 
         // Count play count per image
         let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
-            counts[image.wid] = allSessions.filter { $0.imageID == image.wid }.count
+            counts[image.wid] = allSessions.filter { $0.wid == image.wid }.count
         }
 
         let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
@@ -183,7 +183,7 @@ class MemoryLaneHomeViewController: UIViewController {
 
         // Left = most recently played (by session date)
         let leftWI = allSessions.first.flatMap {
-            LocalImageStore.shared.fetchImageModel(by: $0.imageID)
+            LocalImageStore.shared.fetchImageModel(by: $0.wid)
         }
 
         // Right = one after center, circular within allImages

@@ -124,8 +124,8 @@ class AlbumViewController: UIViewController {
                         fileName: facesWithPersonIDs[i].fileName,
                         boundingBox: facesWithPersonIDs[i].boundingBox,
                         orderIndex: facesWithPersonIDs[i].orderIndex,
-                        imageID: facesWithPersonIDs[i].imageID,
-                        personID: matchedPersonID
+                        wid: facesWithPersonIDs[i].wid,
+                        pid: matchedPersonID
                     )
                     print("✅ Auto-matched face \(i) to existing person: \(matchedPersonID)")
                 }
@@ -133,11 +133,10 @@ class AlbumViewController: UIViewController {
 
             // ✅ For any face still without a personID, create an anonymous person
             // This guarantees FaceVC always has questions to ask, even for unnamed people
-            for i in facesWithPersonIDs.indices where facesWithPersonIDs[i].personID == nil {
+            for i in facesWithPersonIDs.indices where facesWithPersonIDs[i].pid == nil {
                 let anonymousPerson = Person(
                     pid: UUID(),
-                    name: nil,
-                    relationLabel: nil
+                    name: nil
                 )
                 PersonStore.shared.add(anonymousPerson)
 
@@ -146,8 +145,8 @@ class AlbumViewController: UIViewController {
                     fileName: facesWithPersonIDs[i].fileName,
                     boundingBox: facesWithPersonIDs[i].boundingBox,
                     orderIndex: facesWithPersonIDs[i].orderIndex,
-                    imageID: facesWithPersonIDs[i].imageID,
-                    personID: anonymousPerson.pid
+                    wid: facesWithPersonIDs[i].wid,
+                    pid: anonymousPerson.pid
                 )
                 print("👤 Anonymous person created for face \(i): \(anonymousPerson.pid)")
             }

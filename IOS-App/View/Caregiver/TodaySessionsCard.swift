@@ -40,13 +40,13 @@ class TodaySessionsCard: UICollectionViewCell {
         timeLabel.text = imageSession.startedAt.formattedTime()
 
         // ✅ Load from permanent session store (survives album deletion)
-        if let image = SessionImageStore.shared.fetchImage(by: imageSession.imageID) {
+        if let image = SessionImageStore.shared.fetchImage(by: imageSession.wid) {
             imageView.image = image
-        } else if let image = LocalImageStore.shared.fetchImage(by: imageSession.imageID) {
+        } else if let image = LocalImageStore.shared.fetchImage(by: imageSession.wid) {
             // Fallback for sessions played before SessionImageStore was added
             imageView.image = image
             // Save it now so future loads work too
-            SessionImageStore.shared.saveSessionImage(for: imageSession.imageID)
+            SessionImageStore.shared.saveSessionImage(for: imageSession.wid)
         } else {
             imageView.image = UIImage(named: "photo_placeholder")
         }

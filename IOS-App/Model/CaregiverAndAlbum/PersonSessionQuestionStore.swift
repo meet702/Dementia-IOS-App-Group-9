@@ -28,7 +28,7 @@ final class PersonSessionQuestionStore {
     }
 
     func questions(for personSessionID: UUID) -> [PersonSessionQuestion] {
-        items.filter { $0.personSessionID == personSessionID }
+        items.filter { $0.psid == personSessionID }
     }
 
     private func save() {

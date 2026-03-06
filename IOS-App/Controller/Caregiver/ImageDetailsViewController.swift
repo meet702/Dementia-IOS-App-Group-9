@@ -55,17 +55,26 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         NotificationCenter.default.removeObserver(self)
     }
     
+    // MARK: - Action Section Reload
+    
+    /// ✅ Always use this instead of reloadSections directly for the actions section.
+    /// invalidateLayout() clears the compositional layout's cached cell sizes,
+    /// forcing a fresh measurement after content changes.
+    private func reloadActionSection() {
+        collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.reloadSections(IndexSet(integer: MemorySection.actions.rawValue))
+    }
+    
     // MARK: - Anonymous Person Creation
 
     /// Creates an anonymous Person for any face that has no personID yet.
     /// This ensures questions are always asked in FaceVC, even for unnamed faces.
     private func createAnonymousPersonIfNeeded(for index: Int) {
-        guard faces[index].personID == nil else { return }
+        guard faces[index].pid == nil else { return }
 
         let anonymousPerson = Person(
             pid: UUID(),
             name: nil,
-            relationLabel: nil
         )
         PersonStore.shared.add(anonymousPerson)
 
@@ -74,8 +83,8 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             fileName: faces[index].fileName,
             boundingBox: faces[index].boundingBox,
             orderIndex: faces[index].orderIndex,
-            imageID: faces[index].imageID,
-            personID: anonymousPerson.pid
+            wid: faces[index].wid,
+            pid: anonymousPerson.pid
         )
 
         print("👤 Anonymous person created for face at index \(index): \(anonymousPerson.pid)")
@@ -172,8 +181,8 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
                         fileName: newFace.fileName,
                         boundingBox: newFace.boundingBox,
                         orderIndex: newFace.orderIndex,
-                        imageID: newFace.imageID,
-                        personID: oldFace.personID
+                        wid: newFace.wid,
+                        pid: oldFace.pid
                     )
                 )
             } else {
@@ -188,7 +197,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         
         var didUpdate = false
 
-        for i in faces.indices where faces[i].personID == nil {
+        for i in faces.indices where faces[i].pid == nil {
 
             let url = FaceStore.shared.faceImageURL(for: faces[i].fileName)
 
@@ -205,8 +214,8 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
                     fileName: faces[i].fileName,
                     boundingBox: faces[i].boundingBox,
                     orderIndex: faces[i].orderIndex,
-                    imageID: faces[i].imageID,
-                    personID: matchedPersonID
+                    wid: faces[i].wid,
+                    pid: matchedPersonID
                 )
 
                 didUpdate = true
@@ -215,7 +224,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         // ✅ For any face still without a personID, create an anonymous person
         // so that FaceViewController can always look up and ask questions
-        for i in faces.indices where faces[i].personID == nil {
+        for i in faces.indices where faces[i].pid == nil {
             createAnonymousPersonIfNeeded(for: i)
             didUpdate = true
         }
@@ -502,7 +511,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             }
 
             cell.onDelete = { [weak self] in
-                guard let self = self,
+                guard let self,
                       let image = self.wholeImage else { return }
 
                 let updated = WholeImage(
@@ -517,9 +526,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
 
-                self.collectionView.reloadSections(
-                    IndexSet(integer: MemorySection.actions.rawValue)
-                )
+                // ✅ Use reloadActionSection() to bust the layout size cache
+                self.reloadActionSection()
 
                 print("🗑 Text deleted & persisted")
             }
@@ -529,7 +537,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             }
             
             cell.onDeleteVoice = { [weak self] in
-                guard let self = self,
+                guard let self,
                       let image = self.wholeImage else { return }
 
                 if case let .voice(url) = image.action {
@@ -553,9 +561,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
 
-                self.collectionView.reloadSections(
-                    IndexSet(integer: MemorySection.actions.rawValue)
-                )
+                // ✅ Use reloadActionSection() to bust the layout size cache
+                self.reloadActionSection()
 
                 print("✅ Voice deleted & fully cleaned")
             }
@@ -580,7 +587,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             }
 
             // ✅ Show "Add Name" for anonymous persons (nil name) or empty names
-            if let pid = face.personID,
+            if let pid = face.pid,
                let person = PersonStore.shared.person(by: pid),
                let name = person.name,
                !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -594,7 +601,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
                 let personID: UUID
 
-                if let existingID = face.personID {
+                if let existingID = face.pid {
                     // ✅ Reuse existing personID (could be anonymous person)
                     personID = existingID
 
@@ -602,7 +609,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                         let updated = Person(
                             pid: existingID,
                             name: newName,
-                            relationLabel: existingPerson.relationLabel
                         )
                         PersonStore.shared.add(updated)
                     }
@@ -613,7 +619,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                     let newPerson = Person(
                         pid: UUID(),
                         name: newName,
-                        relationLabel: nil
                     )
                     personID = newPerson.pid
                     PersonStore.shared.add(newPerson)
@@ -623,8 +628,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                         fileName: face.fileName,
                         boundingBox: face.boundingBox,
                         orderIndex: face.orderIndex,
-                        imageID: face.imageID,
-                        personID: personID
+                        wid: face.wid,
+                        pid: personID
                     )
                     self.faces[indexPath.item] = updatedFace
                     FaceStore.shared.saveFaces(self.faces)
@@ -732,7 +737,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         }
 
         vc.onSave = { [weak self] text in
-            guard let self = self,
+            guard let self,
                   let image = self.wholeImage else { return }
 
             let updated = WholeImage(
@@ -747,9 +752,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            self.collectionView.reloadSections(
-                IndexSet(integer: MemorySection.actions.rawValue)
-            )
+            // ✅ Use reloadActionSection() to bust the layout size cache
+            self.reloadActionSection()
 
             print("📝 Text persisted to album_metadata.json")
         }
@@ -778,7 +782,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         }
 
         vc.onSave = { [weak self] text in
-            guard let self = self,
+            guard let self,
                   let image = self.wholeImage else { return }
 
             let updated = WholeImage(
@@ -793,9 +797,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            self.collectionView.reloadSections(
-                IndexSet(integer: MemorySection.actions.rawValue)
-            )
+            // ✅ Use reloadActionSection() to bust the layout size cache
+            self.reloadActionSection()
 
             print("📝 Text persisted to album_metadata.json")
         }
@@ -821,7 +824,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
         }
 
         vc.onRecordingFinished = { [weak self] url in
-            guard let self = self,
+            guard let self,
                   let image = self.wholeImage else { return }
 
             let updated = WholeImage(
@@ -836,9 +839,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            self.collectionView.reloadSections(
-                IndexSet(integer: MemorySection.actions.rawValue)
-            )
+            // ✅ Use reloadActionSection() to bust the layout size cache
+            self.reloadActionSection()
 
             print("🎤 Voice persisted to album_metadata.json")
         }

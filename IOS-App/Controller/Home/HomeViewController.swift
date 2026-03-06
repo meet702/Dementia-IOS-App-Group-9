@@ -32,6 +32,11 @@ class HomeViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dataStoreUpdated(_:)), name: .DataStoreDidUpdateRoutines, object: nil)
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
+        
+        Task {
+//            await SupabaseTestService.insertPerson()
+            await SupabaseTestService.testConnection()
+        }
 
     }
     
@@ -62,7 +67,7 @@ class HomeViewController: UIViewController {
         let allSessions = ImageSessionStore.shared.allSessions()
 
         let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
-            counts[image.wid] = allSessions.filter { $0.imageID == image.wid }.count
+            counts[image.wid] = allSessions.filter { $0.wid == image.wid }.count
         }
 
         let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
@@ -237,18 +242,18 @@ class HomeViewController: UIViewController {
         }
 
         guard let nextSession = allSessions.first(where: {
-            $0.imageID == nextImageID
+            $0.wid == nextImageID
         }) else {
             return
         }
 
         // ✅ Try LocalImageStore first, construct minimal model if image was deleted from album
         let wholeImage: WholeImage
-        if let stored = LocalImageStore.shared.fetchImageModel(by: nextSession.imageID) {
+        if let stored = LocalImageStore.shared.fetchImageModel(by: nextSession.wid) {
             wholeImage = stored
         } else {
             wholeImage = WholeImage(
-                wid: nextSession.imageID,
+                wid: nextSession.wid,
                 fileName: "",
                 action: .empty,
                 createdAt: nextSession.startedAt
@@ -256,16 +261,16 @@ class HomeViewController: UIViewController {
         }
 
         // ✅ Load portrait from SessionImageStore first, fall back to LocalImageStore
-        guard let portraitImage = SessionImageStore.shared.fetchImage(by: nextSession.imageID)
-                               ?? LocalImageStore.shared.fetchImage(by: nextSession.imageID)
+        guard let portraitImage = SessionImageStore.shared.fetchImage(by: nextSession.wid)
+                               ?? LocalImageStore.shared.fetchImage(by: nextSession.wid)
         else {
             print("❌ Could not reconstruct image for recap")
             return
         }
 
-        let faces = FaceStore.shared.loadFaces(for: nextSession.imageID)
+        let faces = FaceStore.shared.loadFaces(for: nextSession.wid)
         let people: [Person] = faces.compactMap { face in
-            guard let pid = face.personID else { return nil }
+            guard let pid = face.pid else { return nil }
             return PersonStore.shared.person(by: pid)
         }
 

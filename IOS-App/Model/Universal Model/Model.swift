@@ -70,9 +70,27 @@ struct WholeImage: Identifiable, Codable {
 struct Person: Identifiable, Codable, Equatable {
     let pid: UUID
     var name: String?
-    var relationLabel: String?
+//    var relationLabel: String?
 
     var id: UUID { pid }
+}
+
+struct BoundingBox: Codable {
+    let x: CGFloat
+    let y: CGFloat
+    let width: CGFloat
+    let height: CGFloat
+    
+    init(rect: CGRect) {
+        self.x = rect.origin.x
+        self.y = rect.origin.y
+        self.width = rect.width
+        self.height = rect.height
+    }
+
+    var cgRect: CGRect {
+        CGRect(x: x, y: y, width: width, height: height)
+    }
 }
 
 // MARK: - Face (Visual instance in a specific image)
@@ -81,12 +99,12 @@ struct Face: Identifiable, Codable {
     let fid: UUID
     //let faceImageURL: URL?
     let fileName: String     // storing filename instead of url to persist image upon rerun
-    let boundingBox: CGRect
+    let boundingBox: BoundingBox
     let orderIndex: Int
 
     // ID references (NOT foreign keys)
-    let imageID: UUID          // refers to WholeImage.wid
-    let personID: UUID?        // refers to Person.pid (optional)
+    let wid: UUID          // refers to WholeImage.wid
+    let pid: UUID?        // refers to Person.pid (optional)
 
     var id: UUID { fid }
 }
@@ -95,7 +113,7 @@ struct Face: Identifiable, Codable {
 
 struct ImageSession: Identifiable, Codable {
     let isid: UUID
-    let imageID: UUID
+    let wid: UUID
     let sessionType: SessionType
 //    let playedBy: String?
     let startedAt: Date
@@ -114,8 +132,8 @@ enum SessionType: String, Codable {
 
 struct PersonSession: Identifiable, Codable {
     let psid: UUID
-    let imageSessionID: UUID
-    let personID: UUID
+    let isid: UUID
+    let pid: UUID
 
     var id: UUID { psid }
 }
@@ -155,13 +173,13 @@ enum QuestionType: String, Codable {
 
 struct ImageSessionQuestion: Identifiable, Codable {
     let isqid: UUID
-    let imageSessionID: UUID
-    let questionID: UUID
+    let isid: UUID
+    let qid: UUID
 
     let responseText: String?
     let selectedOption: String?
     let answeredAt: Date?
-    let confidenceScore: Double?
+//    let confidenceScore: Double?
 
     var id: UUID { isqid }
 }
@@ -170,15 +188,15 @@ struct ImageSessionQuestion: Identifiable, Codable {
 
 struct PersonSessionQuestion: Identifiable, Codable {
     let psqid: UUID
-    let personSessionID: UUID
-    let questionID: UUID
+    let psid: UUID
+    let qid: UUID
 
     let responseText: String?
     let selectedOption: String?
     let answeredAt: Date?
     
     let wasPositive: Bool?          // ⭐ ADD THIS ****NEW****
-    let confidenceScore: Double?
+//    let confidenceScore: Double?
 
     var id: UUID { psqid }
 }
@@ -187,7 +205,7 @@ struct PersonSessionQuestion: Identifiable, Codable {
 
 struct ImageSessionComment: Identifiable, Codable {
     let icid: UUID
-    let imageSessionID: UUID
+    let isid: UUID
     let commentText: String
     let createdBy: String?
     let createdAt: Date

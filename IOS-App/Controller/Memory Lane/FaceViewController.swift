@@ -88,7 +88,7 @@ final class FaceViewController: UIViewController {
         guard sessionMode == .play else { return }
         currentImageSession = ImageSession(
             isid: UUID(),
-            imageID: wholeImage.wid,
+            wid: wholeImage.wid,
             sessionType: .memoryLane,
 //            playedBy: "Patient",
             startedAt: Date(),
@@ -98,17 +98,17 @@ final class FaceViewController: UIViewController {
         
         print("\n🟢 IMAGE SESSION STARTED")
         print("   Session ID: \(currentImageSession.isid)")
-        print("   Image ID: \(currentImageSession.imageID)")
+        print("   Image ID: \(currentImageSession.wid)")
         print("   Started at: \(currentImageSession.startedAt)")
     }
     
     private func createPersonSession(for face: Face) {
-        guard let personID = face.personID else { return }
+        guard let personID = face.pid else { return }
         
         let personSession = PersonSession(
             psid: UUID(),
-            imageSessionID: currentImageSession.isid,
-            personID: personID
+            isid: currentImageSession.isid,
+            pid: personID
         )
         
         currentPersonSession = personSession
@@ -118,7 +118,6 @@ final class FaceViewController: UIViewController {
         print("\n👤 PERSON SESSION STARTED")
         if let person = people.first(where: { $0.pid == personID }) {
             print("   Name: \(person.name ?? "Unknown")")
-            print("   Relation: \(person.relationLabel ?? "N/A")")
         }
         print("   Person ID: \(personID)")
         print("   Session ID: \(personSession.psid)")
@@ -137,13 +136,12 @@ final class FaceViewController: UIViewController {
         
         let answer = PersonSessionQuestion(
             psqid: UUID(),
-            personSessionID: personSession.psid,
-            questionID: question.qid,
+            psid: personSession.psid,
+            qid: question.qid,
             responseText: responseText,
             selectedOption: selectedOption,
             answeredAt: Date(),
             wasPositive: wasPositive,
-            confidenceScore: nil
         )
 
         
@@ -169,12 +167,11 @@ final class FaceViewController: UIViewController {
         
         let answer = ImageSessionQuestion(
             isqid: UUID(),
-            imageSessionID: currentImageSession.isid,
-            questionID: questionID,
+            isid: currentImageSession.isid,
+            qid: questionID,
             responseText: text,
             selectedOption: nil,
             answeredAt: Date(),
-            confidenceScore: nil
         )
 
         
@@ -190,7 +187,7 @@ final class FaceViewController: UIViewController {
 
         currentImageSession.endedAt = Date()
         
-        SessionImageStore.shared.saveSessionImage(for: currentImageSession.imageID)
+        SessionImageStore.shared.saveSessionImage(for: currentImageSession.wid)
 
         // 🔥 Persist session
         ImageSessionStore.shared.addSession(currentImageSession)
@@ -208,7 +205,7 @@ final class FaceViewController: UIViewController {
         // Session Info
         print("\n🔷 Image Session:")
         print("   Session ID: \(currentImageSession.isid)")
-        print("   Image ID: \(currentImageSession.imageID)")
+        print("   Image ID: \(currentImageSession.wid)")
         print("   Type: \(currentImageSession.sessionType.rawValue)")
         print("   Started: \(currentImageSession.startedAt)")
         if let endedAt = currentImageSession.endedAt {
@@ -220,14 +217,13 @@ final class FaceViewController: UIViewController {
         // Person Sessions
         print("\n👥 Person Sessions: \(personSessions.count)")
         for (index, session) in personSessions.enumerated() {
-            if let person = people.first(where: { $0.pid == session.personID }) {
+            if let person = people.first(where: { $0.pid == session.pid }) {
                 print("\n   [\(index + 1)] \(person.name ?? "Unknown")")
-                print("       Person ID: \(session.personID)")
+                print("       Person ID: \(session.pid)")
                 print("       Session ID: \(session.psid)")
-                print("       Relation: \(person.relationLabel ?? "N/A")")
                 
                 // Get answers for this person session
-                let answers = personSessionAnswers.filter { $0.personSessionID == session.psid }
+                let answers = personSessionAnswers.filter { $0.psid == session.psid }
                 print("       Responses: \(answers.count)")
                 
                 for (answerIndex, answer) in answers.enumerated() {
@@ -461,7 +457,7 @@ final class FaceViewController: UIViewController {
     private func zoomToFace(_ face: Face) {
 
         view.isUserInteractionEnabled = false
-        let faceRect = convertFaceRectToImageView(face.boundingBox)
+        let faceRect = convertFaceRectToImageView(face.boundingBox.cgRect)
         let imageFrame = imageView.displayedImageFrame
 
         let scaleX = imageFrame.width / faceRect.width
@@ -502,9 +498,9 @@ final class FaceViewController: UIViewController {
         
         let face = faces[currentFaceIndex]
 
-        let personID = face.personID
+        let personID = face.pid
         let questions = personID.flatMap { questionsByPerson[$0] } ?? []
-        print("PersonID:", face.personID as Any)
+        print("PersonID:", face.pid as Any)
         print("Questions found:", questions.count)
         
         if currentQuestionIndex >= questions.count {
@@ -581,7 +577,7 @@ final class FaceViewController: UIViewController {
 
         let face = faces[currentFaceIndex]
 
-        guard let personID = face.personID,
+        guard let personID = face.pid,
               let questions = questionsByPerson[personID],
               currentQuestionIndex < questions.count
         else { return }
@@ -617,7 +613,7 @@ final class FaceViewController: UIViewController {
     // MARK: - Display Name
     
     private func getPersonName(for face: Face) -> String? {
-        guard let pid = face.personID,
+        guard let pid = face.pid,
               let person = people.first(where: { $0.pid == pid }),
               let rawName = person.name,          // nil name = anonymous, skip
               !rawName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -842,7 +838,7 @@ final class FaceViewController: UIViewController {
 
         let answer = answers[currentQuestionIndex]
 
-        let _ = AppDataStore.shared.prompt(for: answer.questionID)
+        let _ = AppDataStore.shared.prompt(for: answer.qid)
 
         let summaryText = answer.recapSummaryText
 
@@ -982,7 +978,7 @@ extension FaceViewController: UITextViewDelegate {
         
         // Save text response
         let currentFace = faces[currentFaceIndex]  // ✅ First declaration
-        if let personID = currentFace.personID,
+        if let personID = currentFace.pid,
            let questions = questionsByPerson[personID],
            currentQuestionIndex < questions.count {
             
@@ -998,7 +994,7 @@ extension FaceViewController: UITextViewDelegate {
         hideAllQuestionUI()
         currentQuestionIndex += 1
 
-        if let personID = currentFace.personID,  // ✅ Use the same currentFace variable
+        if let personID = currentFace.pid,  // ✅ Use the same currentFace variable
            let questions = questionsByPerson[personID],
            currentQuestionIndex >= questions.count {
 

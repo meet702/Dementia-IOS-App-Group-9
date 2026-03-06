@@ -30,8 +30,8 @@ final class FaceStore {
         }
 
         // 2️⃣ Remove old faces for this image
-        let imageID = faces.first?.imageID
-        allFaces.removeAll { $0.imageID == imageID }
+        let imageID = faces.first?.wid
+        allFaces.removeAll { $0.wid == imageID }
 
         // 3️⃣ Append updated faces
         allFaces.append(contentsOf: faces)
@@ -52,7 +52,7 @@ final class FaceStore {
             return []
         }
 
-        return allFaces.filter { $0.imageID == imageID }
+        return allFaces.filter { $0.wid == imageID }
     }
 
     // MARK: - Helpers
@@ -69,7 +69,7 @@ final class FaceStore {
     ) -> Face? {
 
         let faces = loadFaces(for: imageID)
-        return faces.first { $0.personID == personID }
+        return faces.first { $0.pid == personID }
     }
     
     func faceImage(for face: Face) -> UIImage? {
@@ -94,7 +94,7 @@ final class FaceStore {
               var allFaces = try? JSONDecoder().decode([Face].self, from: data)
         else { return }
 
-        allFaces.removeAll { $0.imageID == imageID }
+        allFaces.removeAll { $0.wid == imageID }
 
         guard let newData = try? JSONEncoder().encode(allFaces) else { return }
         try? newData.write(to: url)

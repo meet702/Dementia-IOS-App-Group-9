@@ -39,7 +39,7 @@ final class ResponseDetailViewController: UIViewController {
 
     private func configureNavigation() {
 
-        if let person = PersonStore.shared.person(by: personSession.personID),
+        if let person = PersonStore.shared.person(by: personSession.pid),
            let name = person.name,
            !name.isEmpty {
             navTitle.title = name
@@ -53,7 +53,7 @@ final class ResponseDetailViewController: UIViewController {
     private func configureLayout() {
 
         if let face = FaceStore.shared.face(
-            for: personSession.personID,
+            for: personSession.pid,
             in: imageID
         ),
         let image = FaceStore.shared.faceImage(for: face) {
@@ -121,7 +121,7 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
         ) as! TextDetailsTableViewCell
 
         //let questionText = QuestionStore.shared.prompt(for: response.questionID)
-        let questionText = questionPrompt(for: response.questionID)
+        let questionText = questionPrompt(for: response.qid)
         
         let answerText =
             response.responseText ??
