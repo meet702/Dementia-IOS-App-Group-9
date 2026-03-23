@@ -75,7 +75,7 @@ final class FaceDetectionService {
                     boundingBox: box,
                     orderIndex: index,
                     wid: imageID,
-                    pid: nil
+                    personName: nil
                 )
             }
             

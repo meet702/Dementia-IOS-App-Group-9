@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Supabase
 
 
 class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
@@ -65,30 +66,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         collectionView.reloadSections(IndexSet(integer: MemorySection.actions.rawValue))
     }
     
-    // MARK: - Anonymous Person Creation
-
-    /// Creates an anonymous Person for any face that has no personID yet.
-    /// This ensures questions are always asked in FaceVC, even for unnamed faces.
-    private func createAnonymousPersonIfNeeded(for index: Int) {
-        guard faces[index].pid == nil else { return }
-
-        let anonymousPerson = Person(
-            pid: UUID(),
-            name: nil,
-        )
-        PersonStore.shared.add(anonymousPerson)
-
-        faces[index] = Face(
-            fid: faces[index].fid,
-            fileName: faces[index].fileName,
-            boundingBox: faces[index].boundingBox,
-            orderIndex: faces[index].orderIndex,
-            wid: faces[index].wid,
-            pid: anonymousPerson.pid
-        )
-
-        print("👤 Anonymous person created for face at index \(index): \(anonymousPerson.pid)")
-    }
     
     // MARK: - Image + Face Loading
     
@@ -131,10 +108,15 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         // ✅ Faces already detected in AlbumVC — just load and match them
         if !savedFaces.isEmpty {
-            self.faces = savedFaces
+            self.faces = savedFaces.sorted { $0.orderIndex < $1.orderIndex }
+            for face in self.faces {
+                let url = FaceStore.shared.faceImageURL(for: face.fileName)
+                print("Face \(face.orderIndex) (\(face.personName ?? "unnamed")): \(face.fileName)")
+                print("   Local exists: \(FileManager.default.fileExists(atPath: url.path))")
+                print("   Local path: \(url.path)")
+            }
 
             DispatchQueue.main.async {
-                self.autoMatchFacesIfPossible()
                 self.collectionView.reloadSections(
                     IndexSet(integer: MemorySection.people.rawValue)
                 )
@@ -156,7 +138,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             DispatchQueue.main.async {
                 self.faces = finalFaces
                 FaceStore.shared.saveFaces(finalFaces)
-                self.autoMatchFacesIfPossible()
                 self.collectionView.reloadSections(
                     IndexSet(integer: MemorySection.people.rawValue)
                 )
@@ -182,7 +163,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
                         boundingBox: newFace.boundingBox,
                         orderIndex: newFace.orderIndex,
                         wid: newFace.wid,
-                        pid: oldFace.pid
+                        personName: oldFace.personName
                     )
                 )
             } else {
@@ -193,49 +174,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         return merged
     }
     
-    private func autoMatchFacesIfPossible() {
-        
-        var didUpdate = false
-
-        for i in faces.indices where faces[i].pid == nil {
-
-            let url = FaceStore.shared.faceImageURL(for: faces[i].fileName)
-
-            guard
-                let image = UIImage(contentsOfFile: url.path),
-                let embedding = FaceEmbedder.shared.embedding(from: image)
-            else { continue }
-
-            if let matchedPersonID =
-                FaceNameMatcher.shared.matchPerson(for: embedding) {
-
-                faces[i] = Face(
-                    fid: faces[i].fid,
-                    fileName: faces[i].fileName,
-                    boundingBox: faces[i].boundingBox,
-                    orderIndex: faces[i].orderIndex,
-                    wid: faces[i].wid,
-                    pid: matchedPersonID
-                )
-
-                didUpdate = true
-            }
-        }
-
-        // ✅ For any face still without a personID, create an anonymous person
-        // so that FaceViewController can always look up and ask questions
-        for i in faces.indices where faces[i].pid == nil {
-            createAnonymousPersonIfNeeded(for: i)
-            didUpdate = true
-        }
-
-        if didUpdate {
-            FaceStore.shared.saveFaces(faces)
-            collectionView.reloadSections(
-                IndexSet(integer: MemorySection.people.rawValue)
-            )
-        }
-    }
 
     // MARK: - Cell Registration
     
@@ -522,6 +460,23 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 )
 
                 LocalImageStore.shared.update(updated)
+                
+                Task {
+                    do {
+                        try await SupabaseManager.shared.client
+                            .from("WholeImage")
+                            .update([
+                                "action": updated.action ?? MemoryActionContent.empty
+                            ])
+                            .eq("wid", value: image.wid)
+                            .execute()
+
+                        print("☁️ WholeImage action synced to Supabase")
+
+                    } catch {
+                        print("❌ Supabase WholeImage update failed:", error)
+                    }
+                }
 
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
@@ -557,6 +512,22 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 )
 
                 LocalImageStore.shared.update(updated)
+                Task {
+                    do {
+                        try await SupabaseManager.shared.client
+                            .from("WholeImage")
+                            .update([
+                                "action": updated.action ?? MemoryActionContent.empty
+                            ])
+                            .eq("wid", value: image.wid)
+                            .execute()
+
+                        print("☁️ WholeImage action synced to Supabase")
+
+                    } catch {
+                        print("❌ Supabase WholeImage update failed:", error)
+                    }
+                }
 
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
@@ -587,9 +558,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             }
 
             // ✅ Show "Add Name" for anonymous persons (nil name) or empty names
-            if let pid = face.pid,
-               let person = PersonStore.shared.person(by: pid),
-               let name = person.name,
+            if let name = face.personName,
                !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 cell.nameLabel.text = name
             } else {
@@ -599,56 +568,24 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             cell.onNameChanged = { [weak self] newName in
                 guard let self else { return }
 
-                let personID: UUID
+                var updatedFace = face
+                updatedFace = Face(
+                    fid: face.fid,
+                    fileName: face.fileName,
+                    boundingBox: face.boundingBox,
+                    orderIndex: face.orderIndex,
+                    wid: face.wid,
+                    personName: newName
+                )
 
-                if let existingID = face.pid {
-                    // ✅ Reuse existing personID (could be anonymous person)
-                    personID = existingID
+                self.faces[indexPath.item] = updatedFace
+                FaceStore.shared.saveFaces(self.faces)
 
-                    if let existingPerson = PersonStore.shared.person(by: existingID) {
-                        let updated = Person(
-                            pid: existingID,
-                            name: newName,
-                        )
-                        PersonStore.shared.add(updated)
-                    }
-
-                } else {
-                    // Fallback: create a brand new person (shouldn't happen
-                    // after our anonymous person fix, but kept as safety net)
-                    let newPerson = Person(
-                        pid: UUID(),
-                        name: newName,
-                    )
-                    personID = newPerson.pid
-                    PersonStore.shared.add(newPerson)
-
-                    let updatedFace = Face(
-                        fid: face.fid,
-                        fileName: face.fileName,
-                        boundingBox: face.boundingBox,
-                        orderIndex: face.orderIndex,
-                        wid: face.wid,
-                        pid: personID
-                    )
-                    self.faces[indexPath.item] = updatedFace
-                    FaceStore.shared.saveFaces(self.faces)
+                Task {
+                    await SupabaseSyncManager.shared.upsertFaces([updatedFace])
                 }
 
                 self.collectionView.reloadItems(at: [indexPath])
-                
-                let faceUrl = FaceStore.shared.faceImageURL(for: face.fileName)
-
-                if let image = UIImage(contentsOfFile: faceUrl.path),
-                   let embedding = FaceEmbedder.shared.embedding(from: image) {
-
-                    PersonEmbeddingStore.shared.addEmbedding(
-                        embedding,
-                        for: personID
-                    )
-                } else {
-                    print("Failed to generate embedding for named face")
-                }
             }
             
             cell.nameTextField.addTarget(
@@ -748,6 +685,13 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             )
 
             LocalImageStore.shared.update(updated)
+            
+            Task {
+                await SupabaseSyncManager.shared.updateWholeImageAction(
+                    wid: image.wid,
+                    action: updated.action ?? .empty
+                )
+            }
 
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
@@ -793,6 +737,13 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             )
 
             LocalImageStore.shared.update(updated)
+            
+            Task {
+                await SupabaseSyncManager.shared.updateWholeImageAction(
+                    wid: image.wid,
+                    action: updated.action ?? .empty
+                )
+            }
 
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
@@ -835,6 +786,13 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             )
 
             LocalImageStore.shared.update(updated)
+            
+            Task {
+                await SupabaseSyncManager.shared.updateWholeImageAction(
+                    wid: image.wid,
+                    action: updated.action ?? .empty
+                )
+            }
 
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty

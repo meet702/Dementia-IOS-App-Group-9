@@ -60,20 +60,12 @@ struct WholeImage: Identifiable, Codable {
     let fileName: String                     // storing filename instead of url to persist image upon rerun
     let action: MemoryActionContent?
     let createdAt: Date
+    var caregiverUid: UUID?
 
     // SwiftUI identity (UI concern)
     var id: UUID { wid }
 }
 
-// MARK: - Person (Identity within a memory)
-
-struct Person: Identifiable, Codable, Equatable {
-    let pid: UUID
-    var name: String?
-//    var relationLabel: String?
-
-    var id: UUID { pid }
-}
 
 struct BoundingBox: Codable {
     let x: CGFloat
@@ -97,14 +89,16 @@ struct BoundingBox: Codable {
 
 struct Face: Identifiable, Codable {
     let fid: UUID
-    //let faceImageURL: URL?
-    let fileName: String     // storing filename instead of url to persist image upon rerun
+    let fileName: String
     let boundingBox: BoundingBox
     let orderIndex: Int
+    var caregiverUid: UUID?
 
-    // ID references (NOT foreign keys)
-    let wid: UUID          // refers to WholeImage.wid
-    let pid: UUID?        // refers to Person.pid (optional)
+    // Reference to the image
+    let wid: UUID
+
+    // Person name directly stored in Face (since Person table is removed)
+    var personName: String?
 
     var id: UUID { fid }
 }
@@ -119,6 +113,7 @@ struct ImageSession: Identifiable, Codable {
     let startedAt: Date
     var endedAt: Date?
     var recapCount: Int
+    var caregiverUid: UUID?
 
     var id: UUID { isid }
 }
@@ -133,7 +128,8 @@ enum SessionType: String, Codable {
 struct PersonSession: Identifiable, Codable {
     let psid: UUID
     let isid: UUID
-    let pid: UUID
+    let fid: UUID
+    var caregiverUid: UUID?
 
     var id: UUID { psid }
 }
@@ -175,6 +171,7 @@ struct ImageSessionQuestion: Identifiable, Codable {
     let isqid: UUID
     let isid: UUID
     let qid: UUID
+    var caregiverUid: UUID?
 
     let responseText: String?
     let selectedOption: String?
@@ -190,6 +187,7 @@ struct PersonSessionQuestion: Identifiable, Codable {
     let psqid: UUID
     let psid: UUID
     let qid: UUID
+    var caregiverUid: UUID?
 
     let responseText: String?
     let selectedOption: String?
@@ -212,6 +210,25 @@ struct ImageSessionComment: Identifiable, Codable {
 
     var id: UUID { icid }
 }
+
+struct UserProfile: Codable {
+    let uid: UUID
+    var name: String
+    var phone: String
+    var role: UserRole
+    var gender: String?
+    var caregiverUid: UUID?
+    var createdAt: Date?
+    var caregiverRelation: String?
+    var dob: String?   
+
+    enum UserRole: String, Codable {
+        case caregiver
+        case patient
+    }
+}
+
+
 
 extension PersonSessionQuestion {
     
@@ -277,5 +294,134 @@ extension PersonSessionQuestion {
         if selectedOption != nil { return true }
         if let text = responseText, !text.isEmpty { return true }
         return false
+    }
+    
+}
+
+struct RoutineTask: Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var subtitle: String?
+    var scheduledDate: Date?
+    var time: Date
+    var isRepeatDaily: Bool
+    var completedDates: [Date]
+    var isCompleted: Bool
+    var caregiverUid: UUID?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case subtitle
+        case scheduledDate
+        case time
+        case isRepeatDaily
+        case completedDates
+        case isCompleted
+        case caregiverUid
+    }
+
+    // MARK: - Encode (to Supabase / local JSON)
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(title, forKey: .title)
+        try container.encodeIfPresent(subtitle, forKey: .subtitle)
+
+        // scheduledDate as "yyyy-MM-dd" IST string
+        if let scheduledDate = scheduledDate {
+            let df = DateFormatter()
+            df.dateFormat = "yyyy-MM-dd"
+            df.timeZone = TimeZone.current
+            try container.encode(df.string(from: scheduledDate), forKey: .scheduledDate)
+        }
+
+        try container.encode(isRepeatDaily, forKey: .isRepeatDaily)
+
+        // completedDates as ["yyyy-MM-dd"] IST strings
+        let cdf = DateFormatter()
+        cdf.dateFormat = "yyyy-MM-dd"
+        cdf.timeZone = TimeZone.current
+        let completedStrings = completedDates.map { cdf.string(from: $0) }
+        try container.encode(completedStrings, forKey: .completedDates)
+
+        try container.encode(isCompleted, forKey: .isCompleted)
+
+        // time as "HH:mm:ss" string
+        let tf = DateFormatter()
+        tf.dateFormat = "HH:mm:ss"
+        let timeString = tf.string(from: time)
+        try container.encode(timeString, forKey: .time)
+
+        try container.encodeIfPresent(caregiverUid, forKey: .caregiverUid)
+    }
+
+    // MARK: - Decode (from Supabase / local JSON)
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(UUID.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
+        isRepeatDaily = try container.decode(Bool.self, forKey: .isRepeatDaily)
+        isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
+        caregiverUid = try container.decodeIfPresent(UUID.self, forKey: .caregiverUid)
+
+        // scheduledDate from "yyyy-MM-dd" string
+        if let dateString = try container.decodeIfPresent(String.self, forKey: .scheduledDate) {
+            let df = DateFormatter()
+            df.dateFormat = "yyyy-MM-dd"
+            df.timeZone = TimeZone.current
+            scheduledDate = df.date(from: dateString)
+        } else {
+            scheduledDate = nil
+        }
+
+        // time from "HH:mm:ss" string — combine with today's date
+        let timeString = try container.decode(String.self, forKey: .time)
+        let tf = DateFormatter()
+        tf.dateFormat = "HH:mm:ss"
+        tf.timeZone = TimeZone.current
+        if let parsedTime = tf.date(from: timeString) {
+            let calendar = Calendar.current
+            var components = calendar.dateComponents([.year, .month, .day], from: Date())
+            let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: parsedTime)
+            components.hour = timeComponents.hour
+            components.minute = timeComponents.minute
+            components.second = timeComponents.second
+            time = calendar.date(from: components) ?? parsedTime
+        } else {
+            time = Date()
+        }
+
+        // completedDates from ["yyyy-MM-dd"] — store as UTC midnight
+        let completedStrings = try container.decodeIfPresent([String].self, forKey: .completedDates) ?? []
+        let utcDf = DateFormatter()
+        utcDf.dateFormat = "yyyy-MM-dd"
+        utcDf.timeZone = TimeZone(identifier: "UTC")!
+        completedDates = completedStrings.compactMap { utcDf.date(from: $0) }
+    }
+
+    // MARK: - Memberwise init
+    init(
+        id: UUID,
+        title: String,
+        subtitle: String? = nil,
+        scheduledDate: Date? = nil,
+        time: Date,
+        isRepeatDaily: Bool,
+        completedDates: [Date],
+        isCompleted: Bool,
+        caregiverUid: UUID? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.subtitle = subtitle
+        self.scheduledDate = scheduledDate
+        self.time = time
+        self.isRepeatDaily = isRepeatDaily
+        self.completedDates = completedDates
+        self.isCompleted = isCompleted
+        self.caregiverUid = caregiverUid
     }
 }

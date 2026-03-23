@@ -23,6 +23,7 @@ final class PersonSessionStore {
     }()
 
     func add(_ session: PersonSession) {
+        guard !sessions.contains(where: { $0.psid == session.psid }) else { return }
         sessions.append(session)
         save()
     }
@@ -43,5 +44,10 @@ final class PersonSessionStore {
         else { return }
 
         sessions = decoded
+    }
+    
+    func clearAll() {
+        try? FileManager.default.removeItem(at: fileURL)  // use whatever your file URL property is named
+        print("🧹 PersonSessionStore cleared")
     }
 }

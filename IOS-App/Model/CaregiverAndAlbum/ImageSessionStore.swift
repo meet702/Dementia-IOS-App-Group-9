@@ -25,6 +25,7 @@ final class ImageSessionStore {
     // MARK: - Public API
 
     func addSession(_ session: ImageSession) {
+        guard !sessions.contains(where: { $0.isid == session.isid }) else { return }
         sessions.insert(session, at: 0)
         save()
     }
@@ -78,5 +79,10 @@ final class ImageSessionStore {
             .filter { $0.sessionType == .memoryLane && $0.recapCount == 0 }
             .sorted { $0.startedAt < $1.startedAt }
             .first
+    }
+    
+    func clearAll() {
+        try? FileManager.default.removeItem(at: fileURL)  // use whatever your file URL property is named
+        print("🧹 ImageSessionStore cleared")
     }
 }

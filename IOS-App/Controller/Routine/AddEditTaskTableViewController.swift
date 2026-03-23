@@ -17,7 +17,7 @@ class AddEditTaskTableViewController: UITableViewController {
 
     var onSave: (() -> Void)?
     var shouldRepeatDaily = false
-    var repository: RoutineRepository!
+    var repository: RoutineStore!
 
     enum TaskMode {
         case add
@@ -37,7 +37,7 @@ class AddEditTaskTableViewController: UITableViewController {
         super.viewDidLoad()
         
         if repository == nil {
-           repository = RoutineRepository()
+            repository = RoutineStore.shared
        }
 
         repeatCell.onSwitchChanged = { [weak self] isOn in
@@ -58,7 +58,7 @@ class AddEditTaskTableViewController: UITableViewController {
 
         case .edit(let task):
             navigationItem.title = "Edit Task"
-            originalTitle = task.title ?? ""
+            originalTitle = task.title
             originalDate = task.scheduledDate
             originalTime = task.time
             originalRepeatDaily = task.isRepeatDaily
@@ -66,7 +66,7 @@ class AddEditTaskTableViewController: UITableViewController {
             titleText = originalTitle
             hasChanges = false
             
-            titleText = task.title ?? ""
+            titleText = task.title
             notesText = task.subtitle ?? ""
 
             
@@ -74,7 +74,7 @@ class AddEditTaskTableViewController: UITableViewController {
             selectedDate = task.scheduledDate ?? selectedDate
 
             
-            selectedTimeValue = task.time ?? Date()
+            selectedTimeValue = task.time
             
             dateCell.datePicker.isEnabled = true
             
@@ -164,7 +164,7 @@ class AddEditTaskTableViewController: UITableViewController {
 
     @objc private func saveTapped() {
         let _ = combine(
-            date: selectedDateValue,
+            date: selectedDateValue ?? Date(),
             time: selectedTimeValue
         )
         print("SAVING TASK FOR DATE:", selectedDateValue)

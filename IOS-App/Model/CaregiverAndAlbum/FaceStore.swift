@@ -52,7 +52,9 @@ final class FaceStore {
             return []
         }
 
-        return allFaces.filter { $0.wid == imageID }
+        return allFaces
+            .filter { $0.wid == imageID }
+            .sorted { $0.orderIndex < $1.orderIndex } // ✅ always sorted by orderIndex
     }
 
     // MARK: - Helpers
@@ -63,14 +65,6 @@ final class FaceStore {
             .appendingPathComponent(fileName)
     }
     
-    func face(
-        for personID: UUID,
-        in imageID: UUID
-    ) -> Face? {
-
-        let faces = loadFaces(for: imageID)
-        return faces.first { $0.pid == personID }
-    }
     
     func faceImage(for face: Face) -> UIImage? {
         let url = faceImageURL(for: face.fileName)
@@ -100,6 +94,25 @@ final class FaceStore {
         try? newData.write(to: url)
 
         print("🗑 Faces deleted for imageID: \(imageID)")
+    }
+    func clearAll() {
+        // Delete JSON metadata
+        try? FileManager.default.removeItem(at: fileURL())
+        
+        // ✅ Also delete all face image files
+        let faceImagesFolder = documentsDirectory()
+            .appendingPathComponent("FaceImages")
+        try? FileManager.default.removeItem(at: faceImagesFolder)
+        
+        print("🧹 FaceStore cleared")
+    }
+    
+    func loadAllFaces() -> [Face] {
+        let url = fileURL()
+        guard let data = try? Data(contentsOf: url),
+              let faces = try? JSONDecoder().decode([Face].self, from: data)
+        else { return [] }
+        return faces
     }
 
 }

@@ -13,7 +13,7 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var homeCollectionView: UICollectionView!
     @IBOutlet weak var sosButton: UIBarButtonItem!
     
-    private let routineRepository = RoutineRepository()
+    private let routineRepository = RoutineStore.shared
     private var selectedDate: Date = Date()
     
     var brainBoosters: [BrainBoostersCardModel] = [
@@ -33,11 +33,67 @@ class HomeViewController: UIViewController {
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
         
+//        if LocalImageStore.shared.fetchAllImages().isEmpty {
+//            showRestoreLoadingIndicator()
+//
+//            Task { [weak self] in 
+//                await SupabaseSyncManager.shared.restoreAllData()
+//
+//                await MainActor.run {
+//                    self?.hideRestoreLoadingIndicator()
+//                    self?.homeCollectionView.reloadData()
+//                    // ✅ Notify all other screens to reload
+//                    NotificationCenter.default.post(
+//                        name: .didRestoreFromSupabase,
+//                        object: nil
+//                    )
+//                    print("🔄 Full restore complete, UI reloaded")
+//                }
+//            }
+//        }
+        
         Task {
-//            await SupabaseTestService.insertPerson()
-            await SupabaseTestService.testConnection()
+            await SupabaseSyncManager.shared.uploadMissingFaceImages()
         }
 
+    }
+    
+    private var loadingOverlay: UIView?
+
+    private func showRestoreLoadingIndicator() {
+        let overlay = UIView(frame: view.bounds)
+        overlay.backgroundColor = UIColor.systemBackground
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.startAnimating()
+
+        let label = UILabel()
+        label.text = "Restoring your memories..."
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 16)
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView(arrangedSubviews: [spinner, label])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        overlay.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: overlay.centerYAnchor)
+        ])
+
+        view.addSubview(overlay)
+        loadingOverlay = overlay
+    }
+    
+    private func hideRestoreLoadingIndicator() {
+        loadingOverlay?.removeFromSuperview()
+        loadingOverlay = nil
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -269,10 +325,6 @@ class HomeViewController: UIViewController {
         }
 
         let faces = FaceStore.shared.loadFaces(for: nextSession.wid)
-        let people: [Person] = faces.compactMap { face in
-            guard let pid = face.pid else { return nil }
-            return PersonStore.shared.person(by: pid)
-        }
 
         let storyboard = UIStoryboard(name: "MemoryLane", bundle: nil)
 
@@ -284,12 +336,13 @@ class HomeViewController: UIViewController {
         faceVC.recapImageSession = nextSession
         faceVC.wholeImage = wholeImage
         faceVC.faces = faces
-        faceVC.people = people
         faceVC.portraitImage = portraitImage
         faceVC.questionsByPerson = [:]
 
         navigationController?.pushViewController(faceVC, animated: true)
     }
+    
+    
 
 }
 
@@ -453,4 +506,8 @@ extension HomeViewController: UICollectionViewDelegate {
         }
         
     }
+}
+
+extension Notification.Name {
+    static let didRestoreFromSupabase = Notification.Name("didRestoreFromSupabase")
 }

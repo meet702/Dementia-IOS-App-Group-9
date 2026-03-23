@@ -9,10 +9,14 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
 
     // MARK: - Dependencies
 
-    private let routineRepository = RoutineRepository()
+    private let routineRepository = RoutineStore.shared
     private let sessionStore = ImageSessionStore.shared
 
     private var selectedDate: Date = Date()
+    var firstName: String {
+        let fullName = SessionManager.shared.patientName ?? "Patient"
+        return fullName.components(separatedBy: " ").first ?? fullName
+    }
 
     // MARK: - Computed
 
@@ -40,11 +44,29 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         )
         tapGesture.cancelsTouchesInView = false
         caregiverCollectionView.addGestureRecognizer(tapGesture)
+        
+        if LocalImageStore.shared.fetchAllImages().isEmpty {
+
+            Task { [weak self] in
+                await SupabaseSyncManager.shared.restoreCaregiverMemories()
+
+                await MainActor.run {
+                    print("🔄 Reloading Home UI after restore")
+                    self?.caregiverCollectionView.reloadData()
+                }
+            }
+
+        }
+        SessionManager.shared.loadFromDefaults() 
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         selectedDate = Date()
+        let fullName = SessionManager.shared.caregiverName ?? "Caregiver"
+        let caregiverFirstName = fullName.components(separatedBy: " ").first ?? fullName
+        
+        navigationItem.title = "Hello \(caregiverFirstName)"
         caregiverCollectionView.reloadData()
     }
 
@@ -212,7 +234,7 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
 
         if segue.identifier == "showRoutine",
            let destination = segue.destination as? RoutineViewController {
-
+            destination.caregiverTitle = "\(firstName)'s Routine"
             destination.userRole = .caregiver
             return
         }
@@ -275,10 +297,12 @@ extension CaregiverViewController: UICollectionViewDataSource {
         return cell
     }
     
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
         if indexPath.section == 1 {
-            headerView.configureHeaderCell(text: "Arjun's Routine",
+            headerView.configureHeaderCell(text: "\(firstName)'s Routine",
                                            showChevron: true,
                                            isTappable: true,
                                            onTap: { [weak self] in

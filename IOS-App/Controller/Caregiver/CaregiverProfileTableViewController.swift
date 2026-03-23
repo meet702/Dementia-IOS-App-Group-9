@@ -9,43 +9,39 @@ import UIKit
 
 class CaregiverProfileTableViewController: UITableViewController {
 
-    @IBOutlet weak var dobLabel: UILabel!
+    
+    @IBOutlet weak var caregiverNameLabel: UILabel!
     @IBOutlet weak var genderLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var contactLabel: UILabel!
-    
-    let profileData: CaregiverProfile = CaregiverProfile(dateOfBirth: "22 Feb 1994 (31)", gender: "Male", patientName: "Ks Arjun", patientAddress: "Sankalp Society", patientContact: "9815475752")
-    
-    func setProfile(profileInfo: CaregiverProfile) {
-        dobLabel.text = profileInfo.dateOfBirth
-        genderLabel.text = profileInfo.gender
-        nameLabel.text = profileInfo.patientName
-        addressLabel.text = profileInfo.patientAddress
-        contactLabel.text = profileInfo.patientContact
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setProfile(profileInfo: profileData)
+        loadProfileData()
+        
+    }
+    
+    func loadProfileData() {
+        guard let profile = SessionManager.shared.currentUserProfile else { return }
+
+        // Caregiver info — from their own profile
+        let caregiverName = profile.name
+        let caregiverGender = profile.gender ?? "-"
+
+        // Patient info — from SessionManager (set by fetchPatientProfile after restore)
+        let patientName = SessionManager.shared.patientName ?? "-"
+        let patientContact = SessionManager.shared.patientContact ?? "-"
+
+        caregiverNameLabel.text = caregiverName
+        genderLabel.text = caregiverGender
+        nameLabel.text = patientName
+        contactLabel.text = patientContact
+        self.title = caregiverName
     }
 
     @IBAction func donebutton(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
     
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0: return 2
-        case 1: return 4
-        
-        default:
-            fatalError("fatal error")
-        }
-    }
 }

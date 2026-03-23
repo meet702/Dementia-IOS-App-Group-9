@@ -23,6 +23,7 @@ final class ImageSessionQuestionStore {
     }()
 
     func add(_ question: ImageSessionQuestion) {
+        guard !questions.contains(where: { $0.isqid == question.isqid }) else { return }
         questions.append(question)
         save()
     }
@@ -48,5 +49,9 @@ final class ImageSessionQuestionStore {
         else { return }
 
         questions = decoded
+    }
+    func clearAll() {
+        try? FileManager.default.removeItem(at: fileURL)  // use whatever your file URL property is named
+        print("🧹 ImageSessionQuestionStore cleared")
     }
 }

@@ -13,9 +13,9 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     var morningTasks: [RoutineTask] = []
     var afternoonTasks: [RoutineTask] = []
     var eveningTasks: [RoutineTask] = []
+    var caregiverTitle: String?
 
-    let repository = RoutineRepository()
-    let context = PersistenceController.shared.context
+    let repository = RoutineStore.shared
 
     enum RoutineUserRole {
         case patient
@@ -26,7 +26,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        repository.createBaselineRoutineIfNeeded()
+//        repository.createBaselineRoutineIfNeeded()
         registerCells()
         routineCollectionView.dataSource = self
         routineCollectionView.delegate = self
@@ -45,6 +45,22 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         tasksTableView.reloadData()
 
         selectDateInCollectionView(selectedDate, animated: false)
+        
+        navigationItem.title = caregiverTitle ?? "My Routine"
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(routineDataUpdated),
+            name: .DataStoreDidUpdateRoutines,
+            object: nil
+        )
+    }
+    
+    @objc private func routineDataUpdated() {
+        DispatchQueue.main.async { [weak self] in
+            self?.splitTasksByTime()
+            self?.tasksTableView.reloadData()
+        }
     }
 
     func numberOfSections(in tableView: UITableView) -> Int { 3 }
@@ -69,10 +85,12 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         ) as! TaskTableViewCell
 
         let task = getTaskAt(indexPath)
-        let isCompleted = repository.isTaskCompleted(task, on: selectedDate)
+        
+        // ✅ Re-fetch from store to get latest completedDates
+        let freshTask = repository.fetchAllTasks().first(where: { $0.id == task.id }) ?? task
+        let isCompleted = repository.isTaskCompleted(freshTask, on: selectedDate)
 
-        cell.configure(task: task, isCompleted: isCompleted)
-
+        cell.configure(task: freshTask, isCompleted: isCompleted)
 
         let isToday = Calendar.current.isDateInToday(selectedDate)
         let canToggle = isToday && userRole == .patient
@@ -80,17 +98,16 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         cell.checkButton.isEnabled = canToggle
         cell.checkButton.alpha = canToggle ? 1.0 : 0.6
 
-
         cell.onCheckTapped = { [weak self] in
             guard
                 let self = self,
-                self.userRole == .patient,                      // 🔒 ROLE CHECK
+                self.userRole == .patient,
                 Calendar.current.isDateInToday(self.selectedDate)
-            else {
-                return
-            }
+            else { return }
 
-            self.repository.toggleCompletion(task: task, date: self.selectedDate)
+            // ✅ Always fetch fresh task at toggle time
+            let currentTask = self.repository.fetchAllTasks().first(where: { $0.id == task.id }) ?? task
+            self.repository.toggleCompletion(task: currentTask, date: self.selectedDate)
             self.splitTasksByTime()
             tableView.reloadData()
         }
@@ -128,8 +145,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             [weak self] _, _, complete in
             guard let self = self else { return }
 
-            self.context.delete(task)
-            try? self.context.save()
+            repository.delete(task)
 
             self.splitTasksByTime()
             tableView.reloadData()
@@ -193,21 +209,21 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
 
         morningTasks = visibleTasks
             .filter {
-                let h = calendar.component(.hour, from: $0.time!)
+                let h = calendar.component(.hour, from: $0.time)
                 return h >= 5 && h < 12
             }
             .sorted(by: compareByTime)
 
         afternoonTasks = visibleTasks
             .filter {
-                let h = calendar.component(.hour, from: $0.time!)
+                let h = calendar.component(.hour, from: $0.time)
                 return h >= 12 && h < 17
             }
             .sorted(by: compareByTime)
 
         eveningTasks = visibleTasks
             .filter {
-                let h = calendar.component(.hour, from: $0.time!)
+                let h = calendar.component(.hour, from: $0.time)
                 return h >= 17 || h < 5
             }
             .sorted(by: compareByTime)
@@ -215,8 +231,8 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     
     private func compareByTime(_ t1: RoutineTask, _ t2: RoutineTask) -> Bool {
         let cal = Calendar.current
-        let c1 = cal.dateComponents([.hour, .minute], from: t1.time!)
-        let c2 = cal.dateComponents([.hour, .minute], from: t2.time!)
+        let c1 = cal.dateComponents([.hour, .minute], from: t1.time)
+        let c2 = cal.dateComponents([.hour, .minute], from: t2.time)
 
         let m1 = (c1.hour ?? 0) * 60 + (c1.minute ?? 0)
         let m2 = (c2.hour ?? 0) * 60 + (c2.minute ?? 0)

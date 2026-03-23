@@ -59,17 +59,11 @@ class MemoryLaneHomeViewController: UIViewController {
 
         let faces = FaceStore.shared.loadFaces(for: nextImage.wid)
 
-        let people: [Person] = faces.compactMap {
-            guard let pid = $0.pid else { return nil }
-            return PersonStore.shared.person(by: pid)
-        }
-
-        let questions = buildQuestions(for: people)
+        let questions = buildQuestions(for: faces)
 
         navigateToPictureIntro(
             wholeImage: nextImage,
             faces: faces,
-            people: people,
             questions: questions,
             portraitImage: uiImage
         )
@@ -77,16 +71,19 @@ class MemoryLaneHomeViewController: UIViewController {
 
     // MARK: - Question Builder
 
-    private func buildQuestions(for people: [Person]) -> [UUID: [Question]] {
-
-        var questionsByPerson: [UUID: [Question]] = [:]
+    private func buildQuestions(for faces: [Face]) -> [String: [Question]] {
+        var questionsByPerson: [String: [Question]] = [:]
         let dataStore = AppDataStore.shared
 
-        for person in people {
+        for face in faces {
+
+            guard let name = face.personName?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !name.isEmpty else { continue }
+
             if let mcq = dataStore.randomMCQ(),
                let textQ = dataStore.randomTextQuestion() {
 
-                questionsByPerson[person.pid] = [mcq, textQ]
+                questionsByPerson[name] = [mcq, textQ]
             }
         }
 
@@ -208,8 +205,7 @@ class MemoryLaneHomeViewController: UIViewController {
     private func navigateToPictureIntro(
         wholeImage: WholeImage,
         faces: [Face],
-        people: [Person],
-        questions: [UUID: [Question]],
+        questions: [String: [Question]],
         portraitImage: UIImage
     ) {
         let storyboard = UIStoryboard(name: "MemoryLane", bundle: nil)
@@ -223,7 +219,6 @@ class MemoryLaneHomeViewController: UIViewController {
 
         nextVC.wholeImage = wholeImage
         nextVC.faces = faces
-        nextVC.people = people
         nextVC.questionsByPerson = questions
         nextVC.portraitImage = portraitImage
 

@@ -1,8 +1,8 @@
 import UIKit
+import Supabase
 
 class PatientInputDetailsViewController: UIViewController {
 
-    @IBOutlet weak var progressView: UIProgressView!
     @IBOutlet weak var fullNameTextField: UITextField!
     @IBOutlet weak var dobTextField: UITextField!
     @IBOutlet weak var genderTextField: UITextField!
@@ -14,66 +14,45 @@ class PatientInputDetailsViewController: UIViewController {
 
     private let totalStepsFloat: Float = 6
     private var currentStepFloat: Float = 1
+    var verifiedPhone: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         view.backgroundColor = UIColor(red: 0.99, green: 0.96, blue: 0.91, alpha: 1)
-
         enableKeyboardDismissOnTap()
-        configureProgressUI()
         configureFields()
         configureDatePicker()
         configureGenderPicker()
     }
 
-    // MARK: Progress
-
-    private func configureProgressUI() {
-        progressView.progress = currentStepFloat / totalStepsFloat
-        progressView.trackTintColor = .systemGray5
-        progressView.progressTintColor = .systemOrange
-        progressView.layer.cornerRadius = 3
-        progressView.clipsToBounds = true
-    }
 
     // MARK: Figma Styled Fields
 
     private func configureFields() {
-        
-
         doneButton.layer.cornerRadius = 27
         doneButton.clipsToBounds = true
         doneButton.backgroundColor = UIColor.systemOrange
         doneButton.setTitleColor(.white, for: .normal)
 
-        // Hide caret for the picker-backed textfields so user uses pickers
         dobTextField.tintColor = .clear
         genderTextField.tintColor = .clear
 
-        // Right view icons
         let calendarBtn = UIButton(type: .system)
         calendarBtn.setImage(UIImage(systemName: "chevron.up.chevron.down"), for: .normal)
         calendarBtn.tintColor = .systemGray3
         calendarBtn.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         calendarBtn.addTarget(self, action: #selector(dobTapped), for: .touchUpInside)
-
         dobTextField.rightView = calendarBtn
         dobTextField.rightViewMode = .always
-
 
         let genderChevron = UIButton(type: .system)
         genderChevron.setImage(UIImage(systemName: "chevron.up.chevron.down"), for: .normal)
         genderChevron.tintColor = .systemGray3
         genderChevron.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         genderChevron.addTarget(self, action: #selector(genderTapped), for: .touchUpInside)
-
-
         genderTextField.rightView = genderChevron
         genderTextField.rightViewMode = .always
 
-
-        // Basic textfield styling
         [fullNameTextField, dobTextField, genderTextField].forEach { tf in
             tf?.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
             tf?.layer.cornerRadius = 10
@@ -81,6 +60,7 @@ class PatientInputDetailsViewController: UIViewController {
             tf?.setLeftPadding(12)
         }
     }
+
     // MARK: Date Picker
 
     private func configureDatePicker() {
@@ -99,12 +79,8 @@ class PatientInputDetailsViewController: UIViewController {
         dobTextField.inputAccessoryView = toolbar
     }
 
-    @objc private func dobTapped() {
-        dobTextField.becomeFirstResponder()
-    }
-    @objc private func genderTapped() {
-        genderTextField.becomeFirstResponder()
-    }
+    @objc private func dobTapped() { dobTextField.becomeFirstResponder() }
+    @objc private func genderTapped() { genderTextField.becomeFirstResponder() }
 
     @objc private func dateDone() {
         let df = DateFormatter()
@@ -112,7 +88,6 @@ class PatientInputDetailsViewController: UIViewController {
         dobTextField.text = df.string(from: datePicker.date)
         dobTextField.resignFirstResponder()
         dobTextField.textColor = UIColor.darkGray
-
     }
 
     // MARK: Gender Picker
@@ -135,39 +110,63 @@ class PatientInputDetailsViewController: UIViewController {
         genderTextField.text = genders[row]
         genderTextField.resignFirstResponder()
         genderTextField.textColor = UIColor.darkGray
-
     }
 
     // MARK: Actions
 
     @IBAction func doneTapped(_ sender: UIButton) {
+        guard let name = fullNameTextField.text, !name.isEmpty else { showAlert("Enter full name"); return }
+        guard let dob = dobTextField.text, !dob.isEmpty else { showAlert("Select date of birth"); return }
+        guard let gender = genderTextField.text, !gender.isEmpty else { showAlert("Select gender"); return }
 
-        guard let name = fullNameTextField.text, !name.isEmpty else {
-            showAlert("Enter full name")
-            return
-        }
+        SessionManager.shared.patientName = name
+        doneButton.isEnabled = false
 
-        guard let dob = dobTextField.text, !dob.isEmpty else {
-            showAlert("Select date of birth")
-            return
-        }
-
-        guard let gender = genderTextField.text, !gender.isEmpty else {
-            showAlert("Select gender")
-            return
-        }
-
-        performSegue(withIdentifier: "showMCQ", sender: nil)
+        createPatientProfile(name: name, gender: gender, dob: dob)  // ✅ pass dob
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showMCQ",
-           let mcqVC = segue.destination as? MCQViewController {
+    // MARK: Supabase
 
-            mcqVC.questions = OnboardingQuestionBank.patientQuestions()
-            mcqVC.headerTitles = OnboardingQuestionBank.patientHeaders
-            mcqVC.startingStep = 2
-            mcqVC.totalSteps = 6
+    private func createPatientProfile(name: String, gender: String, dob: String) {
+        guard let uid = SupabaseManager.shared.client.auth.currentUser?.id else {
+            showAlert("Session expired. Please log in again.")
+            doneButton.isEnabled = true
+            return
+        }
+
+        let profile = UserProfile(
+            uid: uid,
+            name: name,
+            phone: verifiedPhone,
+            role: .patient,
+            gender: gender,
+            caregiverUid: nil,
+            createdAt: Date(),
+            dob: dob
+        )
+
+        Task {
+            do {
+                try await SupabaseSyncManager.shared.createUserProfile(profile)
+                SessionManager.shared.currentUserProfile = profile
+                await MainActor.run {
+                    self.performSegue(withIdentifier: "goToHomeScreen", sender: nil)
+                }
+            } catch {
+                await MainActor.run {
+                    self.doneButton.isEnabled = true
+                    self.showAlert(error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    // MARK: Segue
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToHomeScreen",
+           let homeVC = segue.destination as? HomeViewController {
+            // pass anything HomeViewController needs here
         }
     }
 
@@ -177,6 +176,8 @@ class PatientInputDetailsViewController: UIViewController {
         present(alert, animated: true)
     }
 }
+
+// MARK: Picker
 
 extension PatientInputDetailsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }

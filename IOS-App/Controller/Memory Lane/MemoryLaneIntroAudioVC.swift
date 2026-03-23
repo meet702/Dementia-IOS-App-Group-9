@@ -20,8 +20,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     var portraitImage: UIImage!
     var wholeImage: WholeImage!
     var faces: [Face] = []
-    var people: [Person] = []
-    var questionsByPerson: [UUID: [Question]] = [:]
+    var questionsByPerson: [String: [Question]] = [:]
     
     private var isPlaying = false
 
@@ -37,7 +36,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         
         print("🔍 AudioVC viewDidLoad:")
         print("   Faces: \(faces.count)")
-        print("   People: \(people.count)")
 //        print("   WholeImage ID: \(wholeImage.wid)")
         
         configureUI()
@@ -220,6 +218,8 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     }
     
     private func setupAudio(from url: URL) {
+        print("🎵 Attempting audio setup from URL: \(url)")
+        print("   File exists: \(FileManager.default.fileExists(atPath: url.path))")
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
@@ -471,7 +471,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
             faceVC.wholeImage = wholeImage
             faceVC.faces = faces
-            faceVC.people = people
             faceVC.questionsByPerson = questionsByPerson
             faceVC.portraitImage = portraitImage   // 🔥 HERE
         }

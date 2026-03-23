@@ -23,6 +23,7 @@ final class PersonSessionQuestionStore {
     }()
 
     func add(_ question: PersonSessionQuestion) {
+        guard !items.contains(where: { $0.psqid == question.psqid }) else { return }
         items.append(question)
         save()
     }
@@ -44,5 +45,10 @@ final class PersonSessionQuestionStore {
 
         items = decoded
     }
+    func clearAll() {
+        try? FileManager.default.removeItem(at: fileURL)  // use whatever your file URL property is named
+        print("🧹 PersonSessionQuestionStore cleared")
+    }
+    
 }
 

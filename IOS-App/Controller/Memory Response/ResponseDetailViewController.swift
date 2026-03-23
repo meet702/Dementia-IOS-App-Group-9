@@ -39,9 +39,11 @@ final class ResponseDetailViewController: UIViewController {
 
     private func configureNavigation() {
 
-        if let person = PersonStore.shared.person(by: personSession.pid),
-           let name = person.name,
-           !name.isEmpty {
+        let faces = FaceStore.shared.loadFaces(for: imageID)
+        let face = faces.first(where: { $0.fid == personSession.fid })
+        let name = face?.personName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        if !name.isEmpty {
             navTitle.title = name
         } else {
             navTitle.title = "Someone in this memory"
@@ -52,11 +54,10 @@ final class ResponseDetailViewController: UIViewController {
     
     private func configureLayout() {
 
-        if let face = FaceStore.shared.face(
-            for: personSession.pid,
-            in: imageID
-        ),
-        let image = FaceStore.shared.faceImage(for: face) {
+        let faces = FaceStore.shared.loadFaces(for: imageID)
+
+        if let face = faces.first(where: { $0.fid == personSession.fid }),
+           let image = FaceStore.shared.faceImage(for: face) {
 
             personImage.image = image
 

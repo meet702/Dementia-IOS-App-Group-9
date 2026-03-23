@@ -171,6 +171,13 @@ final class AppDataStore {
             "Would you like to stay with this moment a bit longer?"
         ]
     }
+    
+    func defaultQuestions() -> [Question] {
+        var questions: [Question] = []
+        if let mcq = mcqQuestions.randomElement() { questions.append(mcq) }
+        if let text = textQuestions.randomElement() { questions.append(text) }
+        return questions
+    }
 
     // MARK: - Unified Lookup
 

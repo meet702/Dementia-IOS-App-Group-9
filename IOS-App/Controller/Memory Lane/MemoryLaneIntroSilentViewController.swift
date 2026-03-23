@@ -14,8 +14,7 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
 
     var wholeImage: WholeImage!
     var faces: [Face] = []
-    var people: [Person] = []
-    var questionsByPerson: [UUID: [Question]] = [:]
+    var questionsByPerson: [String: [Question]] = [:]
     var portraitImage: UIImage!
     // MARK: - Lifecycle
 
@@ -24,7 +23,6 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
         print("🔍 SilentVC viewDidLoad:")
 //        print("   WholeImage ID: \(wholeImage.wid)")
         print("   Faces: \(faces.count)")
-        print("   People: \(people.count)")
         
         configureUI()
         loadImage()
@@ -186,7 +184,6 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
 
             audioVC.wholeImage = wholeImage
             audioVC.faces = faces
-            audioVC.people = people
             audioVC.questionsByPerson = questionsByPerson
             audioVC.portraitImage = portraitImage   
         }

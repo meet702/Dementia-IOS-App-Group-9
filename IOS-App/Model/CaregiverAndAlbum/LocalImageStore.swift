@@ -135,5 +135,17 @@ final class LocalImageStore {
         return FileManager.default.fileExists(atPath: url.path)
     }
     
+    func clearAll() {
+        // ✅ Delete the JSON metadata file
+        try? FileManager.default.removeItem(at: metadataURL())
+
+        // ✅ Delete all image files
+        let albumFolder = documentsDirectory()
+            .appendingPathComponent("AlbumImages")
+        try? FileManager.default.removeItem(at: albumFolder)
+
+        print("🧹 LocalImageStore cleared")
+    }
+    
 
 }

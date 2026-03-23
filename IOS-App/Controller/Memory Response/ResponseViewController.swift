@@ -17,8 +17,11 @@ final class ResponseViewController: UIViewController {
     // MARK: - Outlets
 
     @IBOutlet weak var tableView: UITableView!
-
-    // MARK: - Lifecycle
+    
+    var patientName: String {
+        let fullName = SessionManager.shared.patientName ?? "Patient"
+        return fullName.components(separatedBy: " ").first ?? fullName
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +31,6 @@ final class ResponseViewController: UIViewController {
             return
         }
 
-        // Fetch people involved in this session
         personSessions = PersonSessionStore.shared.personSessions(for: imageSession.isid)
 
         tableView.delegate = self
@@ -44,9 +46,7 @@ final class ResponseViewController: UIViewController {
         super.viewDidLayoutSubviews()
         updateTableHeaderSize()
     }
-
-    // MARK: - Header Configuration
-
+    
     private func configureHeader(with session: ImageSession) {
 
         let header = Bundle.main.loadNibNamed(
@@ -55,9 +55,8 @@ final class ResponseViewController: UIViewController {
             options: nil
         )!.first as! MemoryHeaderView
 
-        header.titleLabel.text = "Here's what Arjun shared about this moment"
+        header.titleLabel.text = "Here's what \(patientName) shared about this moment"
 
-        // Whole-moment reflection (optional)
         let reflection = ImageSessionQuestionStore.shared
             .overallReflection(for: session.isid)
 
@@ -65,13 +64,13 @@ final class ResponseViewController: UIViewController {
             ? "This memory was revisited together."
             : reflection
 
-        // ✅ Load from permanent session store (survives album deletion)
+        
         if let image = SessionImageStore.shared.fetchImage(by: session.wid) {
             header.headerImageView.image = image
         } else if let image = LocalImageStore.shared.fetchImage(by: session.wid) {
-            // Fallback for sessions played before this update
+           
             header.headerImageView.image = image
-            // Save it now so future loads work too
+            
             SessionImageStore.shared.saveSessionImage(for: session.wid)
         } else {
             header.headerImageView.image = UIImage(systemName: "photo")
@@ -87,8 +86,6 @@ final class ResponseViewController: UIViewController {
         navigationItem.title = formatter.string(from: date)
     }
 
-    // MARK: - Navigation
-
     private func openPersonDetail(_ person: PersonSession) {
         let vc = storyboard!.instantiateViewController(
             identifier: "ResponseDetailViewController"
@@ -100,8 +97,6 @@ final class ResponseViewController: UIViewController {
 
         present(vc, animated: true)
     }
-
-    // MARK: - Table Header Helpers
 
     private func installTableHeaderView(_ header: UIView) {
         tableView.tableHeaderView = header
@@ -127,8 +122,6 @@ final class ResponseViewController: UIViewController {
         }
     }
 }
-
-// MARK: - UITableViewDataSource
 
 extension ResponseViewController: UITableViewDataSource {
 
@@ -161,7 +154,6 @@ extension ResponseViewController: UITableViewDataSource {
     }
 }
 
-// MARK: - UITableViewDelegate
 
 extension ResponseViewController: UITableViewDelegate {
 

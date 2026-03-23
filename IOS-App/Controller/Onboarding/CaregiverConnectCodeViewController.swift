@@ -1,4 +1,5 @@
 import UIKit
+import Supabase
 
 class CaregiverConnectCodeViewController: UIViewController {
 
@@ -14,8 +15,10 @@ class CaregiverConnectCodeViewController: UIViewController {
         setupUI()
     }
 
-    // MARK: UI
-
+    var verifiedPhone: String = ""
+    var caregiverName: String = ""
+    var caregiverGender: String = ""
+    var caregiverRelation: String = ""
 
     private func setupUI() {
 
@@ -26,7 +29,7 @@ class CaregiverConnectCodeViewController: UIViewController {
         //codeTextField.setLeftPadding(12)
 
         codeTextField.attributedPlaceholder = NSAttributedString(
-            string: "Enter connection code",
+            string: "Enter patients phone number",
             attributes: [
                 .foregroundColor: UIColor.systemGray3,
                 .font: UIFont.systemFont(ofSize: 16)
@@ -34,22 +37,72 @@ class CaregiverConnectCodeViewController: UIViewController {
         )
     }
 
+    // Add this helper to CaregiverConnectCodeViewController
+    private func normalizePhone(_ phone: String) -> String {
+        let digits = phone.filter { $0.isNumber }
+        return digits.hasPrefix("91") ? "+\(digits)" : "+91\(digits)"
+    }
 
     // MARK: Actions
 
     @IBAction func finishTapped(_ sender: UIButton) {
 
-        let code = codeTextField.text?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let phone = normalizePhone(codeTextField.text ?? "")
 
-        guard !code.isEmpty else {
-            showAlert("Please enter the connection code.")
+        guard !phone.isEmpty else {
+            showAlert("Please enter the patient's phone number.")
             return
         }
 
-        // Later → Save connection code to Caregiver Profile
+        guard let caregiverUid = SupabaseManager.shared.client.auth.currentUser?.id else {
+            showAlert("You are not logged in. Please restart the app.")
+            return
+        }
 
-        performSegue(withIdentifier: "goToCaregiverHome", sender: nil)
+        // ✅ Disable button to prevent double taps
+        finishButton.isEnabled = false
+
+        Task {
+            do {
+                try await SupabaseSyncManager.shared.connectCaregiverToPatient(
+                    patientPhone: phone,
+                    caregiverUid: caregiverUid,
+                    caregiverRelation: caregiverRelation
+                )
+
+                // ✅ Now create the caregiver's own profile
+                let caregiverProfile = UserProfile(
+                    uid: caregiverUid,
+                    name: caregiverName,
+                    phone: verifiedPhone,
+                    role: .caregiver,
+                    gender: caregiverGender,  // ✅ add this
+                    caregiverUid: nil,
+                    createdAt: Date(),
+                    caregiverRelation: nil
+                )
+
+                try await SupabaseSyncManager.shared.createUserProfile(caregiverProfile)
+                SessionManager.shared.currentUserProfile = caregiverProfile
+                SessionManager.shared.populateFromProfile(caregiverProfile)
+                
+                if let patientProfile = try? await SupabaseSyncManager.shared.fetchPatientProfile(caregiverUid: caregiverUid) {
+                    SessionManager.shared.patientName = patientProfile.name
+                    SessionManager.shared.patientContact = patientProfile.phone
+                    SessionManager.shared.saveToDefaults()
+                }
+
+                await MainActor.run {
+                    self.performSegue(withIdentifier: "goToCaregiverHome", sender: nil)
+                }
+
+            } catch {
+                await MainActor.run {
+                    self.finishButton.isEnabled = true
+                    self.showAlert(error.localizedDescription)
+                }
+            }
+        }
     }
 
     // MARK: Alert

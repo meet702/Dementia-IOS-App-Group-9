@@ -7,13 +7,13 @@ class CaregiverInputDetailsViewController: UIViewController {
 
     private let fields: [InputField] = [
         InputField(title: "Full Name", placeholder: "Enter full name", type: .text),
-        InputField(title: "Mobile Number", placeholder: "Enter mobile number", type: .phone),
-        InputField(title: "Patient's Address", placeholder: "Enter patient's address", type: .text),
         InputField(title: "Relationship with patient", placeholder: "Enter relationship", type: .text),
         InputField(title: "Gender", placeholder: "Select gender", type: .picker)
     ]
 
     private var inputValues: [Int: String] = [:]
+    private var cachedCells: [Int: InputCell] = [:]
+    var verifiedPhone: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,24 +42,27 @@ class CaregiverInputDetailsViewController: UIViewController {
     @IBAction func nextTapped(_ sender: UIButton) {
         view.endEditing(true)
 
-        for index in 0..<fields.count {
-            if inputValues[index]?.trimmingCharacters(in: .whitespaces).isEmpty ?? true {
-                showAlert("Please fill all fields")
-                return
-            }
+        guard let name = inputValues[0]?.trimmingCharacters(in: .whitespaces), !name.isEmpty,
+              let relationship = inputValues[1]?.trimmingCharacters(in: .whitespaces), !relationship.isEmpty,
+              let gender = inputValues[2]?.trimmingCharacters(in: .whitespaces), !gender.isEmpty else {
+            showAlert("Please fill all fields")
+            return
         }
 
-        performSegue(withIdentifier: "showCaregiverMCQ", sender: nil)
+        SessionManager.shared.caregiverName = name
+        SessionManager.shared.caregiverGender = gender
+        SessionManager.shared.caregiverRelation = relationship
+
+        performSegue(withIdentifier: "showCaregiverConnect", sender: nil)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showCaregiverMCQ",
-           let mcqVC = segue.destination as? CaregiverMCQViewController {
-
-            mcqVC.questions = OnboardingQuestionBank.caregiverQuestions()
-            mcqVC.headerTitles = OnboardingQuestionBank.caregiverHeaders
-            mcqVC.startingStep = 2
-            mcqVC.totalSteps = 7
+        if segue.identifier == "showCaregiverConnect",
+           let mcqVC = segue.destination as? CaregiverConnectCodeViewController {
+            mcqVC.verifiedPhone = verifiedPhone          // ✅ pass forward
+            mcqVC.caregiverName = inputValues[0] ?? ""   // ✅ index 0 is Full Name
+            mcqVC.caregiverRelation = inputValues[1] ?? ""
+            mcqVC.caregiverGender = inputValues[2] ?? ""
         }
     }
 
@@ -76,19 +79,21 @@ extension CaregiverInputDetailsViewController: UITableViewDelegate, UITableViewD
         fields.count
     }
 
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        let row = indexPath.row
+
+        // Return cached cell if it exists
+        if let cached = cachedCells[row] { return cached }
 
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "InputCell",
             for: indexPath
         ) as? InputCell else { return UITableViewCell() }
 
-        let field = fields[indexPath.row]
-
+        let field = fields[row]
         cell.backgroundColor = .clear
         cell.contentView.backgroundColor = .clear
-
         cell.configure(title: field.title, placeholder: field.placeholder)
 
         switch field.type {
@@ -101,9 +106,11 @@ extension CaregiverInputDetailsViewController: UITableViewDelegate, UITableViewD
         }
 
         cell.onTextChanged = { [weak self] text in
-            self?.inputValues[indexPath.row] = text
+            self?.inputValues[row] = text
         }
 
+        // Cache it so it's never reused
+        cachedCells[row] = cell
         return cell
     }
 }

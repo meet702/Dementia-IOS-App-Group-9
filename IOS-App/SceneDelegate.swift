@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Supabase
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -16,7 +17,72 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = UIViewController()
+        window?.backgroundColor = UIColor(red: 0.96, green: 0.94, blue: 0.90, alpha: 1)
+        window?.makeKeyAndVisible()
+        
+        clearKeychainIfFirstLaunch()
+        
+        Task {
+            do {
+                // Supabase restores session from Keychain automatically
+                let authSession = try await SupabaseManager.shared.client.auth.session
+                let uid = authSession.user.id
+                
+                if let profile = try await SupabaseSyncManager.shared.fetchUserProfile(uid: uid) {
+                    SessionManager.shared.currentUserProfile = profile
+                    await SupabaseSyncManager.shared.restoreAllData()
+                    
+                    await MainActor.run {
+                        self.showHome(for: profile.role)
+                    }
+                } else {
+                    // Logged in but no profile yet → resume role selection
+                    await MainActor.run {
+                        self.showOnboarding()
+                    }
+                }
+            } catch {
+                // No valid session → fresh onboarding
+                await MainActor.run {
+                    self.showOnboarding()
+                }
+            }
+        }
+    }
+    
+    private func showHome(for role: UserProfile.UserRole) {
+        let (sbName, vcID) = role == .caregiver
+            ? ("Caregiver", "CaregiverHomeNav")
+            : ("Home", "PatientHomeNav")
+        
+        let vc = UIStoryboard(name: sbName, bundle: nil)
+            .instantiateViewController(withIdentifier: vcID)
+        vc.modalPresentationStyle = .fullScreen
+        window?.rootViewController = vc
+        window?.makeKeyAndVisible()
+    }
+
+    private func showOnboarding() {
+        let vc = UIStoryboard(name: "Main", bundle: nil)
+            .instantiateInitialViewController()!
+        window?.rootViewController = vc
+        window?.makeKeyAndVisible()
+    }
+    
+    private func clearKeychainIfFirstLaunch() {
+        let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        
+        if !hasLaunchedBefore {
+            // Fresh install — clear any stale Supabase session from Keychain
+            Task {
+                try? await SupabaseManager.shared.client.auth.signOut()
+            }
+            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

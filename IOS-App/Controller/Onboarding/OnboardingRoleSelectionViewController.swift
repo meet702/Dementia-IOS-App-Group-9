@@ -15,6 +15,8 @@ class OnboardingRoleSelectionViewController: UIViewController {
         view.backgroundColor = UIColor(red: 0.99, green: 0.96, blue: 0.91, alpha: 1)
         setupCollectionView()
     }
+    
+    var verifiedPhone: String = ""  // ✅ passed from OTPVerificationVC
 
     private func setupCollectionView() {
 
@@ -58,11 +60,13 @@ class OnboardingRoleSelectionViewController: UIViewController {
         if segue.identifier == "showPatientDetails",
            let dest = segue.destination as? PatientInputDetailsViewController {
             dest.navigationItem.title = "Patient"
+            dest.verifiedPhone = verifiedPhone  // ✅
         }
 
         if segue.identifier == "showCaregiverDetails",
            let dest = segue.destination as? CaregiverInputDetailsViewController {
             dest.navigationItem.title = "Caregiver"
+            dest.verifiedPhone = verifiedPhone  // ✅
         }
     }
 }

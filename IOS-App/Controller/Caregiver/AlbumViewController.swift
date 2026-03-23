@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Supabase
 
 class AlbumViewController: UIViewController {
 
@@ -27,6 +28,22 @@ class AlbumViewController: UIViewController {
         
         setupImagePicker()
         loadImages()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRestoreComplete),
+            name: .didRestoreFromSupabase,
+            object: nil
+        )
+    }
+    
+    @objc private func handleRestoreComplete() {
+        DispatchQueue.main.async {
+            self.loadImages()
+        }
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func updateEmptyState() {
@@ -79,25 +96,29 @@ class AlbumViewController: UIViewController {
         imagePicker.allowsEditing = false
     }
 
-    // MARK: - Data Loading
 
     private func loadImages() {
         images = LocalImageStore.shared
             .fetchAllImages()
-            .filter { LocalImageStore.shared.fileExists(for: $0) }
             .sorted { $0.createdAt > $1.createdAt }
 
-        albumCollectionView.reloadData()
-        updateEmptyState()
+        DispatchQueue.main.async {
+            self.albumCollectionView.reloadData()
+            self.updateEmptyState()
+        }
     }
 
     // MARK: - Face Detection
 
     private func detectAndSaveFaces(for wholeImage: WholeImage, image: UIImage) {
-
         let existingFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
-        guard existingFaces.isEmpty else {
-            print("⏭ Faces already detected for image \(wholeImage.wid), skipping.")
+
+        if !existingFaces.isEmpty {
+            print("⏭ Faces already local, re-syncing to Supabase...")
+            Task {
+                await SupabaseSyncManager.shared.upsertFaces(existingFaces)
+                await SupabaseSyncManager.shared.uploadFaceImages(existingFaces)
+            }
             return
         }
 
@@ -108,55 +129,15 @@ class AlbumViewController: UIViewController {
             in: normalizedImage,
             imageID: wholeImage.wid
         ) { detectedFaces in
-
-            var facesWithPersonIDs = detectedFaces
-
-            // ✅ Try auto-matching known faces via embeddings first
-            for i in facesWithPersonIDs.indices {
-                let url = FaceStore.shared.faceImageURL(for: facesWithPersonIDs[i].fileName)
-
-                if let faceImage = UIImage(contentsOfFile: url.path),
-                   let embedding = FaceEmbedder.shared.embedding(from: faceImage),
-                   let matchedPersonID = FaceNameMatcher.shared.matchPerson(for: embedding) {
-
-                    facesWithPersonIDs[i] = Face(
-                        fid: facesWithPersonIDs[i].fid,
-                        fileName: facesWithPersonIDs[i].fileName,
-                        boundingBox: facesWithPersonIDs[i].boundingBox,
-                        orderIndex: facesWithPersonIDs[i].orderIndex,
-                        wid: facesWithPersonIDs[i].wid,
-                        pid: matchedPersonID
-                    )
-                    print("✅ Auto-matched face \(i) to existing person: \(matchedPersonID)")
-                }
+            FaceStore.shared.saveFaces(detectedFaces)
+            Task {
+                await SupabaseSyncManager.shared.upsertFaces(detectedFaces)
+                await SupabaseSyncManager.shared.uploadFaceImages(detectedFaces)
             }
-
-            // ✅ For any face still without a personID, create an anonymous person
-            // This guarantees FaceVC always has questions to ask, even for unnamed people
-            for i in facesWithPersonIDs.indices where facesWithPersonIDs[i].pid == nil {
-                let anonymousPerson = Person(
-                    pid: UUID(),
-                    name: nil
-                )
-                PersonStore.shared.add(anonymousPerson)
-
-                facesWithPersonIDs[i] = Face(
-                    fid: facesWithPersonIDs[i].fid,
-                    fileName: facesWithPersonIDs[i].fileName,
-                    boundingBox: facesWithPersonIDs[i].boundingBox,
-                    orderIndex: facesWithPersonIDs[i].orderIndex,
-                    wid: facesWithPersonIDs[i].wid,
-                    pid: anonymousPerson.pid
-                )
-                print("👤 Anonymous person created for face \(i): \(anonymousPerson.pid)")
-            }
-
-            FaceStore.shared.saveFaces(facesWithPersonIDs)
-            print("✅ \(facesWithPersonIDs.count) face(s) saved with personIDs for image: \(wholeImage.wid)")
+            print("✅ \(detectedFaces.count) face(s) saved for image: \(wholeImage.wid)")
         }
     }
 
-    // MARK: - Actions
 
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
         let imagePicker = UIImagePickerController()
@@ -191,8 +172,7 @@ class AlbumViewController: UIViewController {
         alertController.popoverPresentationController?.barButtonItem = sender
         present(alertController, animated: true)
     }
-
-    // MARK: - Image Picker Helpers
+    
 
     private func openPhotoLibrary() {
         guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) else { return }
@@ -208,12 +188,11 @@ class AlbumViewController: UIViewController {
 
     private func deleteImage(_ image: WholeImage, at indexPath: IndexPath) {
 
-        // ✅ Only delete the main album image file + metadata
-        // Do NOT delete face metadata or face images — they are needed
-        // by ResponseDetailViewController to show person images in session history
         LocalImageStore.shared.deleteImage(image)
+        Task {
+            await SupabaseSyncManager.shared.deleteWholeImage(wid: image.wid)
+        }
 
-        // ✅ Update local array and animate removal
         images.remove(at: indexPath.item)
 
         albumCollectionView.performBatchUpdates {
@@ -249,8 +228,6 @@ class AlbumViewController: UIViewController {
     }
 }
 
-// MARK: - UICollectionViewDelegate + DataSource
-
 extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -282,8 +259,6 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
 }
 
-// MARK: - UIImagePickerControllerDelegate
-
 extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     func imagePickerController(
@@ -294,9 +269,15 @@ extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationCont
 
         guard let image = info[.originalImage] as? UIImage else { return }
 
-        // ✅ Save image and immediately trigger face detection in background
         let savedWholeImage = LocalImageStore.shared.saveImage(image)
-        detectAndSaveFaces(for: savedWholeImage, image: image)
+        
+        Task {
+            await SupabaseSyncManager.shared.insertWholeImage(savedWholeImage)
+
+            DispatchQueue.main.async {
+                self.detectAndSaveFaces(for: savedWholeImage, image: image)
+            }
+        }
 
         loadImages()
 

@@ -35,9 +35,7 @@ class TaskTableViewCell: UITableViewCell {
 
         titleLabel.text = task.title
 
-        if let time = task.time {
-            timePicker.date = time
-        }
+        timePicker.date = task.time
 
         updateCheckState(isChecked: isCompleted)
 

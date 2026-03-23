@@ -9,7 +9,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
     private let dividerInset: CGFloat = 12
     private let dividerTag = 999
     private var contextDate: Date = Date()
-    private let repository = RoutineRepository()
+    private let repository = RoutineStore.shared
 
     private lazy var timeFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -72,11 +72,11 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         let periodTasks: [RoutineTask] = {
             switch period {
             case .morning:
-                return sortedTasks.filter { $0.time.map(Self.isInMorning) ?? false }
+                return sortedTasks.filter { Self.isInMorning($0.time) }
             case .afternoon:
-                return sortedTasks.filter { $0.time.map(Self.isInAfternoon) ?? false }
+                return sortedTasks.filter { Self.isInAfternoon($0.time) }
             case .evening:
-                return sortedTasks.filter { $0.time.map(Self.isInEvening) ?? false }
+                return sortedTasks.filter { Self.isInEvening($0.time) }
             }
         }()
 
@@ -148,7 +148,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         // MARK: - Title
         let titleLabel = UILabel()
         titleLabel.font = .preferredFont(forTextStyle: .body)
-        titleLabel.text = item.title ?? ""
+        titleLabel.text = item.title
         titleLabel.textColor = isCompleted ? .systemGray2 : .label
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -159,9 +159,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         timeLabel.textColor = isCompleted ? .systemGray2 : .label
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        if let time = item.time {
-            timeLabel.text = timeFormatter.string(from: time)
-        }
+        timeLabel.text = timeFormatter.string(from: item.time)
 
         row.addSubview(checkboxButton)
         row.addSubview(titleLabel)
@@ -249,27 +247,23 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         if hour >= 12 && hour < 17 { return .afternoon }
         return .evening
     }
-    @MainActor
     private func morningTasks(from tasks: [RoutineTask]) -> [RoutineTask] {
-        tasks.filter { $0.time.map(Self.isInMorning) ?? false }
+        tasks.filter { Self.isInMorning($0.time) }
     }
-    @MainActor
     private func afternoonTasks(from tasks: [RoutineTask]) -> [RoutineTask] {
-        tasks.filter { $0.time.map(Self.isInAfternoon) ?? false }
+        tasks.filter { Self.isInAfternoon($0.time) }
     }
-    @MainActor
     private func eveningTasks(from tasks: [RoutineTask]) -> [RoutineTask] {
-        tasks.filter { $0.time.map(Self.isInEvening) ?? false }
+        tasks.filter { Self.isInEvening($0.time) }
     }
 
     private func sortTasksByTime(_ tasks: [RoutineTask]) -> [RoutineTask] {
         let calendar = Calendar.current
 
         return tasks.sorted {
-            guard let d1 = $0.time, let d2 = $1.time else { return false }
 
-            let c1 = calendar.dateComponents([.hour, .minute], from: d1)
-            let c2 = calendar.dateComponents([.hour, .minute], from: d2)
+            let c1 = calendar.dateComponents([.hour, .minute], from: $0.time)
+            let c2 = calendar.dateComponents([.hour, .minute], from: $1.time)
 
             let m1 = (c1.hour ?? 0) * 60 + (c1.minute ?? 0)
             let m2 = (c2.hour ?? 0) * 60 + (c2.minute ?? 0)
