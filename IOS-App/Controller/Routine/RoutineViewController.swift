@@ -22,6 +22,16 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         case caregiver
     }
     var userRole: RoutineUserRole = .patient
+    
+    private let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "No tasks added"
+        label.textColor = .systemGray
+        label.font = UIFont.systemFont(ofSize: 24)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +53,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         splitTasksByTime()
 
         tasksTableView.reloadData()
+        updateEmptyState()
 
         selectDateInCollectionView(selectedDate, animated: false)
         
@@ -54,12 +65,24 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             name: .DataStoreDidUpdateRoutines,
             object: nil
         )
+        
+        view.addSubview(emptyLabel)
+        NSLayoutConstraint.activate([
+            emptyLabel.centerXAnchor.constraint(equalTo: tasksTableView.centerXAnchor),
+            emptyLabel.centerYAnchor.constraint(equalTo: tasksTableView.centerYAnchor)
+        ])
+    }
+    
+    private func updateEmptyState() {
+        let hasNoTasks = morningTasks.isEmpty && afternoonTasks.isEmpty && eveningTasks.isEmpty
+        emptyLabel.isHidden = !hasNoTasks
     }
     
     @objc private func routineDataUpdated() {
         DispatchQueue.main.async { [weak self] in
             self?.splitTasksByTime()
             self?.tasksTableView.reloadData()
+            self?.updateEmptyState()
         }
     }
 
@@ -110,21 +133,58 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             self.repository.toggleCompletion(task: currentTask, date: self.selectedDate)
             self.splitTasksByTime()
             tableView.reloadData()
+            updateEmptyState()
         }
 
         return cell
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        titleForHeaderInSection section: Int
-    ) -> String? {
+//    func tableView(
+//        _ tableView: UITableView,
+//        titleForHeaderInSection section: Int
+//    ) -> String? {
+//        switch section {
+//        case 0: return "Morning"
+//        case 1: return "Afternoon"
+//        case 2: return "Evening"
+//        default: return nil
+//        }
+//    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let tasks: [RoutineTask]
+        let title: String
+
         switch section {
-        case 0: return "Morning"
-        case 1: return "Afternoon"
-        case 2: return "Evening"
+        case 0: tasks = morningTasks;    title = "Morning"
+        case 1: tasks = afternoonTasks;  title = "Afternoon"
+        case 2: tasks = eveningTasks;    title = "Evening"
         default: return nil
         }
+
+        guard !tasks.isEmpty else { return nil }  // ✅ hide if empty
+
+        let label = UILabel()
+        label.text = title
+        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.textColor = .systemGray
+        label.frame = CGRect(x: 16, y: 0, width: 200, height: 28)
+
+        let container = UIView()
+        container.backgroundColor = .clear
+        container.addSubview(label)
+        return container
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        let tasks: [RoutineTask]
+        switch section {
+        case 0: tasks = morningTasks
+        case 1: tasks = afternoonTasks
+        case 2: tasks = eveningTasks
+        default: return 0
+        }
+        return tasks.isEmpty ? 0 : 28  // ✅ zero height collapses it completely
     }
 
     func tableView(
@@ -149,6 +209,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
 
             self.splitTasksByTime()
             tableView.reloadData()
+            updateEmptyState()
             complete(true)
         }
 
@@ -171,6 +232,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
                 vc.onSave = { [weak self] in
                     self?.splitTasksByTime()
                     self?.tasksTableView.reloadData()
+                    self?.updateEmptyState()
                 }
 
                 let nav = UINavigationController(rootViewController: vc)
@@ -346,6 +408,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         vc.onSave = { [weak self] in
             self?.splitTasksByTime()
             self?.tasksTableView.reloadData()
+            self?.updateEmptyState()
         }
 
         present(UINavigationController(rootViewController: vc), animated: true)
@@ -410,6 +473,7 @@ extension RoutineViewController: UICollectionViewDataSource, UICollectionViewDel
         splitTasksByTime()
 
         tasksTableView.reloadData()
+        updateEmptyState()
 
         selectDateInCollectionView(selectedDate, animated: true)
     }
