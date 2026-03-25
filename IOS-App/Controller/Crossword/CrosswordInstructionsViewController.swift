@@ -49,7 +49,7 @@ class CrosswordInstructionsViewController: UIViewController {
 
         setupInstructionsText()
 
-        // Style cards
+        loadInitialJSON()
         for card in allCards {
             card.layer.cornerRadius = 20
             card.backgroundColor = unselectedBackground
@@ -90,8 +90,22 @@ class CrosswordInstructionsViewController: UIViewController {
                 self.applyRandomCardUnselectedStyle()
         }
     }
+    
+    
+    func loadInitialJSON() {
+        if UserDefaults.standard.data(forKey: "crosswordData") != nil {
+            return
+        }
 
-    // Category Selection
+        if let url = Bundle.main.url(forResource: "crossword_data", withExtension: "json"),
+           let data = try? Data(contentsOf: url) {
+            saveCrosswordDataToUserDefaults(data)
+            print("JSON loaded into UserDefaults")
+        } else {
+            print("Failed to load JSON")
+        }
+    }
+
     func handleSelection(of selectedCard: UIView) {
 
         isRandomCategorySelected = (selectedCard === randomCategoryCard)
@@ -133,7 +147,6 @@ class CrosswordInstructionsViewController: UIViewController {
         playButton.alpha = 1.0
     }
 
-    // Instructions Text
     private func setupInstructionsText() {
         let text = """
         1. Find and fill words in the crossword grid by identifying pictures.
@@ -151,7 +164,6 @@ class CrosswordInstructionsViewController: UIViewController {
         )
     }
 
-    // How To Play
     @IBAction func howToPlayTapped(_ sender: Any) {
         isHowToPlayOpen.toggle()
 
@@ -164,7 +176,6 @@ class CrosswordInstructionsViewController: UIViewController {
         }
     }
 
-    // Tap Gestures
     @IBAction func countriesTapped(_ sender: UITapGestureRecognizer) {
         handleSelection(of: countriesCard)
     }
@@ -185,7 +196,6 @@ class CrosswordInstructionsViewController: UIViewController {
         handleSelection(of: randomCategoryCard)
     }
 
-    // Play Button
     @IBAction func playTapped(_ sender: UIButton) {
         let finalCategory: CrosswordCategory
 

@@ -56,11 +56,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         NotificationCenter.default.removeObserver(self)
     }
     
-    // MARK: - Action Section Reload
-    
-    /// ✅ Always use this instead of reloadSections directly for the actions section.
-    /// invalidateLayout() clears the compositional layout's cached cell sizes,
-    /// forcing a fresh measurement after content changes.
+
     private func reloadActionSection() {
         collectionView.collectionViewLayout.invalidateLayout()
         collectionView.reloadSections(IndexSet(integer: MemorySection.actions.rawValue))
@@ -79,7 +75,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             self.wholeImage = stored
             self.memoryActionContent = stored.action ?? .empty
 
-            print("📦 Loaded persisted action:", stored.action)
+            //print("Loaded persisted action:", stored.action)
         }
 
         guard let wholeImage = wholeImage else {
@@ -106,7 +102,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         let savedFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
 
-        // ✅ Faces already detected in AlbumVC — just load and match them
         if !savedFaces.isEmpty {
             self.faces = savedFaces.sorted { $0.orderIndex < $1.orderIndex }
             for face in self.faces {
@@ -124,8 +119,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             return
         }
 
-        // ✅ Fallback: detect here only if somehow not pre-detected
-        // (e.g. images uploaded before this update was applied)
         FaceDetectionService().detectFaces(
             in: image,
             imageID: wholeImage.wid
@@ -174,8 +167,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         return merged
     }
     
-
-    // MARK: - Cell Registration
     
     private func registerCells() {
         collectionView.register(
@@ -200,7 +191,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         )
     }
     
-    // MARK: - Layout
     
     private func createLayout() -> UICollectionViewLayout {
 
@@ -331,7 +321,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         return section
     }
     
-    // MARK: - Face Deletion
     
     private func deleteFace(_ face: Face, at indexPath: IndexPath) {
 
@@ -347,7 +336,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
-    // MARK: - Keyboard Handling
     
     @objc private func keyboardWillShow(_ notification: Notification) {
 
@@ -377,7 +365,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
     }
 }
 
-// MARK: - UICollectionViewDataSource
 
 extension ImageDetailsViewController: UICollectionViewDataSource {
 
@@ -471,20 +458,19 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                             .eq("wid", value: image.wid)
                             .execute()
 
-                        print("☁️ WholeImage action synced to Supabase")
+                        print("WholeImage action synced to Supabase")
 
                     } catch {
-                        print("❌ Supabase WholeImage update failed:", error)
+                        print("Supabase WholeImage update failed:", error)
                     }
                 }
 
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
 
-                // ✅ Use reloadActionSection() to bust the layout size cache
                 self.reloadActionSection()
 
-                print("🗑 Text deleted & persisted")
+                print("Text deleted & persisted")
             }
 
             cell.onAddVoice = { [weak self] in
@@ -498,9 +484,9 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 if case let .voice(url) = image.action {
                     do {
                         try FileManager.default.removeItem(at: url)
-                        print("🗑 Voice file removed from disk")
+                        print("Voice file removed from disk")
                     } catch {
-                        print("❌ Failed to delete audio file:", error)
+                        print("Failed to delete audio file:", error)
                     }
                 }
 
@@ -522,20 +508,19 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                             .eq("wid", value: image.wid)
                             .execute()
 
-                        print("☁️ WholeImage action synced to Supabase")
+                        print("WholeImage action synced to Supabase")
 
                     } catch {
-                        print("❌ Supabase WholeImage update failed:", error)
+                        print("Supabase WholeImage update failed:", error)
                     }
                 }
 
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
 
-                // ✅ Use reloadActionSection() to bust the layout size cache
                 self.reloadActionSection()
 
-                print("✅ Voice deleted & fully cleaned")
+                print("Voice deleted & fully cleaned")
             }
 
             return cell
@@ -557,7 +542,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 cell.faceImageView.image = UIImage(systemName: "person.crop.circle.fill")
             }
 
-            // ✅ Show "Add Name" for anonymous persons (nil name) or empty names
             if let name = face.personName,
                !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 cell.nameLabel.text = name
@@ -653,9 +637,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             return UIMenu(title: "", children: [deleteAction])
         }
     }
-    
-    // MARK: - Sheets
-    
+        
     private func presentAddTextSheet() {
 
         let vc = AddTextViewController(
@@ -696,10 +678,9 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            // ✅ Use reloadActionSection() to bust the layout size cache
             self.reloadActionSection()
 
-            print("📝 Text persisted to album_metadata.json")
+            print("Text persisted to album_metadata.json")
         }
 
         present(vc, animated: true)
@@ -747,11 +728,9 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
-
-            // ✅ Use reloadActionSection() to bust the layout size cache
             self.reloadActionSection()
 
-            print("📝 Text persisted to album_metadata.json")
+            print("Text persisted to album_metadata.json")
         }
 
         present(vc, animated: true)
@@ -797,10 +776,9 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            // ✅ Use reloadActionSection() to bust the layout size cache
             self.reloadActionSection()
 
-            print("🎤 Voice persisted to album_metadata.json")
+            print("Voice persisted to album_metadata.json")
         }
 
         present(vc, animated: true)

@@ -24,21 +24,17 @@ class HomeProfileTableViewController: UITableViewController {
 
     private func populateProfile() {
         guard let profile = SessionManager.shared.currentUserProfile else {
-            print("❌ currentUserProfile is nil")
+            print("currentUserProfile is nil")
             return
         }
 
-        // Patient's own data
-        mainNameLabel.text = profile.name  // this is the big name at top — leave as-is
+        mainNameLabel.text = profile.name
         genderLabel.text = profile.gender ?? "—"
         dobLabel.text = profile.dob ?? "—"
 
-        // Family Member section — needs caregiver's profile
         guard let caregiverUid = profile.caregiverUid else {
-            // No caregiver linked yet
             caregiverContactInfo.text = "—"
             caregiverRelation.text = "—"
-            // nameLabel for family section needs separate outlet — see note below
             return
         }
 
@@ -51,7 +47,7 @@ class HomeProfileTableViewController: UITableViewController {
                     self.caregiverRelation.text = profile.caregiverRelation ?? "—"
                 }
             } catch {
-                print("❌ Failed to fetch caregiver profile:", error)
+                print("Failed to fetch caregiver profile:", error)
             }
         }
     }

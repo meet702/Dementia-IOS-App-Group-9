@@ -18,6 +18,7 @@ class MemoryLaneHomeViewController: UIViewController {
         super.viewDidLoad()
 
         setupCollage()
+        loadMemoryLaneJSON()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -27,6 +28,21 @@ class MemoryLaneHomeViewController: UIViewController {
 
     }
     
+    func loadMemoryLaneJSON() {
+        if UserDefaults.standard.data(forKey: "memoryLaneData") != nil {
+            return
+        }
+
+        if let url = Bundle.main.url(forResource: "memory_lane_data", withExtension: "json"),
+           let data = try? Data(contentsOf: url) {
+
+            saveMemoryLaneDataToUserDefaults(data)
+            print("✅ Memory Lane JSON loaded")
+
+        } else {
+            print("❌ Failed to load Memory Lane JSON")
+        }
+    }
 
     // MARK: - Start Session
 

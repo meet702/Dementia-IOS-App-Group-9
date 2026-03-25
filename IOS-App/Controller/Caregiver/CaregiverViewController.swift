@@ -2,12 +2,10 @@ import UIKit
 
 final class CaregiverViewController: UIViewController, UICollectionViewDelegate {
 
-    // MARK: - Outlets
 
     @IBOutlet weak var albumButton: UIButton!
     @IBOutlet weak var caregiverCollectionView: UICollectionView!
 
-    // MARK: - Dependencies
 
     private let routineRepository = RoutineStore.shared
     private let sessionStore = ImageSessionStore.shared
@@ -18,13 +16,11 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         return fullName.components(separatedBy: " ").first ?? fullName
     }
 
-    // MARK: - Computed
 
     var todaysSessions: [ImageSession] {
         sessionStore.sessionsForToday()
     }
 
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,7 +47,7 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
                 await SupabaseSyncManager.shared.restoreCaregiverMemories()
 
                 await MainActor.run {
-                    print("🔄 Reloading Home UI after restore")
+                    print("Reloading Home UI after restore")
                     self?.caregiverCollectionView.reloadData()
                 }
             }
@@ -165,7 +161,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
                 return layoutSection
             }
 
-            // 🔹 Routine section (unchanged)
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .estimated(200)
@@ -194,7 +189,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         }
     }
 
-    // MARK: - UI Setup
 
     private func setupAlbumButton() {
         albumButton.setImage(UIImage(systemName: "photo.stack"), for: .normal)
@@ -205,7 +199,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         albumButton.layer.masksToBounds = false
     }
 
-    // MARK: - Collection Interaction
 
     @objc private func handleCollectionTap(_ gesture: UITapGestureRecognizer) {
 
@@ -220,7 +213,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         performSegue(withIdentifier: "showMemoryResponse", sender: selectedSession)
     }
 
-    // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 

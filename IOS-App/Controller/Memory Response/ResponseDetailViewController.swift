@@ -121,7 +121,6 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
             for: indexPath
         ) as! TextDetailsTableViewCell
 
-        //let questionText = QuestionStore.shared.prompt(for: response.questionID)
         let questionText = questionPrompt(for: response.qid)
         
         let answerText =
@@ -139,15 +138,7 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
     }
     
     private func questionPrompt(for id: UUID) -> String {
-
-        let allQuestions =
-            AppDataStore.shared.mcqQuestions +
-            AppDataStore.shared.textQuestions
-
-        return allQuestions
-            .first(where: { $0.qid == id })?
-            .prompt
-            ?? "Reflection"
+        return AppDataStore.shared.prompt(for: id)
     }
 }
 

@@ -52,17 +52,13 @@ enum MemoryActionContent: Codable {
         }
     }
 }
-// MARK: - Whole Image (Memory Anchor)
-
 struct WholeImage: Identifiable, Codable {
     let wid: UUID
-    //let imageURL: URL
-    let fileName: String                     // storing filename instead of url to persist image upon rerun
+    let fileName: String
     let action: MemoryActionContent?
     let createdAt: Date
     var caregiverUid: UUID?
 
-    // SwiftUI identity (UI concern)
     var id: UUID { wid }
 }
 
@@ -85,8 +81,6 @@ struct BoundingBox: Codable {
     }
 }
 
-// MARK: - Face (Visual instance in a specific image)
-
 struct Face: Identifiable, Codable {
     let fid: UUID
     let fileName: String
@@ -94,22 +88,18 @@ struct Face: Identifiable, Codable {
     let orderIndex: Int
     var caregiverUid: UUID?
 
-    // Reference to the image
     let wid: UUID
 
-    // Person name directly stored in Face (since Person table is removed)
     var personName: String?
 
     var id: UUID { fid }
 }
 
-// MARK: - Image Session (One playback / visit of a memory)
 
 struct ImageSession: Identifiable, Codable {
     let isid: UUID
     let wid: UUID
     let sessionType: SessionType
-//    let playedBy: String?
     let startedAt: Date
     var endedAt: Date?
     var recapCount: Int
@@ -123,7 +113,6 @@ enum SessionType: String, Codable {
     case memoryRecap
 }
 
-// MARK: - Person Session (Per-person interaction within a session)
 
 struct PersonSession: Identifiable, Codable {
     let psid: UUID
@@ -134,7 +123,6 @@ struct PersonSession: Identifiable, Codable {
     var id: UUID { psid }
 }
 
-// MARK: - Question Bank (App-provided)
 
 struct Question: Identifiable, Codable {
     let qid: UUID
@@ -165,7 +153,6 @@ enum QuestionType: String, Codable {
     case text
 }
 
-// MARK: - Image Session Question (Whole-moment responses)
 
 struct ImageSessionQuestion: Identifiable, Codable {
     let isqid: UUID
@@ -176,12 +163,10 @@ struct ImageSessionQuestion: Identifiable, Codable {
     let responseText: String?
     let selectedOption: String?
     let answeredAt: Date?
-//    let confidenceScore: Double?
 
     var id: UUID { isqid }
 }
 
-// MARK: - Person Session Question (Per-person responses)
 
 struct PersonSessionQuestion: Identifiable, Codable {
     let psqid: UUID
@@ -193,13 +178,11 @@ struct PersonSessionQuestion: Identifiable, Codable {
     let selectedOption: String?
     let answeredAt: Date?
     
-    let wasPositive: Bool?          // ⭐ ADD THIS ****NEW****
-//    let confidenceScore: Double?
+    let wasPositive: Bool?
 
     var id: UUID { psqid }
 }
 
-// MARK: - Image Session Comment (Caregiver reflections)
 
 struct ImageSessionComment: Identifiable, Codable {
     let icid: UUID
@@ -220,7 +203,7 @@ struct UserProfile: Codable {
     var caregiverUid: UUID?
     var createdAt: Date?
     var caregiverRelation: String?
-    var dob: String?   
+    var dob: String?
 
     enum UserRole: String, Codable {
         case caregiver
@@ -321,14 +304,12 @@ struct RoutineTask: Identifiable, Codable {
         case caregiverUid
     }
 
-    // MARK: - Encode (to Supabase / local JSON)
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(title, forKey: .title)
         try container.encodeIfPresent(subtitle, forKey: .subtitle)
 
-        // scheduledDate as "yyyy-MM-dd" IST string
         if let scheduledDate = scheduledDate {
             let df = DateFormatter()
             df.dateFormat = "yyyy-MM-dd"
@@ -338,7 +319,6 @@ struct RoutineTask: Identifiable, Codable {
 
         try container.encode(isRepeatDaily, forKey: .isRepeatDaily)
 
-        // completedDates as ["yyyy-MM-dd"] IST strings
         let cdf = DateFormatter()
         cdf.dateFormat = "yyyy-MM-dd"
         cdf.timeZone = TimeZone.current
@@ -347,7 +327,6 @@ struct RoutineTask: Identifiable, Codable {
 
         try container.encode(isCompleted, forKey: .isCompleted)
 
-        // time as "HH:mm:ss" string
         let tf = DateFormatter()
         tf.dateFormat = "HH:mm:ss"
         let timeString = tf.string(from: time)
@@ -356,7 +335,6 @@ struct RoutineTask: Identifiable, Codable {
         try container.encodeIfPresent(caregiverUid, forKey: .caregiverUid)
     }
 
-    // MARK: - Decode (from Supabase / local JSON)
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -367,7 +345,6 @@ struct RoutineTask: Identifiable, Codable {
         isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
         caregiverUid = try container.decodeIfPresent(UUID.self, forKey: .caregiverUid)
 
-        // scheduledDate from "yyyy-MM-dd" string
         if let dateString = try container.decodeIfPresent(String.self, forKey: .scheduledDate) {
             let df = DateFormatter()
             df.dateFormat = "yyyy-MM-dd"
@@ -377,7 +354,6 @@ struct RoutineTask: Identifiable, Codable {
             scheduledDate = nil
         }
 
-        // time from "HH:mm:ss" string — combine with today's date
         let timeString = try container.decode(String.self, forKey: .time)
         let tf = DateFormatter()
         tf.dateFormat = "HH:mm:ss"
@@ -394,7 +370,6 @@ struct RoutineTask: Identifiable, Codable {
             time = Date()
         }
 
-        // completedDates from ["yyyy-MM-dd"] — store as UTC midnight
         let completedStrings = try container.decodeIfPresent([String].self, forKey: .completedDates) ?? []
         let utcDf = DateFormatter()
         utcDf.dateFormat = "yyyy-MM-dd"
@@ -402,7 +377,6 @@ struct RoutineTask: Identifiable, Codable {
         completedDates = completedStrings.compactMap { utcDf.date(from: $0) }
     }
 
-    // MARK: - Memberwise init
     init(
         id: UUID,
         title: String,

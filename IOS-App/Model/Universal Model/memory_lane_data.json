@@ -1,0 +1,130 @@
+{
+  "mcqQuestions": [
+    {
+      "qid": "10000000-0000-0000-0000-000000000001",
+      "type": "mcq",
+      "prompt": "How does this person make you feel?",
+      "options": ["Calm", "Warm", "Happy", "Not sure"],
+      "positiveOptions": ["Calm", "Warm", "Happy"]
+    },
+    {
+      "qid": "10000000-0000-0000-0000-000000000002",
+      "type": "mcq",
+      "prompt": "Did this person feel close to you?",
+      "options": ["Yes", "Somewhat", "Not Close", "Not sure"],
+      "positiveOptions": ["Yes", "Somewhat"]
+    },
+    {
+      "qid": "10000000-0000-0000-0000-000000000003",
+      "type": "mcq",
+      "prompt": "Do you feel understood by this person?",
+      "options": ["Yes", "Sometimes", "Not really", "Not sure"],
+      "positiveOptions": ["Yes", "Sometimes"]
+    },
+    {
+      "qid": "10000000-0000-0000-0000-000000000004",
+      "type": "mcq",
+      "prompt": "Does this person bring positive energy to your life?",
+      "options": ["Yes", "A little", "Not really", "Not sure"],
+      "positiveOptions": ["Yes", "A little"]
+    },
+    {
+      "qid": "10000000-0000-0000-0000-000000000005",
+      "type": "mcq",
+      "prompt": "Do you enjoy spending time with this person?",
+      "options": ["Always", "Sometimes", "Rarely", "Not sure"],
+      "positiveOptions": ["Always", "Sometimes"]
+    },
+    {
+      "qid": "10000000-0000-0000-0000-000000000006",
+      "type": "mcq",
+      "prompt": "Do you feel safe sharing things with this person?",
+      "options": ["Yes", "Mostly", "Not really", "Not sure"],
+      "positiveOptions": ["Yes", "Mostly"]
+    },
+    {
+      "qid": "10000000-0000-0000-0000-000000000007",
+      "type": "mcq",
+      "prompt": "Does this person support you emotionally?",
+      "options": ["Yes", "Sometimes", "Not really", "Not sure"],
+      "positiveOptions": ["Yes", "Sometimes"]
+    }
+  ],
+
+  "textQuestions": [
+    {
+      "qid": "20000000-0000-0000-0000-000000000001",
+      "type": "text",
+      "prompt": "What do you appreciate about this person?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000002",
+      "type": "text",
+      "prompt": "What stands out about this moment?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000003",
+      "type": "text",
+      "prompt": "Is there anything this person does that makes you feel valued?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000004",
+      "type": "text",
+      "prompt": "What memory with this person makes you smile?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000005",
+      "type": "text",
+      "prompt": "What makes this connection meaningful to you?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000006",
+      "type": "text",
+      "prompt": "How would you describe this person in one sentence?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000007",
+      "type": "text",
+      "prompt": "What did this person bring into your life?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000008",
+      "type": "text",
+      "prompt": "How did this person support you?"
+    },
+    {
+      "qid": "20000000-0000-0000-0000-000000000009",
+      "type": "text",
+      "prompt": "What kind of presence did they have?"
+    }
+  ],
+
+  "reflectionQuestion": {
+    "qid": "30000000-0000-0000-0000-000000000001",
+    "type": "text",
+    "prompt": "What was happening in this moment?"
+  },
+
+  "prompts": {
+    "memoryIntro": [
+      "Let’s take a moment with this memory.",
+      "You can stay here as long as you like.",
+      "Here’s a moment to revisit."
+    ],
+    "personIntro": [
+      "This person stands out in this moment.",
+      "This person feels important here.",
+      "Let’s take a closer look."
+    ],
+    "fallback": [
+      "These were the part of this moment.",
+      "You spent time looking at them.",
+      "This moment included people who felt familiar."
+    ],
+    "momentReflection": [
+      "Does this feel like a special moment?",
+      "How does this moment feel to you?",
+      "Would you like to stay with this moment a bit longer?"
+    ]
+  }
+}

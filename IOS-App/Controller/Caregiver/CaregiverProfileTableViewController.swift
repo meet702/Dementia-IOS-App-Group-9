@@ -25,11 +25,9 @@ class CaregiverProfileTableViewController: UITableViewController {
     func loadProfileData() {
         guard let profile = SessionManager.shared.currentUserProfile else { return }
 
-        // Caregiver info — from their own profile
         let caregiverName = profile.name
         let caregiverGender = profile.gender ?? "-"
 
-        // Patient info — from SessionManager (set by fetchPatientProfile after restore)
         let patientName = SessionManager.shared.patientName ?? "-"
         let patientContact = SessionManager.shared.patientContact ?? "-"
 

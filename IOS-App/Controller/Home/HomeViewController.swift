@@ -33,24 +33,6 @@ class HomeViewController: UIViewController {
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
         
-//        if LocalImageStore.shared.fetchAllImages().isEmpty {
-//            showRestoreLoadingIndicator()
-//
-//            Task { [weak self] in 
-//                await SupabaseSyncManager.shared.restoreAllData()
-//
-//                await MainActor.run {
-//                    self?.hideRestoreLoadingIndicator()
-//                    self?.homeCollectionView.reloadData()
-//                    // ✅ Notify all other screens to reload
-//                    NotificationCenter.default.post(
-//                        name: .didRestoreFromSupabase,
-//                        object: nil
-//                    )
-//                    print("🔄 Full restore complete, UI reloaded")
-//                }
-//            }
-//        }
         
         Task {
             await SupabaseSyncManager.shared.uploadMissingFaceImages()
@@ -262,14 +244,11 @@ class HomeViewController: UIViewController {
         return latestImage.createdAt > lastSession.startedAt
     }
     
-    // MARK: - Memory Recap Launch
-
     private func launchMemoryRecap() {
 
         let allSessions = ImageSessionStore.shared.allSessions()
             .sorted { $0.startedAt < $1.startedAt }
 
-        // AFTER
         guard !allSessions.isEmpty else {
             let alert = UIAlertController(
                 title: "No Memories Yet",
@@ -303,7 +282,6 @@ class HomeViewController: UIViewController {
             return
         }
 
-        // ✅ Try LocalImageStore first, construct minimal model if image was deleted from album
         let wholeImage: WholeImage
         if let stored = LocalImageStore.shared.fetchImageModel(by: nextSession.wid) {
             wholeImage = stored
@@ -316,11 +294,10 @@ class HomeViewController: UIViewController {
             )
         }
 
-        // ✅ Load portrait from SessionImageStore first, fall back to LocalImageStore
         guard let portraitImage = SessionImageStore.shared.fetchImage(by: nextSession.wid)
                                ?? LocalImageStore.shared.fetchImage(by: nextSession.wid)
         else {
-            print("❌ Could not reconstruct image for recap")
+            print("Could not reconstruct image for recap")
             return
         }
 
@@ -376,7 +353,7 @@ extension HomeViewController: UICollectionViewDataSource {
                         title: "Memory Lane",
                         subtitle: "You can begin when memories are added."
                     )
-                    cell.showNewBadge(false)   // 🔥 FORCE HIDE
+                    cell.showNewBadge(false) 
                 } else {
                     cell.configureMemoryLaneCell(image: latestImage)
                     cell.showNewBadge(hasUnplayedMemory())
