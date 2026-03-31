@@ -1,29 +1,22 @@
-//
-//  PhoneEntryViewController.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 16/03/26.
-//
-
 import UIKit
 
-class PhoneEntryViewController: UIViewController {
-    
-    @IBOutlet weak var phoneTextField: UITextField!
+class EmailEntryViewController: UIViewController {
+
+    @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var continueButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         enableKeyboardDismissOnTap()
-        // Do any additional setup after loading the view.
-        
+        emailTextField.keyboardType = .emailAddress
+        emailTextField.autocapitalizationType = .none
     }
 
     @IBAction func continueTapped(_ sender: UIButton) {
-        let phone = normalizePhone(phoneTextField.text ?? "")
+        let email = emailTextField.text?.trimmingCharacters(in: .whitespaces).lowercased() ?? ""
 
-        guard phone.count >= 10 else {
-            showAlert("Enter a valid phone number")
+        guard isValidEmail(email) else {
+            showAlert("Enter a valid email address")
             return
         }
 
@@ -31,16 +24,11 @@ class PhoneEntryViewController: UIViewController {
 
         Task {
             do {
-                try await SupabaseSyncManager.shared.sendOTP(phone: phone)
+                try await SupabaseSyncManager.shared.sendEmailOTP(email: email)
 
                 await MainActor.run {
-                    
-                    SessionManager.shared.patientContact = phone
-                    
-                    self.performSegue(
-                        withIdentifier: "showOTPVerification",
-                        sender: phone
-                    )
+                    SessionManager.shared.patientContact = email
+                    self.performSegue(withIdentifier: "showOTPVerification", sender: email)
                 }
             } catch {
                 await MainActor.run {
@@ -54,14 +42,14 @@ class PhoneEntryViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showOTPVerification",
            let dest = segue.destination as? OTPVerificationViewController,
-           let phone = sender as? String {
-            dest.phone = phone
+           let email = sender as? String {
+            dest.email = email
         }
     }
 
-    private func normalizePhone(_ phone: String) -> String {
-        let digits = phone.filter { $0.isNumber }
-        return digits.hasPrefix("91") ? "+\(digits)" : "+91\(digits)"
+    private func isValidEmail(_ email: String) -> Bool {
+        let regex = #"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$"#
+        return email.range(of: regex, options: .regularExpression) != nil
     }
 
     private func showAlert(_ msg: String) {
@@ -69,5 +57,4 @@ class PhoneEntryViewController: UIViewController {
         alert.addAction(.init(title: "OK", style: .default))
         present(alert, animated: true)
     }
-
 }
