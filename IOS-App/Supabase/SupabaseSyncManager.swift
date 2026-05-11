@@ -720,16 +720,16 @@ final class SupabaseSyncManager {
     // MARK: - UserProfile
 
     func connectCaregiverToPatient(
-        patientPhone: String,
+        patientEmail: String,
         caregiverUid: UUID,
         caregiverRelation: String       // ✅ ADD THIS
     ) async throws {
 
-        // 1️⃣ Find patient by phone number
+        // 1️⃣ Find patient by email
         let results: [UserProfile] = try await client
             .from("UserProfile")
             .select()
-            .eq("phone", value: patientPhone)
+            .eq("email", value: patientEmail)
             .execute()
             .value
 
@@ -752,7 +752,7 @@ final class SupabaseSyncManager {
                 "caregiverUid": caregiverUid.uuidString,
                 "caregiverRelation": caregiverRelation    // ✅ ADD THIS
             ])
-            .eq("phone", value: patientPhone)
+            .eq("email", value: patientEmail)
             .execute()
 
         print("☁️ Caregiver linked to patient:", patient.name)
@@ -765,8 +765,8 @@ final class SupabaseSyncManager {
 
         var errorDescription: String? {
             switch self {
-            case .patientNotFound:   return "No patient found with this phone number."
-            case .notAPatient:       return "This number belongs to a caregiver account."
+            case .patientNotFound:   return "No patient found with this email."
+            case .notAPatient:       return "This email belongs to a caregiver account."
             case .alreadyConnected:  return "This patient is already connected to a caregiver."
             }
         }
@@ -774,18 +774,18 @@ final class SupabaseSyncManager {
     
     // MARK: - Auth
 
-    func sendOTP(phone: String) async throws {
+    func sendOTP(email: String) async throws {
         try await client.auth.signInWithOTP(
-            phone: phone
+            email: email
         )
-        print("☁️ OTP sent to:", phone)
+        print("☁️ OTP sent to:", email)
     }
 
-    func verifyOTP(phone: String, otp: String) async throws {
+    func verifyOTP(email: String, otp: String) async throws {
         try await client.auth.verifyOTP(
-            phone: phone,
+            email: email,
             token: otp,
-            type: .sms
+            type: .email
         )
         print("☁️ OTP verified")
     }

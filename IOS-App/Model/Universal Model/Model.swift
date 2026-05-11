@@ -214,7 +214,7 @@ struct ImageSessionComment: Identifiable, Codable {
 struct UserProfile: Codable {
     let uid: UUID
     var name: String
-    var phone: String
+    var email: String
     var role: UserRole
     var gender: String?
     var caregiverUid: UUID?

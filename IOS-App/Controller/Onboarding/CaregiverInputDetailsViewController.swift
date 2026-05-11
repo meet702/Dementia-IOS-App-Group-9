@@ -13,7 +13,7 @@ class CaregiverInputDetailsViewController: UIViewController {
 
     private var inputValues: [Int: String] = [:]
     private var cachedCells: [Int: InputCell] = [:]
-    var verifiedPhone: String = ""
+    var verifiedEmail: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,7 +59,7 @@ class CaregiverInputDetailsViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showCaregiverConnect",
            let mcqVC = segue.destination as? CaregiverConnectCodeViewController {
-            mcqVC.verifiedPhone = verifiedPhone          // ✅ pass forward
+            mcqVC.verifiedEmail = verifiedEmail          // ✅ pass forward
             mcqVC.caregiverName = inputValues[0] ?? ""   // ✅ index 0 is Full Name
             mcqVC.caregiverRelation = inputValues[1] ?? ""
             mcqVC.caregiverGender = inputValues[2] ?? ""

@@ -7,12 +7,12 @@ class OTPVerificationViewController: UIViewController {
     @IBOutlet weak var verifyButton: UIButton!
 
     @IBOutlet weak var phoneNumberLabel: UILabel!
-    var phone: String = ""
+    var email: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
         enableKeyboardDismissOnTap()
-        phoneNumberLabel.text = "Code sent to \(phone)"
+        phoneNumberLabel.text = "Code sent to \(email)"
     }
 
     @IBAction func verifyTapped(_ sender: UIButton) {
@@ -28,7 +28,7 @@ class OTPVerificationViewController: UIViewController {
         Task {
             do {
                 print("🔍 Task started")
-                try await SupabaseSyncManager.shared.verifyOTP(phone: phone, otp: otp)
+                try await SupabaseSyncManager.shared.verifyOTP(email: email, otp: otp)
                 print("🔍 OTP verified")
 
                 guard let uid = SupabaseManager.shared.client.auth.currentUser?.id else {
@@ -116,7 +116,7 @@ class OTPVerificationViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showRoleSelection",
            let dest = segue.destination as? OnboardingRoleSelectionViewController {
-            dest.verifiedPhone = phone
+            dest.verifiedEmail = email
         }
     }
 

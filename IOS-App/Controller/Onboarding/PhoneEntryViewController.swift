@@ -17,13 +17,17 @@ class PhoneEntryViewController: UIViewController {
         enableKeyboardDismissOnTap()
         // Do any additional setup after loading the view.
         
+        // Set keyboard type to email
+        phoneTextField.keyboardType = .emailAddress
+        phoneTextField.autocapitalizationType = .none
+        phoneTextField.autocorrectionType = .no
     }
 
     @IBAction func continueTapped(_ sender: UIButton) {
-        let phone = normalizePhone(phoneTextField.text ?? "")
+        let email = (phoneTextField.text ?? "").trimmingCharacters(in: .whitespaces).lowercased()
 
-        guard phone.count >= 10 else {
-            showAlert("Enter a valid phone number")
+        guard !email.isEmpty, email.contains("@"), email.contains(".") else {
+            showAlert("Enter a valid email address")
             return
         }
 
@@ -31,15 +35,15 @@ class PhoneEntryViewController: UIViewController {
 
         Task {
             do {
-                try await SupabaseSyncManager.shared.sendOTP(phone: phone)
+                try await SupabaseSyncManager.shared.sendOTP(email: email)
 
                 await MainActor.run {
                     
-                    SessionManager.shared.patientContact = phone
+                    SessionManager.shared.patientContact = email
                     
                     self.performSegue(
                         withIdentifier: "showOTPVerification",
-                        sender: phone
+                        sender: email
                     )
                 }
             } catch {
@@ -54,14 +58,9 @@ class PhoneEntryViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showOTPVerification",
            let dest = segue.destination as? OTPVerificationViewController,
-           let phone = sender as? String {
-            dest.phone = phone
+           let email = sender as? String {
+            dest.email = email
         }
-    }
-
-    private func normalizePhone(_ phone: String) -> String {
-        let digits = phone.filter { $0.isNumber }
-        return digits.hasPrefix("91") ? "+\(digits)" : "+91\(digits)"
     }
 
     private func showAlert(_ msg: String) {

@@ -54,7 +54,7 @@ final class SessionManager {
             caregiverGender = profile.gender
         case .patient:
             patientName = profile.name
-            patientContact = profile.phone
+            patientContact = profile.email
             saveToDefaults()
         }
     }

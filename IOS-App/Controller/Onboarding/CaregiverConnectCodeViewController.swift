@@ -15,7 +15,7 @@ class CaregiverConnectCodeViewController: UIViewController {
         setupUI()
     }
 
-    var verifiedPhone: String = ""
+    var verifiedEmail: String = ""
     var caregiverName: String = ""
     var caregiverGender: String = ""
     var caregiverRelation: String = ""
@@ -25,11 +25,13 @@ class CaregiverConnectCodeViewController: UIViewController {
 
         finishButton.layer.cornerRadius = 27
         codeTextField.layer.cornerRadius = 24
-        codeTextField.keyboardType = .numberPad
+        codeTextField.keyboardType = .emailAddress
+        codeTextField.autocapitalizationType = .none
+        codeTextField.autocorrectionType = .no
         //codeTextField.setLeftPadding(12)
 
         codeTextField.attributedPlaceholder = NSAttributedString(
-            string: "Enter patients phone number",
+            string: "Enter patient's email address",
             attributes: [
                 .foregroundColor: UIColor.systemGray3,
                 .font: UIFont.systemFont(ofSize: 16)
@@ -37,20 +39,14 @@ class CaregiverConnectCodeViewController: UIViewController {
         )
     }
 
-    // Add this helper to CaregiverConnectCodeViewController
-    private func normalizePhone(_ phone: String) -> String {
-        let digits = phone.filter { $0.isNumber }
-        return digits.hasPrefix("91") ? "+\(digits)" : "+91\(digits)"
-    }
-
     // MARK: Actions
 
     @IBAction func finishTapped(_ sender: UIButton) {
 
-        let phone = normalizePhone(codeTextField.text ?? "")
+        let email = (codeTextField.text ?? "").trimmingCharacters(in: .whitespaces).lowercased()
 
-        guard !phone.isEmpty else {
-            showAlert("Please enter the patient's phone number.")
+        guard !email.isEmpty, email.contains("@"), email.contains(".") else {
+            showAlert("Please enter the patient's email address.")
             return
         }
 
@@ -65,7 +61,7 @@ class CaregiverConnectCodeViewController: UIViewController {
         Task {
             do {
                 try await SupabaseSyncManager.shared.connectCaregiverToPatient(
-                    patientPhone: phone,
+                    patientEmail: email,
                     caregiverUid: caregiverUid,
                     caregiverRelation: caregiverRelation
                 )
@@ -74,7 +70,7 @@ class CaregiverConnectCodeViewController: UIViewController {
                 let caregiverProfile = UserProfile(
                     uid: caregiverUid,
                     name: caregiverName,
-                    phone: verifiedPhone,
+                    email: verifiedEmail,
                     role: .caregiver,
                     gender: caregiverGender,  // ✅ add this
                     caregiverUid: nil,
@@ -88,7 +84,7 @@ class CaregiverConnectCodeViewController: UIViewController {
                 
                 if let patientProfile = try? await SupabaseSyncManager.shared.fetchPatientProfile(caregiverUid: caregiverUid) {
                     SessionManager.shared.patientName = patientProfile.name
-                    SessionManager.shared.patientContact = patientProfile.phone
+                    SessionManager.shared.patientContact = patientProfile.email
                     SessionManager.shared.saveToDefaults()
                 }
 

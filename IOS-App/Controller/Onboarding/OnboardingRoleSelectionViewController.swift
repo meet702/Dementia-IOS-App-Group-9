@@ -16,7 +16,7 @@ class OnboardingRoleSelectionViewController: UIViewController {
         setupCollectionView()
     }
     
-    var verifiedPhone: String = ""  // ✅ passed from OTPVerificationVC
+    var verifiedEmail: String = ""  // ✅ passed from OTPVerificationVC
 
     private func setupCollectionView() {
 
@@ -60,13 +60,13 @@ class OnboardingRoleSelectionViewController: UIViewController {
         if segue.identifier == "showPatientDetails",
            let dest = segue.destination as? PatientInputDetailsViewController {
             dest.navigationItem.title = "Patient"
-            dest.verifiedPhone = verifiedPhone  // ✅
+            dest.verifiedEmail = verifiedEmail  // ✅
         }
 
         if segue.identifier == "showCaregiverDetails",
            let dest = segue.destination as? CaregiverInputDetailsViewController {
             dest.navigationItem.title = "Caregiver"
-            dest.verifiedPhone = verifiedPhone  // ✅
+            dest.verifiedEmail = verifiedEmail  // ✅
         }
     }
 }

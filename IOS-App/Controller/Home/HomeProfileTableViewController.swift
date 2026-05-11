@@ -47,7 +47,7 @@ class HomeProfileTableViewController: UITableViewController {
                 let caregiverProfile = try await SupabaseSyncManager.shared.fetchUserProfile(uid: caregiverUid)
                 await MainActor.run {
                     self.caregiverName.text = caregiverProfile?.name ?? "—"
-                    self.caregiverContactInfo.text = caregiverProfile?.phone ?? "—"
+                    self.caregiverContactInfo.text = caregiverProfile?.email ?? "—"
                     self.caregiverRelation.text = profile.caregiverRelation ?? "—"
                 }
             } catch {

@@ -14,7 +14,7 @@ class PatientInputDetailsViewController: UIViewController {
 
     private let totalStepsFloat: Float = 6
     private var currentStepFloat: Float = 1
-    var verifiedPhone: String = ""
+    var verifiedEmail: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,7 +137,7 @@ class PatientInputDetailsViewController: UIViewController {
         let profile = UserProfile(
             uid: uid,
             name: name,
-            phone: verifiedPhone,
+            email: verifiedEmail,
             role: .patient,
             gender: gender,
             caregiverUid: nil,

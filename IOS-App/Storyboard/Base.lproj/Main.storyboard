@@ -387,7 +387,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter the patient's phone number to connect securely." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JAu-f6-lgb">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter the patient's email address to connect securely." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JAu-f6-lgb">
                                         <rect key="frame" x="24" y="141" width="345" height="42.333333333333343"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -474,7 +474,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A0r-2v-VML">
                                 <rect key="frame" x="0.0" y="224" width="393" height="220"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Verify your phone number with a code" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Kt-LY-xKa">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Verify your email with a code" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Kt-LY-xKa">
                                         <rect key="frame" x="24" y="62" width="345" height="67"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
                                         <nil key="textColor"/>
@@ -510,24 +510,21 @@
                                     <action selector="continueTapped:" destination="CCe-2B-P53" eventType="touchUpInside" id="9mT-td-1KG"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter phone number" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="v9u-jG-X31">
-                                <rect key="frame" x="109" y="456" width="265" height="48"/>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter email address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="v9u-jG-X31">
+                                <rect key="frame" x="21" y="456" width="353" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="t7o-gI-lhi"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                <textInputTraits key="textInputTraits" keyboardType="phonePad" textContentType="tel"/>
+                                <textInputTraits key="textInputTraits" keyboardType="emailAddress"/>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="+91" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nUC-DB-ocq">
-                                <rect key="frame" x="21" y="456" width="73" height="48"/>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nUC-DB-ocq">
+                                <rect key="frame" x="21" y="456" width="0" height="48"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="73" id="49y-Ti-ELS"/>
+                                    <constraint firstAttribute="width" constant="0" id="49y-Ti-ELS"/>
                                     <constraint firstAttribute="height" constant="48" id="BFV-C5-nmi"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="65" id="PHS-UJ-iJU"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
-                            </textField>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="EgQ-Y8-XYS"/>
                         <color key="backgroundColor" red="0.99607843139999996" green="0.97254901959999995" blue="0.93725490199999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -535,14 +532,12 @@
                             <constraint firstItem="A0r-2v-VML" firstAttribute="leading" secondItem="EgQ-Y8-XYS" secondAttribute="leading" id="7Mg-k5-Sq8"/>
                             <constraint firstItem="3vg-8c-78T" firstAttribute="leading" secondItem="EgQ-Y8-XYS" secondAttribute="leading" constant="24" id="Ih2-Ta-r0l"/>
                             <constraint firstItem="A0r-2v-VML" firstAttribute="top" secondItem="EgQ-Y8-XYS" secondAttribute="top" id="SDi-CY-xz2"/>
-                            <constraint firstItem="nUC-DB-ocq" firstAttribute="top" secondItem="v9u-jG-X31" secondAttribute="top" id="Usp-zx-W1r"/>
-                            <constraint firstItem="nUC-DB-ocq" firstAttribute="leading" secondItem="LRz-mq-Tdk" secondAttribute="leadingMargin" constant="5" id="VOP-I5-EbD"/>
+                            <constraint firstItem="v9u-jG-X31" firstAttribute="leading" secondItem="EgQ-Y8-XYS" secondAttribute="leading" constant="21" id="VOP-I5-EbD"/>
                             <constraint firstItem="EgQ-Y8-XYS" firstAttribute="trailing" secondItem="v9u-jG-X31" secondAttribute="trailing" constant="19" id="WQP-XK-L4u"/>
                             <constraint firstItem="v9u-jG-X31" firstAttribute="top" secondItem="A0r-2v-VML" secondAttribute="bottom" constant="12" id="cqB-Xy-Lfx"/>
                             <constraint firstItem="EgQ-Y8-XYS" firstAttribute="bottom" secondItem="3vg-8c-78T" secondAttribute="bottom" id="mUN-zZ-hLD"/>
                             <constraint firstItem="EgQ-Y8-XYS" firstAttribute="trailing" secondItem="3vg-8c-78T" secondAttribute="trailing" constant="24" id="maQ-R8-3Jd"/>
                             <constraint firstItem="EgQ-Y8-XYS" firstAttribute="trailing" secondItem="A0r-2v-VML" secondAttribute="trailing" id="ud4-vP-KpL"/>
-                            <constraint firstItem="v9u-jG-X31" firstAttribute="leading" secondItem="nUC-DB-ocq" secondAttribute="trailing" constant="15" id="xy8-as-Jme"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="or3-OO-mfh"/>
@@ -593,7 +588,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Code sent to +91 " textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I5i-Yb-w25">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Code sent to " textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I5i-Yb-w25">
                                         <rect key="frame" x="24" y="107.66666666666669" width="345" height="20.333333333333343"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
