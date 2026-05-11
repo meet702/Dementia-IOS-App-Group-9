@@ -34,8 +34,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
                 if let profile = try await SupabaseSyncManager.shared.fetchUserProfile(uid: uid) {
                     SessionManager.shared.currentUserProfile = profile
+                    SessionManager.shared.populateFromProfile(profile)
                     await SupabaseSyncManager.shared.restoreAllData()
-                    
+
+                    // For caregivers: fetch the linked patient's info so Home and Profile screens populate correctly
+                    if profile.role == .caregiver {
+                        if let patientProfile = try? await SupabaseSyncManager.shared.fetchPatientProfile(caregiverUid: profile.uid) {
+                            SessionManager.shared.patientName = patientProfile.name
+                            SessionManager.shared.patientContact = patientProfile.email
+                            SessionManager.shared.saveToDefaults()
+                        }
+                    }
+
                     await MainActor.run {
                         self.showHome(for: profile.role)
                     }

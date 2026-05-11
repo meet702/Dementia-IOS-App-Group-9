@@ -1,8 +1,6 @@
 //
 //  HomeProfileTableViewController.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 11/12/25.
+//  IOS-App
 //
 
 import UIKit
@@ -14,13 +12,14 @@ class HomeProfileTableViewController: UITableViewController {
     @IBOutlet weak var caregiverName: UILabel!
     @IBOutlet weak var caregiverContactInfo: UILabel!
     @IBOutlet weak var caregiverRelation: UILabel!
-    
     @IBOutlet weak var mainNameLabel: UILabel!
-    
+
     override func viewDidLoad() {
-       super.viewDidLoad()
-       populateProfile()
-   }
+        super.viewDidLoad()
+        populateProfile()
+    }
+
+    // MARK: - Data Loading
 
     private func populateProfile() {
         guard let profile = SessionManager.shared.currentUserProfile else {
@@ -29,16 +28,15 @@ class HomeProfileTableViewController: UITableViewController {
         }
 
         // Patient's own data
-        mainNameLabel.text = profile.name  // this is the big name at top — leave as-is
-        genderLabel.text = profile.gender ?? "—"
-        dobLabel.text = profile.dob ?? "—"
+        mainNameLabel.text = profile.name
+        genderLabel.text   = profile.gender ?? "—"
+        dobLabel.text      = profile.dob    ?? "—"
 
         // Family Member section — needs caregiver's profile
         guard let caregiverUid = profile.caregiverUid else {
-            // No caregiver linked yet
             caregiverContactInfo.text = "—"
-            caregiverRelation.text = "—"
-            // nameLabel for family section needs separate outlet — see note below
+            caregiverRelation.text    = "—"
+            caregiverName.text        = "—"
             return
         }
 
@@ -46,9 +44,9 @@ class HomeProfileTableViewController: UITableViewController {
             do {
                 let caregiverProfile = try await SupabaseSyncManager.shared.fetchUserProfile(uid: caregiverUid)
                 await MainActor.run {
-                    self.caregiverName.text = caregiverProfile?.name ?? "—"
+                    self.caregiverName.text        = caregiverProfile?.name  ?? "—"
                     self.caregiverContactInfo.text = caregiverProfile?.email ?? "—"
-                    self.caregiverRelation.text = profile.caregiverRelation ?? "—"
+                    self.caregiverRelation.text    = profile.caregiverRelation ?? "—"
                 }
             } catch {
                 print("❌ Failed to fetch caregiver profile:", error)
@@ -56,7 +54,22 @@ class HomeProfileTableViewController: UITableViewController {
         }
     }
 
+    // MARK: - Actions
+
     @IBAction func donebutton(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true)
+    }
+
+    @IBAction func logoutTapped(_ sender: UIButton) {
+        let alert = UIAlertController(
+            title: "Log Out",
+            message: "Are you sure you want to log out?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Log Out", style: .destructive) { _ in
+            SessionManager.shared.logout()
+        })
+        present(alert, animated: true)
     }
 }

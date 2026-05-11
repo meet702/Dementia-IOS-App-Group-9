@@ -75,9 +75,11 @@ class OTPVerificationViewController: UIViewController {
                     if profile.role == .caregiver {
                         print("🔍 Fetching patient profile...")
                         if let patientProfile = try? await SupabaseSyncManager.shared.fetchPatientProfile(caregiverUid: profile.uid) {
-                            SessionManager.shared.currentUserProfile = profile
-                            SessionManager.shared.clearLocalDataForNewUser()
-                            SessionManager.shared.populateFromProfile(profile)
+                            // Store the linked patient's data so Caregiver Home and Profile screens can display it
+                            SessionManager.shared.patientName = patientProfile.name
+                            SessionManager.shared.patientContact = patientProfile.email
+                            SessionManager.shared.saveToDefaults()
+                            print("✅ Patient profile loaded:", patientProfile.name)
                         } else {
                             print("❌ No patient found for caregiverUid:", profile.uid)
                         }
