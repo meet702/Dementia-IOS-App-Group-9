@@ -31,20 +31,14 @@ class InputCell: UITableViewCell {
         textField.text = ""
     }
 
-    // MARK: - Configure
-
     func configure(title: String, placeholder: String) {
         titleLabel.text = title
         textField.placeholder = placeholder
     }
 
-    // MARK: - Text Handling
-
     @objc private func textDidChange() {
         onTextChanged?(textField.text ?? "")
     }
-
-    // MARK: - Gender Picker Setup
 
     func enableGenderPicker() {
         genderPicker.delegate = self
@@ -53,7 +47,6 @@ class InputCell: UITableViewCell {
         textField.inputView = genderPicker
         textField.tintColor = .clear
 
-        // Toolbar
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
 
@@ -75,15 +68,12 @@ class InputCell: UITableViewCell {
 
         addGenderChevron()
 
-        // ✅ DEFAULT VALUE (prevents crash later)
         if textField.text?.isEmpty ?? true {
             let defaultValue = genders[0]
             textField.text = defaultValue
             onTextChanged?(defaultValue)
         }
     }
-
-    // MARK: - Done Action
 
     @objc private func genderDone() {
         let row = genderPicker.selectedRow(inComponent: 0)
@@ -98,8 +88,6 @@ class InputCell: UITableViewCell {
 
         onTextChanged?(value)
     }
-
-    // MARK: - UI Helpers
 
     private func addLeftPadding() {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
@@ -121,8 +109,6 @@ class InputCell: UITableViewCell {
         textField.rightViewMode = .always
     }
 }
-
-// MARK: - Picker Delegates
 
 extension InputCell: UIPickerViewDelegate, UIPickerViewDataSource {
 

@@ -1,11 +1,3 @@
-//
-//  RestoringMemoriesViewController.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 17/03/26.
-//
-
-
 import UIKit
 
 class RestoringMemoriesViewController: UIViewController {
@@ -20,17 +12,16 @@ class RestoringMemoriesViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0.996, green: 0.973, blue: 0.937, alpha: 1) // #FEF8EF
+        view.backgroundColor = UIColor(red: 0.996, green: 0.973, blue: 0.937, alpha: 1)
         setupUI()
     }
 
     private func setupUI() {
-        // Spinner
+
         spinner.color = UIColor(red: 0.91, green: 0.45, blue: 0.29, alpha: 1)
         spinner.startAnimating()
         spinner.translatesAutoresizingMaskIntoConstraints = false
 
-        // Title
         titleLabel.text = "Restoring your memories"
         titleLabel.font = UIFont.systemFont(ofSize: 22, weight: .semibold)
         titleLabel.textColor = .label
@@ -38,7 +29,6 @@ class RestoringMemoriesViewController: UIViewController {
         titleLabel.numberOfLines = 0
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // Subtitle
         subtitleLabel.text = "Bringing back your photos and moments.\nJust a sec…"
         subtitleLabel.font = UIFont.systemFont(ofSize: 14)
         subtitleLabel.textColor = .secondaryLabel
@@ -46,7 +36,6 @@ class RestoringMemoriesViewController: UIViewController {
         subtitleLabel.numberOfLines = 0
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // Progress track
         let track = UIView()
         track.backgroundColor = UIColor(red: 0.91, green: 0.45, blue: 0.29, alpha: 0.2)
         track.layer.cornerRadius = 2
@@ -82,7 +71,7 @@ class RestoringMemoriesViewController: UIViewController {
             progressBar.leadingAnchor.constraint(equalTo: track.leadingAnchor),
             progressBar.topAnchor.constraint(equalTo: track.topAnchor),
             progressBar.bottomAnchor.constraint(equalTo: track.bottomAnchor),
-            progressBarWidth,
+            progressBarWidth
         ])
     }
 
@@ -95,6 +84,5 @@ class RestoringMemoriesViewController: UIViewController {
             }
         }
     }
-    
-    
+
 }

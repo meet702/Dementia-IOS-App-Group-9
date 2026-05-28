@@ -38,7 +38,6 @@ final class GridCell: UICollectionViewCell {
             letterLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
-    
 
     func configure(with model: CrosswordCell) {
         letterLabel.text = ""
@@ -59,7 +58,7 @@ final class GridCell: UICollectionViewCell {
             numberLabel.text = ""
             return
         }
-        
+
         if model.isSelected {
             contentView.backgroundColor = UIColor.orange.withAlphaComponent(0.45)
             layer.borderWidth = 2
@@ -71,7 +70,7 @@ final class GridCell: UICollectionViewCell {
 
             return
         }
-        
+
         if model.isCorrectWord {
             contentView.backgroundColor = UIColor.orange
             layer.borderWidth = 1
@@ -87,7 +86,6 @@ final class GridCell: UICollectionViewCell {
 
             return
         }
-
 
         if model.isWrongLetter {
             contentView.backgroundColor = UIColor.red.withAlphaComponent(0.15)

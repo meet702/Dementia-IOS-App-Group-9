@@ -1,10 +1,3 @@
-//
-//  CrosswordCategory.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 14/01/26.
-//
-
 import Foundation
 
 enum CrosswordCategory: String {
@@ -12,7 +5,7 @@ enum CrosswordCategory: String {
     case dailyObjects = "Daily Objects"
     case gk = "GK"
     case food = "Food"
-    
+
     var data: [CrosswordData] {
         switch self {
         case .countries:

@@ -22,7 +22,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         case caregiver
     }
     var userRole: RoutineUserRole = .patient
-    
+
     private let emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "No tasks added"
@@ -36,7 +36,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
     override func viewDidLoad() {
         super.viewDidLoad()
 
-//        repository.createBaselineRoutineIfNeeded()
         registerCells()
         routineCollectionView.dataSource = self
         routineCollectionView.delegate = self
@@ -56,28 +55,28 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         updateEmptyState()
 
         selectDateInCollectionView(selectedDate, animated: false)
-        
+
         navigationItem.title = caregiverTitle ?? "My Routine"
-        
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(routineDataUpdated),
             name: .DataStoreDidUpdateRoutines,
             object: nil
         )
-        
+
         view.addSubview(emptyLabel)
         NSLayoutConstraint.activate([
             emptyLabel.centerXAnchor.constraint(equalTo: tasksTableView.centerXAnchor),
             emptyLabel.centerYAnchor.constraint(equalTo: tasksTableView.centerYAnchor)
         ])
     }
-    
+
     private func updateEmptyState() {
         let hasNoTasks = morningTasks.isEmpty && afternoonTasks.isEmpty && eveningTasks.isEmpty
         emptyLabel.isHidden = !hasNoTasks
     }
-    
+
     @objc private func routineDataUpdated() {
         DispatchQueue.main.async { [weak self] in
             self?.splitTasksByTime()
@@ -102,14 +101,15 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
 
-        let cell = tableView.dequeueReusableCell(
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "task_cell",
             for: indexPath
-        ) as! TaskTableViewCell
+        ) as? TaskTableViewCell else {
+            return UITableViewCell()
+        }
 
         let task = getTaskAt(indexPath)
-        
-        // ✅ Re-fetch from store to get latest completedDates
+
         let freshTask = repository.fetchAllTasks().first(where: { $0.id == task.id }) ?? task
         let isCompleted = repository.isTaskCompleted(freshTask, on: selectedDate)
 
@@ -128,7 +128,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
                 Calendar.current.isDateInToday(self.selectedDate)
             else { return }
 
-            // ✅ Always fetch fresh task at toggle time
             let currentTask = self.repository.fetchAllTasks().first(where: { $0.id == task.id }) ?? task
             self.repository.toggleCompletion(task: currentTask, date: self.selectedDate)
             self.splitTasksByTime()
@@ -139,18 +138,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         return cell
     }
 
-//    func tableView(
-//        _ tableView: UITableView,
-//        titleForHeaderInSection section: Int
-//    ) -> String? {
-//        switch section {
-//        case 0: return "Morning"
-//        case 1: return "Afternoon"
-//        case 2: return "Evening"
-//        default: return nil
-//        }
-//    }
-    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let tasks: [RoutineTask]
         let title: String
@@ -162,7 +149,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         default: return nil
         }
 
-        guard !tasks.isEmpty else { return nil }  // ✅ hide if empty
+        guard !tasks.isEmpty else { return nil }
 
         let label = UILabel()
         label.text = title
@@ -184,7 +171,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
         case 2: tasks = eveningTasks
         default: return 0
         }
-        return tasks.isEmpty ? 0 : 28  // ✅ zero height collapses it completely
+        return tasks.isEmpty ? 0 : 28
     }
 
     func tableView(
@@ -220,10 +207,13 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
                 [weak self] _, _, complete in
                 guard let self = self else { return }
 
-                let vc = self.storyboard?
+                guard let vc = self.storyboard?
                     .instantiateViewController(
                         withIdentifier: "AddEditTaskTableViewController"
-                    ) as! AddEditTaskTableViewController
+                    ) as? AddEditTaskTableViewController else {
+                        complete(false)
+                        return
+                    }
 
                 vc.mode = .edit(task)
                 vc.selectedDate = self.selectedDate
@@ -290,7 +280,7 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             }
             .sorted(by: compareByTime)
     }
-    
+
     private func compareByTime(_ t1: RoutineTask, _ t2: RoutineTask) -> Bool {
         let cal = Calendar.current
         let c1 = cal.dateComponents([.hour, .minute], from: t1.time)
@@ -339,7 +329,6 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             )
         }
     }
-
 
     func registerCells() {
         routineCollectionView.register(
@@ -396,10 +385,12 @@ final class RoutineViewController: UIViewController, UITableViewDataSource, UITa
             return
         }
 
-        let vc = storyboard?
+        guard let vc = storyboard?
             .instantiateViewController(
                 withIdentifier: "AddEditTaskTableViewController"
-            ) as! AddEditTaskTableViewController
+            ) as? AddEditTaskTableViewController else {
+                return
+            }
 
         vc.selectedDate = selectedDate
         vc.repository = repository
@@ -447,10 +438,12 @@ extension RoutineViewController: UICollectionViewDataSource, UICollectionViewDel
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "calendar_cell",
             for: indexPath
-        ) as! CalendarCollectionViewCell
+        ) as? CalendarCollectionViewCell else {
+            return UICollectionViewCell()
+        }
 
         let model = dates[indexPath.row]
         let isSelected = Calendar.current.isDate(model.date, inSameDayAs: selectedDate)
@@ -479,4 +472,3 @@ extension RoutineViewController: UICollectionViewDataSource, UICollectionViewDel
     }
 
 }
-

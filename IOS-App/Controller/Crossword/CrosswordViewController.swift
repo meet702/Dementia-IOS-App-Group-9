@@ -6,13 +6,13 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var keyboardStackView: UIStackView!
     @IBOutlet weak var loadingOverlayView: UIView!
-    
+
     private var cells: [CrosswordCell] = []
     private var words: [CrosswordWord] = []
     private let gameState = CrosswordGameState()
-    
+
     private let lightHaptic = UIImpactFeedbackGenerator(style: .light)
-    
+
     private let totalCols = 9
     private let totalRows = 9
 
@@ -20,13 +20,12 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
     private var minY = 0
     private var maxX = 0
     private var maxY = 0
-    
+
     private var allPuzzles: [([String], [String: String])] = []
     private var currentPuzzleIndex = 0
-    
-    // Category
+
     var selectedCategory: CrosswordCategory!
-    
+
     private var dotsTimer: Timer?
 
     override func viewDidLoad() {
@@ -36,20 +35,17 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        // Show loading only
+
         loadingOverlayView.isHidden = false
         loadingOverlayView.alpha = 1.0
-        
+
         Task {
-            print("➡️ Generating for category:", self.selectedCategory.rawValue)
 
             await generatePuzzles()
             await loadLevel()
 
             hideLoadingScreen()
 
-            //Set title After loading finishes
             DispatchQueue.main.async {
                 self.title = self.selectedCategory.rawValue
             }
@@ -59,18 +55,17 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             }
         }
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gridCollectionView.collectionViewLayout.invalidateLayout()
     }
 
-    //Loading Screen
     private func hideLoadingScreen() {
         DispatchQueue.main.async {
             self.dotsTimer?.invalidate()
             self.dotsTimer = nil
-            
+
             UIView.animate(withDuration: 0.3, animations: {
                 self.loadingOverlayView.alpha = 0
             }) { _ in
@@ -78,7 +73,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             }
         }
     }
-    
+
     private func showLoadingScreen() {
         DispatchQueue.main.async {
             self.loadingOverlayView.alpha = 0
@@ -100,29 +95,23 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         gridCollectionView.collectionViewLayout = layout
     }
 
-    //Generate Multiple Crosswords
     @MainActor
     private func generatePuzzles() async {
-        print("Generating \(selectedCategory.rawValue) crossword puzzles...")
-        
+
         allPuzzles = generateUniqueCrosswords(from: selectedCategory.data, count: 10)
-        
-        print("Generated \(allPuzzles.count) unique puzzles")
-        
+
         if allPuzzles.isEmpty {
-            print("Using fallback puzzles")
             allPuzzles = createFallbackPuzzles()
         }
-        // Shuffling puzzles for variety
+
         allPuzzles.shuffle()
     }
-    
+
     private func createFallbackPuzzles() -> [([String], [String: String])] {
 
         guard let category = selectedCategory else {
-            print("No selected category — using GK as default")
             let data = Array(gkData.prefix(15))
-            return [(data.map {$0.name}, Dictionary(uniqueKeysWithValues: data.map { ($0.name, $0.clue) }))]
+            return [(data.map { $0.name }, Dictionary(uniqueKeysWithValues: data.map { ($0.name, $0.clue) }))]
         }
 
         let data = Array(category.data.prefix(15))
@@ -131,19 +120,14 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
 
         return [(words, clues)]
     }
-    
-    // Load Crossword
+
     @MainActor
     private func loadLevel() async {
         guard !allPuzzles.isEmpty else {
-            print("No puzzles available")
             return
         }
-        
+
         let (inputWords, clues) = allPuzzles[currentPuzzleIndex]
-        
-        print("Loading puzzle \(currentPuzzleIndex + 1)/\(allPuzzles.count)")
-        print("   Words: \(inputWords.joined(separator: ", "))")
 
         let (board, placedWords) = generateCrossword(words: inputWords)
         guard !placedWords.isEmpty else {
@@ -156,10 +140,10 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             col.enumerated().compactMap { y, char in char != nil ? (x, y) : nil }
         }
 
-        minX = occupied.map { $0.0 }.min()!
-        maxX = occupied.map { $0.0 }.max()!
-        minY = occupied.map { $0.1 }.min()!
-        maxY = occupied.map { $0.1 }.max()!
+        minX = occupied.map { $0.0 }.min() ?? 0
+        maxX = occupied.map { $0.0 }.max() ?? 0
+        minY = occupied.map { $0.1 }.min() ?? 0
+        maxY = occupied.map { $0.1 }.max() ?? 0
 
         let crosswordCols = maxX - minX + 1
         let crosswordRows = maxY - minY + 1
@@ -225,7 +209,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             highlightSelectedWord()
         }
     }
-    
+
     @MainActor
     func loadNextPuzzle() async {
         showLoadingScreen()
@@ -233,7 +217,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         await loadLevel()
         hideLoadingScreen()
     }
-    
+
     private func isPuzzleComplete() -> Bool {
         for cell in cells where !cell.isBlocked {
             if !isCellCorrect(cell.index) {
@@ -243,7 +227,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         return true
     }
 
-    // Helpers
     private func indexForCell(x: Int, y: Int) -> Int {
         return y * totalCols + x
     }
@@ -252,41 +235,36 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         guard let word = gameState.selectedWord else { return }
         questionLabel.text = "\(word.number). \(word.clue)"
     }
-    
+
     private func findAllWordsForCell(_ cell: CrosswordCell) -> [CrosswordWord] {
         var matchingWords: [CrosswordWord] = []
-        
+
         for word in words {
             var r = cells[word.startIndex].row
             var c = cells[word.startIndex].col
-            
+
             for _ in 0..<word.answer.count {
                 if r == cell.row && c == cell.col {
                     matchingWords.append(word)
                     break
                 }
-                if word.direction == .across { c += 1 }
-                else { r += 1 }
+                if word.direction == .across { c += 1 } else { r += 1 }
             }
         }
         return matchingWords
     }
 
-    // Tap Cell to Select Word
     private func handleGridTap(_ cell: CrosswordCell) {
         let wordsContainingCell = findAllWordsForCell(cell)
         guard !wordsContainingCell.isEmpty else { return }
 
-        // Clear previous selection
         for i in cells.indices {
             cells[i].isSelected = false
         }
 
-        // Select tapped cell
         cells[cell.index].isSelected = true
         gameState.selectedCellIndex = cell.index
 
-        // Direction toggle (only affects clues, NOT cursor)
         if wordsContainingCell.count > 1 {
             let hasAcross = wordsContainingCell.contains { $0.direction == .across }
             let hasDown = wordsContainingCell.contains { $0.direction == .down }
@@ -297,7 +275,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             }
         }
 
-        // Pick preferred word (for clue display only)
         let preferredWord: CrosswordWord?
         if gameState.selectedDirection == .across {
             preferredWord = wordsContainingCell.first { $0.direction == .across }
@@ -307,7 +284,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
                 ?? wordsContainingCell.first
         }
 
-        // Update UI
         if let word = preferredWord {
             gameState.selectedWord = word
             gameState.selectedDirection = word.globalDirection
@@ -317,7 +293,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
 
         gridCollectionView.reloadData()
     }
-
 
     private func moveSelectionForward(from index: Int) {
         guard let word = gameState.selectedWord else { return }
@@ -336,18 +311,16 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             let nextIndex = indexForCell(x: col, y: row)
 
             if !cells[nextIndex].isBlocked {
-                // Clearing old selection
+
                 for i in cells.indices {
                     cells[i].isSelected = false
                 }
 
-                // Selecting next cell
                 cells[nextIndex].isSelected = true
                 gameState.selectedCellIndex = nextIndex
                 return
             }
 
-            // moving in same direction
             if word.direction == .across {
                 col += 1
             } else {
@@ -356,7 +329,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         }
     }
 
-    // Highlight Current Word
     private func highlightSelectedWord() {
         for i in cells.indices {
             cells[i].isHighlighted = false
@@ -371,57 +343,53 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             let idx = indexForCell(x: c, y: r)
             cells[idx].isHighlighted = true
 
-            if word.direction == .across { c += 1 }
-            else { r += 1 }
+            if word.direction == .across { c += 1 } else { r += 1 }
         }
     }
 
-    // Keyboard Setup
     private func setupKeyboardConnections() {
         guard let keyboardStack = keyboardStackView else { return }
         connectAllButtons(in: keyboardStack)
     }
-    
+
     private func connectAllButtons(in view: UIView) {
         func traverse(_ v: UIView) {
             if let button = v as? UIButton {
                 button.removeTarget(nil, action: nil, for: .allEvents)
-                
+
                 let title = button.currentTitle ?? ""
                 let titleLabel = button.titleLabel?.text ?? ""
                 let buttonText = !title.isEmpty ? title : titleLabel
-                
+
                 let isDeleteButton = buttonText.isEmpty && button.imageView?.image != nil
-                
+
                 if isDeleteButton {
                     button.addTarget(self, action: #selector(deleteTapped(_:)), for: .touchUpInside)
                 } else if !buttonText.isEmpty {
                     button.addTarget(self, action: #selector(keyTapped(_:)), for: .touchUpInside)
                 }
             }
-            
+
             for subview in v.subviews {
                 traverse(subview)
             }
         }
-        
+
         traverse(view)
     }
-
 
     private func playLightHaptic() {
         lightHaptic.prepare()
         lightHaptic.impactOccurred()
     }
-    
-    // Keyboard Input
+
     @IBAction func keyTapped(_ sender: UIButton) {
         playLightHaptic()
         if let char = sender.currentTitle?.first {
             insertLetter(char)
             return
         }
-        
+
         if let labelText = sender.titleLabel?.text?.first {
             insertLetter(labelText)
             return
@@ -432,7 +400,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         playLightHaptic()
         deleteLetter()
     }
-
 
     private func insertLetter(_ char: Character) {
         let idx = gameState.selectedCellIndex
@@ -475,12 +442,10 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             if cells[idx].letter == nil {
                 return false
             }
-            if word.direction == .across { c += 1 }
-            else { r += 1 }
+            if word.direction == .across { c += 1 } else { r += 1 }
         }
         return true
     }
-
 
     private func isCellCorrect(_ idx: Int) -> Bool {
         guard let letter = cells[idx].letter,
@@ -489,14 +454,12 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         }
         return letter.uppercased() == correct.uppercased()
     }
-    
-    
+
     private func deleteLetter() {
         guard let word = gameState.selectedWord else { return }
 
         let idx = gameState.selectedCellIndex
 
-        // Current cell has a letter
         if cells[idx].letter != nil {
             cells[idx].letter = nil
             cells[idx].isWrongLetter = false
@@ -508,10 +471,9 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             return
         }
 
-        // Moving backwards
         var r = cells[word.startIndex].row
         var c = cells[word.startIndex].col
-        var previousIndex: Int? = nil
+        var previousIndex: Int?
 
         for _ in 0..<word.answer.count {
             let currentIndex = indexForCell(x: c, y: r)
@@ -519,13 +481,11 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
 
             previousIndex = currentIndex
 
-            if word.direction == .across { c += 1 }
-            else { r += 1 }
+            if word.direction == .across { c += 1 } else { r += 1 }
         }
 
         guard let prev = previousIndex else { return }
 
-        // Update selection
         for i in cells.indices {
             cells[i].isSelected = false
         }
@@ -533,7 +493,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         cells[prev].isSelected = true
         gameState.selectedCellIndex = prev
 
-        // Delete letter
         cells[prev].letter = nil
         cells[prev].isWrongLetter = false
         cells[prev].isCorrectWord = false
@@ -543,14 +502,12 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         gridCollectionView.reloadData()
     }
 
-
     private func clearSelection() {
         for i in cells.indices {
             cells[i].isSelected = false
         }
     }
-    
-    // Check Word Completion
+
     private func checkWordCompletion(_ word: CrosswordWord) {
         var r = cells[word.startIndex].row
         var c = cells[word.startIndex].col
@@ -559,7 +516,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         var allFilled = true
         var allCorrect = true
 
-        // Collect indices & validate
         for _ in 0..<word.answer.count {
             let idx = indexForCell(x: c, y: r)
             indices.append(idx)
@@ -572,8 +528,7 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
                 allFilled = false
             }
 
-            if word.direction == .across { c += 1 }
-            else { r += 1 }
+            if word.direction == .across { c += 1 } else { r += 1 }
         }
 
         guard allFilled else {
@@ -603,36 +558,35 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
             checkWordCompletion(word)
         }
     }
-    
-    // Puzzle Complete Alert
+
     private func showPuzzleCompleteAlert() {
         let alert = UIAlertController(
             title: "🎉 Puzzle Complete!",
             message: "Congratulations! Would you like to play another puzzle?",
             preferredStyle: .alert
         )
-        
+
         alert.addAction(UIAlertAction(title: "Next Puzzle", style: .default) { [weak self] _ in
             Task {
                 await self?.loadNextPuzzle()
             }
         })
-        
+
         alert.addAction(UIAlertAction(title: "Done", style: .cancel) { [weak self] _ in
             self?.navigationController?.popViewController(animated: true)
         })
-        
+
         present(alert, animated: true)
     }
 
-
-    // CollectionView
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return cells.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GridCell", for: indexPath) as! GridCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GridCell", for: indexPath) as? GridCell else {
+            return UICollectionViewCell()
+        }
         cell.configure(with: cells[indexPath.item])
         return cell
     }
@@ -643,7 +597,6 @@ final class CrosswordViewController: UIViewController, UICollectionViewDataSourc
         playLightHaptic()
         handleGridTap(model)
     }
-
 
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,

@@ -1,11 +1,3 @@
-
-//
-//  RoutineStore.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 06/03/26.
-//
-
 import Foundation
 
 final class RoutineStore {
@@ -27,8 +19,6 @@ final class RoutineStore {
         return doc.appendingPathComponent("routine_tasks.json")
     }
 
-    // MARK: Load
-
     private func load() {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             tasks = []
@@ -44,8 +34,6 @@ final class RoutineStore {
         }
     }
 
-    // MARK: Save
-
     private func save() {
         do {
             let data = try JSONEncoder().encode(tasks)
@@ -59,8 +47,6 @@ final class RoutineStore {
             object: nil
         )
     }
-
-    // MARK: Fetch
 
     func fetchAllTasks() -> [RoutineTask] {
         tasks.sorted { $0.time < $1.time }
@@ -81,8 +67,6 @@ final class RoutineStore {
             return false
         }
     }
-
-    // MARK: Create
 
     func createTask(
         title: String,
@@ -105,13 +89,11 @@ final class RoutineStore {
 
         tasks.append(task)
         save()
-        
+
         Task {
             await SupabaseSyncManager.shared.insertRoutineTask(task)
         }
     }
-
-    // MARK: Update
 
     func updateTask(
         _ task: RoutineTask,
@@ -132,24 +114,19 @@ final class RoutineStore {
         let updated = tasks[index]
         save()
 
-        // ✅ Sync to Supabase
         Task {
             await SupabaseSyncManager.shared.updateRoutineTask(updated)
         }
     }
 
-    // MARK: Delete
-
     func delete(_ task: RoutineTask) {
         tasks.removeAll { $0.id == task.id }
         save()
-        
+
         Task {
             await SupabaseSyncManager.shared.deleteRoutineTask(id: task.id)
         }
     }
-
-    // MARK: Completion
 
     func isTaskCompleted(_ task: RoutineTask, on date: Date) -> Bool {
         let calendar = Calendar.current
@@ -159,7 +136,7 @@ final class RoutineStore {
 
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
-        df.timeZone = TimeZone.current  // IST
+        df.timeZone = TimeZone.current
         let dayString = df.string(from: date)
 
         return task.completedDates.contains {
@@ -172,14 +149,13 @@ final class RoutineStore {
 
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
-        df.timeZone = TimeZone.current  // IST for string
-        let dayString = df.string(from: date)  // "2026-03-18"
+        df.timeZone = TimeZone.current
+        let dayString = df.string(from: date)
 
-        // ✅ Always store as UTC midnight
         let utcDf = DateFormatter()
         utcDf.dateFormat = "yyyy-MM-dd"
-        utcDf.timeZone = TimeZone(identifier: "UTC")!
-        let utcDate = utcDf.date(from: dayString)!  // 2026-03-18 00:00:00 +0000
+        utcDf.timeZone = TimeZone(identifier: "UTC") ?? TimeZone.current
+        guard let utcDate = utcDf.date(from: dayString) else { return }
 
         let alreadyCompleted = tasks[index].completedDates.contains {
             df.string(from: $0) == dayString
@@ -191,7 +167,7 @@ final class RoutineStore {
             }
             tasks[index].isCompleted = false
         } else {
-            tasks[index].completedDates.append(utcDate)  // ✅ UTC midnight
+            tasks[index].completedDates.append(utcDate)
             tasks[index].isCompleted = true
         }
 
@@ -208,28 +184,25 @@ final class RoutineStore {
         let calendar = Calendar.current
         let now = Date()
 
-        var components = calendar.dateComponents([.year,.month,.day], from: now)
+        var components = calendar.dateComponents([.year, .month, .day], from: now)
         components.hour = hour
         components.minute = minute
 
-        return calendar.date(from: components)!
+        return calendar.date(from: components) ?? Date()
     }
-    
-    // MARK: - Restore (called from SupabaseSyncManager after reinstall)
+
     func replaceAll(with tasks: [RoutineTask]) {
         self.tasks = tasks
         save()
         for task in tasks {
             if !task.completedDates.isEmpty {
-                print("📦 Restored task \(task.title) with completedDates: \(task.completedDates)")
             }
         }
     }
-    
+
     func clearAll() {
         tasks = []
         try? FileManager.default.removeItem(at: fileURL)
-        print("🧹 RoutineStore cleared")
     }
 }
 

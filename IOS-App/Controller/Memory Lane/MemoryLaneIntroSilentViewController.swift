@@ -2,28 +2,20 @@ import UIKit
 
 final class MemoryLaneIntroSilentViewController: UIViewController {
 
-    // MARK: - IBOutlets
-
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var hintLabel: UILabel!
     @IBOutlet weak var innerShadowView: UIView!
 
-    
     @IBOutlet weak var backgroundImageView: UIImageView!
-    // MARK: - Dependencies (Injected)
 
     var wholeImage: WholeImage!
     var faces: [Face] = []
     var questionsByPerson: [String: [Question]] = [:]
     var portraitImage: UIImage!
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("🔍 SilentVC viewDidLoad:")
-//        print("   WholeImage ID: \(wholeImage.wid)")
-        print("   Faces: \(faces.count)")
-        
+
         configureUI()
         loadImage()
         setupTapGesture()
@@ -39,23 +31,21 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
         addInnerShadow()
     }
 
-    // MARK: - UI Setup
-
     private func configureUI() {
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
-        
+
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.clipsToBounds = true
 
         hintLabel.text = "Tap to zoom into the moment"
         hintLabel.textAlignment = .center
         hintLabel.textColor = UIColor.systemGray3
-        
+
         innerShadowView.backgroundColor = .clear
         innerShadowView.isUserInteractionEnabled = false
     }
-    
+
     private func applyFadeMask(to blurView: UIVisualEffectView, isTop: Bool) {
         let maskLayer = CAGradientLayer()
         maskLayer.frame = blurView.bounds
@@ -78,10 +68,10 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
 
         blurView.layer.mask = maskLayer
     }
-    
+
     private func makeLowResolutionImage(from image: UIImage) -> UIImage {
 
-        let scale: CGFloat = 0.08   // 8% of original resolution
+        let scale: CGFloat = 0.08
 
         let targetSize = CGSize(
             width: image.size.width * scale,
@@ -100,16 +90,11 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
     }
 
     private func loadImage() {
-        // For testing: use hardcoded portrait
+
         imageView.image = portraitImage
-//        backgroundImageView.image = portraitImage
-        // TODO: When ready for real images:
-        // guard let image = UIImage(contentsOfFile: wholeImage.imageURL.path) else { return }
-        // imageView.image = image
+
         backgroundImageView.image = makeLowResolutionImage(from: portraitImage)
     }
-
-    // MARK: - Tap Handling
 
     private func setupTapGesture() {
         let tap = UITapGestureRecognizer(
@@ -123,8 +108,6 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
     @objc private func handleScreenTap() {
         performSegue(withIdentifier: "showAudioIntro", sender: nil)
     }
-
-    // MARK: - Hint Animation
 
     private func animateHint() {
         UIView.animate(
@@ -175,8 +158,6 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
 
         innerShadowView.layer.addSublayer(shadowLayer)
     }
-    
-    // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showAudioIntro",
@@ -185,7 +166,7 @@ final class MemoryLaneIntroSilentViewController: UIViewController {
             audioVC.wholeImage = wholeImage
             audioVC.faces = faces
             audioVC.questionsByPerson = questionsByPerson
-            audioVC.portraitImage = portraitImage   
+            audioVC.portraitImage = portraitImage
         }
     }
 

@@ -1,0 +1,39 @@
+opt_in_rules:
+  - force_unwrapping
+  - closure_spacing
+  - empty_count
+  - redundant_optional_initialization
+  - weak_delegate
+  - fatal_error_message
+  - iboutlet_variable_naming
+
+disabled_rules:
+  - trailing_whitespace
+
+excluded:
+  - Pods
+  - .build
+  - "*/Generated"
+  - "*/Storyboard"
+
+line_length:
+  warning: 120
+  error: 200
+
+function_body_length:
+  warning: 60
+  error: 120
+
+type_body_length:
+  warning: 400
+  error: 600
+
+identifier_name:
+  min_length: 2
+  max_length: 50
+  excluded:
+    - id
+    - db
+    - vc
+    - tv
+    - cv

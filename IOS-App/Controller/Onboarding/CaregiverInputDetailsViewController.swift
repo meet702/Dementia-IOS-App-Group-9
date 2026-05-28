@@ -59,8 +59,8 @@ class CaregiverInputDetailsViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showCaregiverConnect",
            let mcqVC = segue.destination as? CaregiverConnectCodeViewController {
-            mcqVC.verifiedEmail = verifiedEmail          // ✅ pass forward
-            mcqVC.caregiverName = inputValues[0] ?? ""   // ✅ index 0 is Full Name
+            mcqVC.verifiedEmail = verifiedEmail
+            mcqVC.caregiverName = inputValues[0] ?? ""
             mcqVC.caregiverRelation = inputValues[1] ?? ""
             mcqVC.caregiverGender = inputValues[2] ?? ""
         }
@@ -83,7 +83,6 @@ extension CaregiverInputDetailsViewController: UITableViewDelegate, UITableViewD
 
         let row = indexPath.row
 
-        // Return cached cell if it exists
         if let cached = cachedCells[row] { return cached }
 
         guard let cell = tableView.dequeueReusableCell(
@@ -109,7 +108,6 @@ extension CaregiverInputDetailsViewController: UITableViewDelegate, UITableViewD
             self?.inputValues[row] = text
         }
 
-        // Cache it so it's never reused
         cachedCells[row] = cell
         return cell
     }

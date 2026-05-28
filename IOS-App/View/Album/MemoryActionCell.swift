@@ -1,8 +1,3 @@
-//
-//  MemoryActionCell.swift
-//  IOS-App
-//
-
 import UIKit
 import AVFoundation
 
@@ -27,17 +22,13 @@ class MemoryActionCell: UICollectionViewCell, AVAudioPlayerDelegate {
     private var totalDuration: Double = 0
     private var currentContent: MemoryActionContent = .empty
 
-    // MARK: - Callbacks
     var onAddText: (() -> Void)?
     var onAddVoice: (() -> Void)?
     var onEdit: (() -> Void)?
     var onDelete: (() -> Void)?
     var onDeleteVoice: (() -> Void)?
 
-    /// ✅ NEW: Called after configure() so the parent VC can invalidate the layout
     var onContentDidChange: (() -> Void)?
-
-    // MARK: - Lifecycle
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -62,17 +53,13 @@ class MemoryActionCell: UICollectionViewCell, AVAudioPlayerDelegate {
         progressSlider.value = 0
         playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
 
-        // ✅ Reset label text so intrinsic size is cleared for reuse
         textLabel.text = nil
     }
-
-    // MARK: - Self-sizing
 
     override func preferredLayoutAttributesFitting(
         _ layoutAttributes: UICollectionViewLayoutAttributes
     ) -> UICollectionViewLayoutAttributes {
 
-        // ✅ Force a full layout pass BEFORE measuring
         setNeedsLayout()
         layoutIfNeeded()
 
@@ -93,19 +80,13 @@ class MemoryActionCell: UICollectionViewCell, AVAudioPlayerDelegate {
         return layoutAttributes
     }
 
-    // MARK: - Configure
-
     func configure(with content: MemoryActionContent) {
         currentContent = content
 
-        // ✅ CRITICAL: Hide ALL containers first
         actionButton.isHidden = true
         textContainerView.isHidden = true
         voiceContainerView.isHidden = true
 
-        // ✅ CRITICAL: Always clear the text label's content when not in text state.
-        // A UILabel retains its intrinsic content size from the last text assigned.
-        // Clearing it forces Auto Layout to recalculate from zero.
         textLabel.text = nil
 
         switch content {
@@ -127,23 +108,17 @@ class MemoryActionCell: UICollectionViewCell, AVAudioPlayerDelegate {
             playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
         }
 
-        // ✅ Invalidate intrinsic sizes so Auto Layout starts fresh
         textLabel.invalidateIntrinsicContentSize()
         textContainerView.invalidateIntrinsicContentSize()
         contentView.invalidateIntrinsicContentSize()
 
-        // ✅ Force layout update within the cell
         setNeedsLayout()
         layoutIfNeeded()
 
-        // ✅ Notify parent to invalidate the collection view layout
-        // Use async to ensure this fires AFTER the current layout pass completes
         DispatchQueue.main.async { [weak self] in
             self?.onContentDidChange?()
         }
     }
-
-    // MARK: - UI Setup
 
     private func setupUI() {
         backgroundColor = .clear
@@ -206,8 +181,6 @@ class MemoryActionCell: UICollectionViewCell, AVAudioPlayerDelegate {
         moreButton.showsMenuAsPrimaryAction = true
     }
 
-    // MARK: - Audio
-
     private func getAudioDuration(from url: URL) -> String {
         let asset = AVURLAsset(url: url)
         let duration = CMTimeGetSeconds(asset.duration)
@@ -244,7 +217,7 @@ class MemoryActionCell: UICollectionViewCell, AVAudioPlayerDelegate {
             startPlaybackTimer()
             playButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
         } catch {
-            print("❌ Playback failed:", error)
+            print("Playback failed:", error)
         }
     }
 

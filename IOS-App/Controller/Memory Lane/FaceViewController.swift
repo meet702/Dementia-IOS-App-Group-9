@@ -2,8 +2,6 @@ import UIKit
 
 final class FaceViewController: UIViewController {
 
-    // MARK: - IBOutlets
-
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var optionsStack: UIStackView!
@@ -15,15 +13,11 @@ final class FaceViewController: UIViewController {
     @IBOutlet weak var transitionLabel: UILabel!
     @IBOutlet weak var backgroundImageView: UIImageView!
 
-    // MARK: - Injected Data
-
     private var isRecapTransitioning = false
     var wholeImage: WholeImage!
     var faces: [Face] = []
     var questionsByPerson: [String: [Question]] = [:]
     var portraitImage: UIImage!
-
-    // MARK: - State
 
     private var lastMCQAnswerID: UUID?
     private var currentFaceIndex = 0
@@ -33,12 +27,7 @@ final class FaceViewController: UIViewController {
     private var hasShownFinalReflectionInRecap = false
     private var imageSessionReady = false
 
-    /// Cache of generated questions per face index.
-    /// This ensures the same Question objects (with their positiveOptions)
-    /// are used both when displaying buttons and when checking answers.
     private var cachedQuestionsForFace: [Int: [Question]] = [:]
-
-    // MARK: - Session Data
 
     private var currentImageSession: ImageSession!
     private var currentPersonSession: PersonSession?
@@ -51,14 +40,9 @@ final class FaceViewController: UIViewController {
         case recap
     }
 
-    // MARK: - Session Mode
-
     var sessionMode: SessionMode = .play
 
-    // Inject this when launching recap
     var recapImageSession: ImageSession?
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +60,6 @@ final class FaceViewController: UIViewController {
         view.layoutIfNeeded()
         imageView.layoutIfNeeded()
 
-        // ✅ Only start immediately for recap — play mode waits for session insert
         if sessionMode == .recap {
             startFaceFlow()
         }
@@ -85,8 +68,6 @@ final class FaceViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
-    // MARK: - Session Management
 
     private func initializeSession() {
         guard sessionMode == .play else { return }
@@ -104,23 +85,17 @@ final class FaceViewController: UIViewController {
 
             await MainActor.run {
                 self.imageSessionReady = true
-                // ✅ Now safe to start — session is confirmed inserted
+
                 self.startFaceFlow()
             }
 
-            print("☁️ ImageSession inserted")
         }
 
-        print("\n🟢 IMAGE SESSION STARTED")
-        print("   Session ID: \(currentImageSession.isid)")
-        print("   Image ID: \(currentImageSession.wid)")
-        print("   Started at: \(currentImageSession.startedAt)")
     }
 
     private func createPersonSession(for face: Face) {
 
         guard imageSessionReady else {
-            print("⚠️ ImageSession not ready yet, skipping PersonSession creation")
             return
         }
 
@@ -141,9 +116,6 @@ final class FaceViewController: UIViewController {
             await SupabaseSyncManager.shared.insertPersonSession(personSession)
         }
 
-        print("\n👤 PERSON SESSION STARTED")
-        print("   Name: \(name)")
-        print("   Session ID: \(personSession.psid)")
     }
 
     private func savePersonResponse(
@@ -153,7 +125,6 @@ final class FaceViewController: UIViewController {
         wasPositive: Bool? = nil
     ) {
         guard let personSession = currentPersonSession else {
-            print("❌ No current person session")
             return
         }
 
@@ -171,20 +142,12 @@ final class FaceViewController: UIViewController {
         PersonSessionQuestionStore.shared.add(answer)
         Task {
             await SupabaseSyncManager.shared.insertPersonSessionQuestion(answer)
-            print("✅ Supabase insert done for: \(answer.selectedOption ?? answer.responseText ?? "nil")")
         }
 
-        print("\n💾 PERSON RESPONSE SAVED")
-        print("   Question: \(question.prompt)")
-        print("   Type: \(question.type)")
         if let selected = selectedOption {
-            print("   Selected: \(selected)")
-            print("   Was Positive: \(wasPositive == true ? "✅" : "❌")")
         }
         if let text = responseText {
-            print("   Text: \"\(text)\"")
         }
-        print("   Answer ID: \(answer.psqid)")
     }
 
     private func saveFinalReflection(text: String) {
@@ -205,9 +168,6 @@ final class FaceViewController: UIViewController {
             await SupabaseSyncManager.shared.insertImageSessionQuestion(answer)
         }
 
-        print("\n💭 FINAL REFLECTION SAVED")
-        print("   Reflection: \"\(text)\"")
-        print("   Answer ID: \(answer.isqid)")
     }
 
     private func completeSession() {
@@ -220,75 +180,42 @@ final class FaceViewController: UIViewController {
         Task {
             await SupabaseSyncManager.shared.updateImageSessionEnd(
                 isid: currentImageSession.isid,
-                endedAt: currentImageSession.endedAt!
+                endedAt: currentImageSession.endedAt ?? Date()
             )
         }
 
-        print("✅ ImageSession persisted")
         printSessionSummary()
     }
 
     private func printSessionSummary() {
-        print("\n" + String(repeating: "=", count: 70))
-        print("📊 SESSION SUMMARY")
-        print(String(repeating: "=", count: 70))
 
-        print("\n🔷 Image Session:")
-        print("   Session ID: \(currentImageSession.isid)")
-        print("   Image ID: \(currentImageSession.wid)")
-        print("   Type: \(currentImageSession.sessionType.rawValue)")
-        print("   Started: \(currentImageSession.startedAt)")
         if let endedAt = currentImageSession.endedAt {
             let duration = endedAt.timeIntervalSince(currentImageSession.startedAt)
-            print("   Ended: \(endedAt)")
-            print("   Duration: \(Int(duration)) seconds")
         }
 
-        print("\n👥 Person Sessions: \(personSessions.count)")
         for (index, session) in personSessions.enumerated() {
 
-            print("\n   [\(index + 1)] \(session.fid)")
-            print("       Session ID: \(session.psid)")
-
             let answers = personSessionAnswers.filter { $0.psid == session.psid }
-            print("       Responses: \(answers.count)")
 
             for (answerIndex, answer) in answers.enumerated() {
-                print("\n       Response [\(answerIndex + 1)]:")
-                print("         Type: \(answer.selectedOption != nil ? "MCQ" : "Text")")
 
                 if let selected = answer.selectedOption {
-                    print("         Selected: \(selected)")
-                    print("         Positive: \(answer.wasPositive == true ? "✅" : "❌")")
                 }
 
                 if let text = answer.responseText {
-                    print("         Text: \"\(text)\"")
                 }
             }
         }
 
-        print("\n💭 Final Reflection:")
         if let reflection = imageSessionAnswers.first {
-            print("   Response: \"\(reflection.responseText ?? "N/A")\"")
         } else {
-            print("   Not completed")
         }
 
         let totalPersonResponses = personSessionAnswers.count
         let mcqCount = personSessionAnswers.filter { $0.selectedOption != nil }.count
-        let textCount = personSessionAnswers.filter { $0.responseText != nil && !$0.responseText!.isEmpty }.count
+        let textCount = personSessionAnswers.filter { $0.responseText != nil && !($0.responseText?.isEmpty ?? true) }.count
         let positiveCount = personSessionAnswers.filter { $0.wasPositive == true }.count
 
-        print("\n📈 Statistics:")
-        print("   Total Person Responses: \(totalPersonResponses)")
-        print("   MCQ Responses: \(mcqCount)")
-        print("   Text Responses: \(textCount)")
-        print("   Positive MCQs: \(positiveCount)")
-        print("   People Viewed: \(personSessions.count)")
-        print("   Final Reflection: \(imageSessionAnswers.isEmpty ? "No" : "Yes")")
-        print("\n" + String(repeating: "=", count: 70))
-        print("\n")
     }
 
     private func makeLowResolutionImage(from image: UIImage) -> UIImage {
@@ -307,8 +234,6 @@ final class FaceViewController: UIViewController {
 
         return lowResImage ?? image
     }
-
-    // MARK: - UI Setup
 
     private func configureUI() {
         imageView.contentMode = .scaleAspectFit
@@ -366,8 +291,6 @@ final class FaceViewController: UIViewController {
         backgroundImageView.image = makeLowResolutionImage(from: image)
     }
 
-    // MARK: - Keyboard Handling
-
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(
             self,
@@ -409,12 +332,9 @@ final class FaceViewController: UIViewController {
         }
     }
 
-    // MARK: - Flow
-
     private func startFaceFlow() {
         guard !faces.isEmpty else {
-            // Faces not loaded yet — go straight to final reflection
-            print("⚠️ No faces found, skipping to final reflection")
+
             showFinalReflection()
             return
         }
@@ -422,7 +342,6 @@ final class FaceViewController: UIViewController {
     }
 
     private func showFace(at index: Int) {
-        
 
         guard index < faces.count else {
 
@@ -455,7 +374,6 @@ final class FaceViewController: UIViewController {
         currentQuestionIndex = 0
         isFaceComplete = false
 
-        // ✅ Clear cached questions for this face so a fresh set is generated
         cachedQuestionsForFace.removeValue(forKey: index)
 
         textAnswerTextView.text = ""
@@ -475,8 +393,6 @@ final class FaceViewController: UIViewController {
             resetZoom { self.zoomToFace(face) }
         }
     }
-
-    // MARK: - Zoom
 
     private func resetZoom(completion: (() -> Void)? = nil) {
         UIView.animate(withDuration: 0.4) {
@@ -522,19 +438,10 @@ final class FaceViewController: UIViewController {
         }
     }
 
-    // MARK: - Questions Engine
-
-    /// Single source of truth for the current face's questions.
-    /// Results are cached per face index so the same Question objects
-    /// (with their positiveOptions) are used both when rendering buttons
-    /// and when evaluating the answer — preventing option/positiveOptions mismatch.
     private func questionsForCurrentFace() -> [Question] {
         if let cached = cachedQuestionsForFace[currentFaceIndex] {
-            print("✅ Using cached questions for face \(currentFaceIndex)")
             return cached
         }
-
-        print("🆕 Generating questions for face \(currentFaceIndex)")
 
         let face = faces[currentFaceIndex]
         let questions: [Question]
@@ -544,7 +451,7 @@ final class FaceViewController: UIViewController {
            let namedQuestions = questionsByPerson[name] {
             questions = namedQuestions
         } else {
-            // ✅ Pass face so questions are deterministic per face but vary across faces
+
             questions = AppDataStore.shared.defaultQuestions()
         }
 
@@ -555,9 +462,6 @@ final class FaceViewController: UIViewController {
     private func presentNextQuestion() {
         let face = faces[currentFaceIndex]
         let questions = questionsForCurrentFace()
-
-        print("Person:", face.personName ?? "unnamed")
-        print("Questions found:", questions.count)
 
         if currentQuestionIndex >= questions.count {
             isFaceComplete = true
@@ -576,8 +480,6 @@ final class FaceViewController: UIViewController {
             showTextQuestion(question)
         }
     }
-
-    // MARK: - MCQ UI
 
     private func showMCQ(_ question: Question) {
         textAnswerContainerView.isHidden = true
@@ -601,8 +503,6 @@ final class FaceViewController: UIViewController {
         }
     }
 
-    // MARK: - Text UI
-
     private func showTextQuestion(_ question: Question) {
         textAnswerContainerView.isHidden = false
         textAnswerContainerView.isUserInteractionEnabled = true
@@ -625,12 +525,9 @@ final class FaceViewController: UIViewController {
         transitionLabel.alpha = 0
     }
 
-    // MARK: - Button Tap
-
     @IBAction private func optionTapped(_ sender: UIButton) {
         guard currentFaceIndex < faces.count else { return }
 
-        // ✅ Use cached questions — guaranteed same objects as when buttons were rendered
         let questions = questionsForCurrentFace()
 
         guard currentQuestionIndex < questions.count else { return }
@@ -639,12 +536,12 @@ final class FaceViewController: UIViewController {
         let selected = sender.title(for: .normal) ?? ""
 
         if question.type == .mcq {
-            // ✅ positiveOptions always matches this exact question
+
             let isPositive = question.positiveOptions?.contains(selected) ?? false
 
             let answer = PersonSessionQuestion(
                 psqid: UUID(),
-                psid: currentPersonSession!.psid,
+                psid: currentPersonSession?.psid ?? UUID(),
                 qid: question.qid,
                 responseText: nil,
                 selectedOption: selected,
@@ -652,21 +549,13 @@ final class FaceViewController: UIViewController {
                 wasPositive: isPositive
             )
 
-            // ✅ Track this MCQ row ID so text response can be merged into it later
             lastMCQAnswerID = answer.psqid
 
             personSessionAnswers.append(answer)
             PersonSessionQuestionStore.shared.add(answer)
             Task {
                 await SupabaseSyncManager.shared.insertPersonSessionQuestion(answer)
-                print("✅ MCQ inserted: \(selected), positive: \(isPositive)")
             }
-
-            print("\n💾 MCQ RESPONSE SAVED")
-            print("   Question: \(question.prompt)")
-            print("   Selected: \(selected)")
-            print("   Was Positive: \(isPositive ? "✅" : "❌")")
-            print("   Answer ID: \(answer.psqid)")
 
             hideAllQuestionUI()
 
@@ -682,8 +571,6 @@ final class FaceViewController: UIViewController {
             }
         }
     }
-
-    // MARK: - Display Name
 
     private func getPersonName(for face: Face) -> String? {
         guard let name = face.personName?
@@ -758,8 +645,6 @@ final class FaceViewController: UIViewController {
         }
     }
 
-    // MARK: - Final Reflection
-
     private func showFinalReflection() {
         isInFinalReflection = true
 
@@ -823,8 +708,6 @@ final class FaceViewController: UIViewController {
         navigateToHome()
     }
 
-    // MARK: - Navigation
-
     @objc private func handleTap() {
 
         if isInFinalReflection { return }
@@ -842,8 +725,6 @@ final class FaceViewController: UIViewController {
         showFinalReflection()
     }
 
-    // MARK: - Helpers
-
     private func convertFaceRectToImageView(_ faceRect: CGRect) -> CGRect {
         guard let image = imageView.image else { return .zero }
 
@@ -859,8 +740,6 @@ final class FaceViewController: UIViewController {
             height: faceRect.height * scaleY
         )
     }
-
-    // MARK: - Recap
 
     private func personSessionsForRecap() -> [PersonSession] {
         guard let session = recapImageSession else { return [] }
@@ -896,7 +775,7 @@ final class FaceViewController: UIViewController {
         }
 
         let answer = answers[currentQuestionIndex]
-        let _ = AppDataStore.shared.prompt(for: answer.qid)
+        _ = AppDataStore.shared.prompt(for: answer.qid)
         let summaryText = answer.recapSummaryText
 
         transitionLabel.text = summaryText
@@ -999,8 +878,6 @@ final class FaceViewController: UIViewController {
     }
 }
 
-// MARK: - UITextViewDelegate
-
 extension FaceViewController: UITextViewDelegate {
 
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -1039,7 +916,6 @@ extension FaceViewController: UITextViewDelegate {
             let rawText = textAnswerTextView.textColor == .lightGray ? "" : (textAnswerTextView.text ?? "")
             let responseText: String? = rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : rawText
 
-            // ✅ If there's a previous MCQ row for this face, merge text into it
             if let mcqID = lastMCQAnswerID,
                let existingIndex = personSessionAnswers.firstIndex(where: { $0.psqid == mcqID }) {
 
@@ -1064,7 +940,7 @@ extension FaceViewController: UITextViewDelegate {
                 lastMCQAnswerID = nil
 
             } else {
-                // No MCQ to merge into — save as standalone text row
+
                 savePersonResponse(question: question, responseText: responseText)
             }
         }
@@ -1081,8 +957,6 @@ extension FaceViewController: UITextViewDelegate {
         }
     }
 }
-
-// MARK: - UIImageView Display Frame
 
 extension UIImageView {
 

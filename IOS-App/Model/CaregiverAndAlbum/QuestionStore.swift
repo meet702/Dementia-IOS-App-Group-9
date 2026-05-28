@@ -1,12 +1,4 @@
-//
-//  QuestionStore.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 02/02/26.
-//
-
 import Foundation
-
 
 final class QuestionStore {
 

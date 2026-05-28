@@ -1,10 +1,3 @@
-//
-//  RoleCardCollectionViewCell.swift
-//  onboardingScreen
-//
-//  Created by SDC-USER on 08/12/25.
-//
-
 import UIKit
 
 class RoleCardCollectionViewCell: UICollectionViewCell {
@@ -12,10 +5,10 @@ class RoleCardCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         containerView.layer.cornerRadius = 34
         containerView.clipsToBounds = true
         containerView.backgroundColor = .white

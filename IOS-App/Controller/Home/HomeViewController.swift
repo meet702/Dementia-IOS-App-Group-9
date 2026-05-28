@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  Home-Test
-//
-//  Created by SDC-USER on 25/11/25.
-//
-
 import UIKit
 import CoreLocation
 
@@ -12,19 +5,19 @@ class HomeViewController: UIViewController {
 
     @IBOutlet weak var homeCollectionView: UICollectionView!
     @IBOutlet weak var sosButton: UIBarButtonItem!
-    
+
     private let routineRepository = RoutineStore.shared
     private var selectedDate: Date = Date()
-    
+
     var brainBoosters: [BrainBoostersCardModel] = [
         BrainBoostersCardModel(gameName: "Match the Pairs", gameImage: "Group 355"),
         BrainBoostersCardModel(gameName: "Sudoku", gameImage: "Group 354"),
         BrainBoostersCardModel(gameName: "Crossword", gameImage: "Group 353")
     ]
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+
         navigationItem.title = timeBasedGreeting()
         registerCell()
         homeCollectionView.dataSource = self
@@ -32,32 +25,13 @@ class HomeViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dataStoreUpdated(_:)), name: .DataStoreDidUpdateRoutines, object: nil)
         let layout = generateLayout()
         homeCollectionView.setCollectionViewLayout(layout, animated: true)
-        
-//        if LocalImageStore.shared.fetchAllImages().isEmpty {
-//            showRestoreLoadingIndicator()
-//
-//            Task { [weak self] in 
-//                await SupabaseSyncManager.shared.restoreAllData()
-//
-//                await MainActor.run {
-//                    self?.hideRestoreLoadingIndicator()
-//                    self?.homeCollectionView.reloadData()
-//                    // ✅ Notify all other screens to reload
-//                    NotificationCenter.default.post(
-//                        name: .didRestoreFromSupabase,
-//                        object: nil
-//                    )
-//                    print("🔄 Full restore complete, UI reloaded")
-//                }
-//            }
-//        }
-        
+
         Task {
             await SupabaseSyncManager.shared.uploadMissingFaceImages()
         }
 
     }
-    
+
     private var loadingOverlay: UIView?
 
     private func showRestoreLoadingIndicator() {
@@ -90,12 +64,12 @@ class HomeViewController: UIViewController {
         view.addSubview(overlay)
         loadingOverlay = overlay
     }
-    
+
     private func hideRestoreLoadingIndicator() {
         loadingOverlay?.removeFromSuperview()
         loadingOverlay = nil
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         selectedDate = Date()
@@ -112,7 +86,7 @@ class HomeViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     private func latestMemoryImage() -> UIImage? {
 
         let allImages = LocalImageStore.shared.fetchAllImages()
@@ -134,21 +108,21 @@ class HomeViewController: UIViewController {
 
         return nextImage.flatMap { LocalImageStore.shared.fetchImage(by: $0.wid) }
     }
-    
+
     func generateLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout(sectionProvider: {section, env in
-            
+        let layout = UICollectionViewCompositionalLayout(sectionProvider: {section, _ in
+
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(40))
             let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: "header", alignment: .top)
-            
+
             if section == 0 {
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(220))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                 group.interItemSpacing = .fixed(10)
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: -15, leading: 20, bottom: 20, trailing: 20)
@@ -157,23 +131,20 @@ class HomeViewController: UIViewController {
                 let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: "header", alignment: .top)
                 section.boundarySupplementaryItems = [headerItem]
                 return section
-            }
-            else if section == 1 {
+            } else if section == 1 {
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.9))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(120))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                 group.interItemSpacing = .fixed(10)
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: -25, leading: 20, bottom: -10, trailing: 20)
-//                section.boundarySupplementaryItems = [headerItem]
+
                 return section
-            }
-            
-            else if section == 2 {
+            } else if section == 2 {
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .estimated(200)
@@ -185,31 +156,27 @@ class HomeViewController: UIViewController {
                     heightDimension: .estimated(200)
                 )
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-//                group.interItemSpacing = .fixed(10)
 
                 let section = NSCollectionLayoutSection(group: group)
-//                section.interGroupSpacing = 10
+
                 section.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 20, bottom: 20, trailing: 20)
                 section.boundarySupplementaryItems = [headerItem]
                 return section
-            }
-
-            
-            else {
+            } else {
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.6), heightDimension: .fractionalHeight(0.35))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                 group.interItemSpacing = .fixed(10)
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 23
                 section.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 23, bottom: 12, trailing: 20)
-                
+
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
                 let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: "header", alignment: .top)
-                
+
                 section.orthogonalScrollingBehavior = .groupPaging
                 section.boundarySupplementaryItems = [headerItem]
                 return section
@@ -219,19 +186,18 @@ class HomeViewController: UIViewController {
         return layout
     }
 
-    
     func registerCell() {
         homeCollectionView.register(UINib(nibName: "MemoryRecapCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "memoryRecapCardCollectionViewCell")
-        
+
         homeCollectionView.register(UINib(nibName: "MemoryLaneCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "memoryLaneCardCollectionViewCell")
-        
+
         homeCollectionView.register(UINib(nibName: "HeaderView", bundle: nil), forSupplementaryViewOfKind: "header", withReuseIdentifier: "header_cell")
-        
+
         homeCollectionView.register(UINib(nibName: "BrainBoostersCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "brainBoostersCardCollectionViewCell")
-        
+
         homeCollectionView.register(UINib(nibName: "RoutineCardCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "routineCardCollectionViewCell")
     }
-    
+
     private func timeBasedGreeting() -> String {
         let hour = Calendar.current.component(.hour, from: Date())
 
@@ -246,7 +212,7 @@ class HomeViewController: UIViewController {
             return "Good Night"
         }
     }
-    
+
     private func hasUnplayedMemory() -> Bool {
         guard
             let latestImage = LocalImageStore.shared
@@ -261,15 +227,12 @@ class HomeViewController: UIViewController {
 
         return latestImage.createdAt > lastSession.startedAt
     }
-    
-    // MARK: - Memory Recap Launch
 
     private func launchMemoryRecap() {
 
         let allSessions = ImageSessionStore.shared.allSessions()
             .sorted { $0.startedAt < $1.startedAt }
 
-        // AFTER
         guard !allSessions.isEmpty else {
             let alert = UIAlertController(
                 title: "No Memories Yet",
@@ -303,7 +266,6 @@ class HomeViewController: UIViewController {
             return
         }
 
-        // ✅ Try LocalImageStore first, construct minimal model if image was deleted from album
         let wholeImage: WholeImage
         if let stored = LocalImageStore.shared.fetchImageModel(by: nextSession.wid) {
             wholeImage = stored
@@ -316,11 +278,9 @@ class HomeViewController: UIViewController {
             )
         }
 
-        // ✅ Load portrait from SessionImageStore first, fall back to LocalImageStore
         guard let portraitImage = SessionImageStore.shared.fetchImage(by: nextSession.wid)
                                ?? LocalImageStore.shared.fetchImage(by: nextSession.wid)
         else {
-            print("❌ Could not reconstruct image for recap")
             return
         }
 
@@ -341,34 +301,31 @@ class HomeViewController: UIViewController {
 
         navigationController?.pushViewController(faceVC, animated: true)
     }
-    
-    
 
 }
 
 extension HomeViewController: UICollectionViewDataSource {
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 4
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
             return 1
-        }
-        else if section == 1 {
+        } else if section == 1 {
             return 1
-        }
-        else if section == 2{
+        } else if section == 2 {
             return 1
-        }
-        else {
+        } else {
             return brainBoosters.count
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryLaneCardCollectionViewCell", for: indexPath) as! MemoryLaneCardCollectionViewCell
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryLaneCardCollectionViewCell", for: indexPath) as? MemoryLaneCardCollectionViewCell else {
+                return UICollectionViewCell()
+            }
             let latestImage = latestMemoryImage()
             if latestImage == nil {
                     cell.configureMemoryLaneCell(
@@ -376,44 +333,44 @@ extension HomeViewController: UICollectionViewDataSource {
                         title: "Memory Lane",
                         subtitle: "You can begin when memories are added."
                     )
-                    cell.showNewBadge(false)   // 🔥 FORCE HIDE
+                    cell.showNewBadge(false)
                 } else {
                     cell.configureMemoryLaneCell(image: latestImage)
                     cell.showNewBadge(hasUnplayedMemory())
                 }
 
                 return cell
-        }
-        else if indexPath.section == 1 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryRecapCardCollectionViewCell", for: indexPath) as! MemoryRecapCardCollectionViewCell
+        } else if indexPath.section == 1 {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "memoryRecapCardCollectionViewCell", for: indexPath) as? MemoryRecapCardCollectionViewCell else {
+                return UICollectionViewCell()
+            }
             cell.configureMemoryRecapCardCell()
             return cell
-        }
-        
-        else if indexPath.section == 2 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as! RoutineCardCollectionViewCell
+        } else if indexPath.section == 2 {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "routineCardCollectionViewCell", for: indexPath) as? RoutineCardCollectionViewCell else {
+                return UICollectionViewCell()
+            }
             let tasks = routineRepository.fetchTasks(for: selectedDate)
             cell.configureRoutineCell(tasks: tasks, date: selectedDate)
             return cell
-        }
-        
-        else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "brainBoostersCardCollectionViewCell", for: indexPath) as! BrainBoostersCardCollectionViewCell
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "brainBoostersCardCollectionViewCell", for: indexPath) as? BrainBoostersCardCollectionViewCell else {
+                return UICollectionViewCell()
+            }
             let brainBoosters = brainBoosters[indexPath.row]
             cell.configureBrainBoostersCell(brainBooster: brainBoosters)
             return cell
         }
     }
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
+        guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header_cell", for: indexPath) as? HeaderView else {
+            return UICollectionReusableView()
+        }
         if indexPath.section == 0 {
             headerView.configureHeaderCell(text: "Memories", showChevron: false, isTappable: false)
-        }
-        else if indexPath.section == 1 {
+        } else if indexPath.section == 1 {
             headerView.configureHeaderCell(text: "Memory Recap", showChevron: false, isTappable: false)
-        }
-        
-        else if indexPath.section == 2 {
+        } else if indexPath.section == 2 {
             headerView.configureHeaderCell(text: "My Routine",
                                            showChevron: true,
                                            isTappable: true,
@@ -421,13 +378,12 @@ extension HomeViewController: UICollectionViewDataSource {
                                                self?.performSegue(withIdentifier: "showRoutine", sender: nil)
                                            }
             )
-        }
-        else {
+        } else {
             headerView.configureHeaderCell(text: "Brain Boosters", showChevron: false, isTappable: false)
         }
         return headerView
     }
-    
+
 }
 
 extension HomeViewController: UICollectionViewDelegate {
@@ -443,19 +399,18 @@ extension HomeViewController: UICollectionViewDelegate {
                 )
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                 present(alert, animated: true)
-                print("No memories available. Blocking Memory Lane navigation.")
                 return
             }
 
             performSegue(withIdentifier: "showMemoryLane", sender: nil)
             return
         }
-        
+
         if indexPath.section == 1 {
             launchMemoryRecap()
             return
         }
-        
+
         if indexPath.section == 3 {
             guard indexPath.item >= 0, indexPath.item < brainBoosters.count else { return }
 
@@ -484,27 +439,21 @@ extension HomeViewController: UICollectionViewDelegate {
             if segue.identifier == "showSudokuInstructions",
                let _ = segue.destination as? MatchThePairsInstructionsViewController {
 
-                print("Navigated to sudoku instructions screen")
-            }
-            else if segue.identifier == "showMatchThePairsInstructions",
+            } else if segue.identifier == "showMatchThePairsInstructions",
                 let _ = segue.destination as? MatchThePairsInstructionsViewController {
 
-                print("Navigated to match the pairs instructions screen")
-            }
-            else if segue.identifier == "showCrosswordInstructions",
+            } else if segue.identifier == "showCrosswordInstructions",
                 let _ = segue.destination as? MatchThePairsInstructionsViewController {
 
-                print("Navigated to crossword instructions screen")
             }
             return
         }
 
         if segue.identifier == "showMemoryRecap" {
-            if let _ = segue.destination as? BaseViewController {
-                print("Preparing Memory Recap (direct)")
+            if let _ = segue.destination as? UIViewController {
             }
         }
-        
+
     }
 }
 

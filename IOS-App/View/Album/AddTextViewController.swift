@@ -1,10 +1,3 @@
-//
-//  AddTextViewController.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 10/02/26.
-//
-
 import UIKit
 
 class AddTextViewController: UIViewController, UITextViewDelegate {
@@ -46,7 +39,7 @@ class AddTextViewController: UIViewController, UITextViewDelegate {
            onSave?(text ?? "")
            dismiss(animated: true)
        }
-    
+
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == .secondaryLabel {
             textView.text = ""
@@ -60,6 +53,5 @@ class AddTextViewController: UIViewController, UITextViewDelegate {
             textView.textColor = .secondaryLabel
         }
     }
-
 
 }

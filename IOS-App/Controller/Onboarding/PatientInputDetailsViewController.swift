@@ -25,9 +25,6 @@ class PatientInputDetailsViewController: UIViewController {
         configureGenderPicker()
     }
 
-
-    // MARK: Figma Styled Fields
-
     private func configureFields() {
         doneButton.layer.cornerRadius = 27
         doneButton.clipsToBounds = true
@@ -61,8 +58,6 @@ class PatientInputDetailsViewController: UIViewController {
         }
     }
 
-    // MARK: Date Picker
-
     private func configureDatePicker() {
         if #available(iOS 13.4, *) {
             datePicker.preferredDatePickerStyle = .wheels
@@ -90,8 +85,6 @@ class PatientInputDetailsViewController: UIViewController {
         dobTextField.textColor = UIColor.darkGray
     }
 
-    // MARK: Gender Picker
-
     private func configureGenderPicker() {
         genderPicker.delegate = self
         genderPicker.dataSource = self
@@ -112,8 +105,6 @@ class PatientInputDetailsViewController: UIViewController {
         genderTextField.textColor = UIColor.darkGray
     }
 
-    // MARK: Actions
-
     @IBAction func doneTapped(_ sender: UIButton) {
         guard let name = fullNameTextField.text, !name.isEmpty else { showAlert("Enter full name"); return }
         guard let dob = dobTextField.text, !dob.isEmpty else { showAlert("Select date of birth"); return }
@@ -122,10 +113,8 @@ class PatientInputDetailsViewController: UIViewController {
         SessionManager.shared.patientName = name
         doneButton.isEnabled = false
 
-        createPatientProfile(name: name, gender: gender, dob: dob)  // ✅ pass dob
+        createPatientProfile(name: name, gender: gender, dob: dob)
     }
-
-    // MARK: Supabase
 
     private func createPatientProfile(name: String, gender: String, dob: String) {
         guard let uid = SupabaseManager.shared.client.auth.currentUser?.id else {
@@ -161,12 +150,10 @@ class PatientInputDetailsViewController: UIViewController {
         }
     }
 
-    // MARK: Segue
-
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToHomeScreen",
            let homeVC = segue.destination as? HomeViewController {
-            // pass anything HomeViewController needs here
+
         }
     }
 
@@ -176,8 +163,6 @@ class PatientInputDetailsViewController: UIViewController {
         present(alert, animated: true)
     }
 }
-
-// MARK: Picker
 
 extension PatientInputDetailsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }

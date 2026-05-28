@@ -1,10 +1,3 @@
-//
-//  MemoryLaneCardCollectionViewCell.swift
-//  Home-Test
-//
-//  Created by SDC-USER on 25/11/25.
-//
-
 import UIKit
 
 class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
@@ -14,7 +7,7 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var cardView: UIView!
     @IBOutlet weak var subtitleLabel: UILabel!
     @IBOutlet weak var newBadgeLabel: UILabel!
-    
+
     private let gradientOverlayTag = 999
 
     private let cardCornerRadius: CGFloat = 31
@@ -27,7 +20,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        // appearance
         cardView.layer.cornerRadius = cardCornerRadius
         cardView.clipsToBounds = true
         cardView.backgroundColor = .white
@@ -40,7 +32,7 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
 
         subtitleLabel.textColor = .white
         subtitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        
+
         newBadgeLabel.text = "NEW"
         newBadgeLabel.backgroundColor = .systemRed
         newBadgeLabel.textColor = .white
@@ -48,7 +40,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         newBadgeLabel.layer.cornerRadius = 7
         newBadgeLabel.clipsToBounds = true
 
-        // cell shadow
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.18
         layer.shadowOffset = CGSize(width: 0, height: 6)
@@ -73,7 +64,7 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         overlayView?.removeFromSuperview()
         overlayView = nil
         imageView.image = nil
-        //newBadgeLabel.isHidden = true
+
     }
 
     func configureMemoryLaneCell(image: UIImage?,
@@ -92,7 +83,6 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         addOrUpdateOverlayPinnedToText()
     }
 
-    // Overlay logic
     private func addOrUpdateOverlayPinnedToText() {
         overlayView?.removeFromSuperview()
         overlayView = nil
@@ -170,7 +160,7 @@ class MemoryLaneCardCollectionViewCell: UICollectionViewCell {
         cardTextLabel.layer.zPosition = 100
         subtitleLabel.layer.zPosition = 100
     }
-    
+
     func showNewBadge(_ show: Bool) {
         newBadgeLabel.isHidden = !show
     }

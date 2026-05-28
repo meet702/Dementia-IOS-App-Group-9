@@ -1,18 +1,10 @@
-//
-//  SudokuCollectionViewCell.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 28/11/25.
-//
-
 import UIKit
 
 class SudokuCollectionViewCell: UICollectionViewCell {
     static let reuseId = "SudokuCell"
 
-    
     @IBOutlet weak var containerView: UIView!
-    
+
     @IBOutlet weak var valueLabel: UILabel!
 
     private var topBorder: CALayer?
@@ -24,7 +16,6 @@ class SudokuCollectionViewCell: UICollectionViewCell {
     private let blockBorderWidth: CGFloat = 1.5
     private let borderColor = UIColor.systemGray5.cgColor
     private let blockColor = UIColor.systemGray2.cgColor
-
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -47,7 +38,7 @@ class SudokuCollectionViewCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        let _ = self.bounds
+        _ = self.bounds
     }
 
     func configure(value: Int?, isGiven: Bool, isSelected: Bool, isConflict: Bool, row: Int, col: Int, totalRows: Int = 9, totalCols: Int = 9) {
@@ -98,4 +89,3 @@ class SudokuCollectionViewCell: UICollectionViewCell {
         containerView.backgroundColor = .white
     }
 }
-

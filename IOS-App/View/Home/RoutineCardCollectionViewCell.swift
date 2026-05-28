@@ -1,4 +1,3 @@
-
 import UIKit
 
 final class RoutineCardCollectionViewCell: UICollectionViewCell {
@@ -81,7 +80,6 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
             }
         }()
 
-        // 🔥 ADD ROWS DIRECTLY (no white container)
         if periodTasks.isEmpty {
             let label = UILabel()
             label.text = "No tasks for now"
@@ -115,15 +113,12 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         }
     }
 
-
     private func makeTransparentRow(for item: RoutineTask) -> UIView {
 
         let row = UIView()
 
-        // Completion state
         let isCompleted = repository.isTaskCompleted(item, on: contextDate)
 
-        // MARK: - iOS native checkbox
         let checkboxButton = UIButton(type: .system)
         let symbolName = isCompleted ? "checkmark.circle.fill" : "circle"
 
@@ -148,8 +143,7 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
             guard let self = self else { return }
 
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            
-            // ✅ THIS IS THE IMPORTANT LINE
+
             self.repository.toggleCompletion(
                 task: item,
                 date: self.contextDate
@@ -157,14 +151,12 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
 
         }, for: .touchUpInside)
 
-        // MARK: - Title
         let titleLabel = UILabel()
         titleLabel.font = .preferredFont(forTextStyle: .body)
         titleLabel.text = item.title
         titleLabel.textColor = isCompleted ? .systemGray2 : .label
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // MARK: - Time
         let timeLabel = UILabel()
         timeLabel.font = .preferredFont(forTextStyle: .callout)
         timeLabel.textAlignment = .right
@@ -177,7 +169,6 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
         row.addSubview(titleLabel)
         row.addSubview(timeLabel)
 
-        // MARK: - Subtitle (optional)
         if let subtitle = item.subtitle, !subtitle.isEmpty {
             let subtitleLabel = UILabel()
             subtitleLabel.font = .preferredFont(forTextStyle: .footnote)
@@ -201,8 +192,8 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
                 subtitleLabel.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -4),
 
                 timeLabel.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -12),
-                timeLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor),
-                
+                timeLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor)
+
             ])
         } else {
             NSLayoutConstraint.activate([
@@ -223,7 +214,7 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
 
         return row
     }
-    
+
     private func makeIOSCheckbox(isChecked: Bool) -> UIButton {
         let button = UIButton(type: .system)
 
@@ -250,7 +241,6 @@ final class RoutineCardCollectionViewCell: UICollectionViewCell {
 
         return button
     }
-
 
     private enum Period { case morning, afternoon, evening }
 

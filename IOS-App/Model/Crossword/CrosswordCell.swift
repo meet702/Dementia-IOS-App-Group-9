@@ -1,9 +1,3 @@
-//
-//  Model.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 08/01/26.
-
 struct CrosswordCell {
     let index: Int
     let row: Int
@@ -16,10 +10,10 @@ struct CrosswordCell {
     var isBlocked: Bool
     var isHighlighted: Bool
 
-    var isCorrectLetter: Bool  
+    var isCorrectLetter: Bool
     var isCorrectWord: Bool
     var isWrongLetter: Bool
-    
+
     var isSelected: Bool = false
 
 }

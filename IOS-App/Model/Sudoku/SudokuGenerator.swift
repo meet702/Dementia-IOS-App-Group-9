@@ -1,14 +1,8 @@
-//
-//  sudokuGenerator.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 28/11/25.
-//
 import Foundation
 
 struct SudokuGenerator {
     static func generateFullBoard() -> [Int?] {
-        var board = Array<Int?>(repeating: nil, count: 81)
+        var board = [Int?](repeating: nil, count: 81)
         _ = SudokuSolver.solve(&board)
         return board
     }
@@ -36,4 +30,3 @@ struct SudokuGenerator {
         return (puzzle, solution)
     }
 }
-

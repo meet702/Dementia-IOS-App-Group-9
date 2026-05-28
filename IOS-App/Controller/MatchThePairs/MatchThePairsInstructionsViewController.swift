@@ -1,10 +1,3 @@
-//
-//  MatchThePairsViewController.swift
-//  brainboosters
-//
-//  Created by SDC-USER on 26/11/25.
-//
-
 import UIKit
 
 class MatchThePairsInstructionsViewController: UIViewController {
@@ -17,7 +10,6 @@ class MatchThePairsInstructionsViewController: UIViewController {
     @IBOutlet weak var hardCard: UIView!
     @IBOutlet weak var instructionsLabel: UILabel!
 
-        
     var isHowToPlayOpen = false
 
     enum Difficulty {
@@ -30,7 +22,6 @@ class MatchThePairsInstructionsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("Game VC viewDidAppear")
         instructionsCard.isHidden = true
         howToPlayChevronButton.isUserInteractionEnabled = false
 
@@ -68,21 +59,22 @@ class MatchThePairsInstructionsViewController: UIViewController {
         let selectedBorder = UIColor(red: 0.95, green: 0.6, blue: 0.2, alpha: 1.0).cgColor
 
         for c in cards {
-            let isSelected = (c === card)
+            guard let cardToAnimate = c else { continue }
+            let isSelected = (cardToAnimate === card)
 
             if isSelected {
-                animateCardTransition(card: c!,
+                animateCardTransition(card: cardToAnimate,
                                       toColor: selectedBackground,
                                       borderColor: UIColor(red: 0.95, green: 0.6, blue: 0.2, alpha: 1))
             } else {
-                animateCardTransition(card: c!,
+                animateCardTransition(card: cardToAnimate,
                                       toColor: .white,
                                       borderColor: nil)
             }
 
-            c?.layer.borderWidth = isSelected ? 2 : 0
-            c?.layer.borderColor = isSelected ? selectedBorder : UIColor.clear.cgColor
-            c?.layer.cornerRadius = 20
+            cardToAnimate.layer.borderWidth = isSelected ? 2 : 0
+            cardToAnimate.layer.borderColor = isSelected ? selectedBorder : UIColor.clear.cgColor
+            cardToAnimate.layer.cornerRadius = 20
         }
     }
 
@@ -110,27 +102,23 @@ class MatchThePairsInstructionsViewController: UIViewController {
         paragraphStyle.lineSpacing = 10
         paragraphStyle.paragraphSpacing = 6
 
-
         let attributedText = NSAttributedString(
             string: text,
             attributes: [
-                .paragraphStyle: paragraphStyle,
-                
+                .paragraphStyle: paragraphStyle
+
             ]
         )
 
         instructionsLabel.attributedText = attributedText
     }
 
-    
     @IBAction func easyCardTapped(_ sender: Any) {
-        print("easy tapped")
         selectedDifficulty = .easy
         selectDifficulty(card: easyCard)
     }
 
     @IBAction func mediumCardTapped(_ sender: Any) {
-        print("medium tapped")
         selectedDifficulty = .medium
         selectDifficulty(card: mediumCard)
     }
@@ -141,7 +129,6 @@ class MatchThePairsInstructionsViewController: UIViewController {
     }
 
     @IBAction func playTapped(_ sender: UIButton) {
-        print("playTapped called")
         guard selectedDifficulty != nil else {
             let alert = UIAlertController(title: "Select Difficulty",
                                           message: "Please choose Easy, Medium, or Hard before playing.",

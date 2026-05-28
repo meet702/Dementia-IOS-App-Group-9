@@ -80,7 +80,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
             }
         }()
 
-        // 🔥 ADD ROWS DIRECTLY (no white container)
         if periodTasks.isEmpty {
             let label = UILabel()
             label.text = "No tasks for now"
@@ -114,15 +113,12 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         }
     }
 
-
     private func makeTransparentRow(for item: RoutineTask) -> UIView {
 
         let row = UIView()
 
-        // Completion state
         let isCompleted = repository.isTaskCompleted(item, on: contextDate)
 
-        // MARK: - iOS native checkbox
         let checkboxButton = UIButton(type: .system)
         let symbolName = isCompleted ? "checkmark.circle.fill" : "circle"
         checkboxButton.isUserInteractionEnabled = false
@@ -145,14 +141,12 @@ final class RoutineCardCaregiver: UICollectionViewCell {
             checkboxButton.heightAnchor.constraint(equalToConstant: 28)
         ])
 
-        // MARK: - Title
         let titleLabel = UILabel()
         titleLabel.font = .preferredFont(forTextStyle: .body)
         titleLabel.text = item.title
         titleLabel.textColor = isCompleted ? .systemGray2 : .label
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // MARK: - Time
         let timeLabel = UILabel()
         timeLabel.font = .preferredFont(forTextStyle: .callout)
         timeLabel.textAlignment = .right
@@ -165,7 +159,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
         row.addSubview(titleLabel)
         row.addSubview(timeLabel)
 
-        // MARK: - Subtitle (optional)
         if let subtitle = item.subtitle, !subtitle.isEmpty {
             let subtitleLabel = UILabel()
             subtitleLabel.font = .preferredFont(forTextStyle: .footnote)
@@ -210,7 +203,7 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
         return row
     }
-    
+
     private func makeIOSCheckbox(isChecked: Bool) -> UIButton {
         let button = UIButton(type: .system)
 
@@ -237,7 +230,6 @@ final class RoutineCardCaregiver: UICollectionViewCell {
 
         return button
     }
-
 
     private enum Period { case morning, afternoon, evening }
 

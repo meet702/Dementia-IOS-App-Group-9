@@ -1,10 +1,3 @@
-//
-//  OptionTableViewCell.swift
-//  MemoryLane
-//
-//  Created by SDC-User on 08/12/25.
-//
-
 import Foundation
 import UIKit
 class OptionTableViewCell: UITableViewCell {

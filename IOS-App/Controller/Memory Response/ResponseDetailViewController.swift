@@ -2,21 +2,14 @@ import UIKit
 
 final class ResponseDetailViewController: UIViewController {
 
-    // MARK: - Outlets
-
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var personImage: UIImageView!
     @IBOutlet weak var navTitle: UINavigationItem!
-
-    // MARK: - Data (NEW MODEL)
 
     var personSession: PersonSession!
 
     private var responses: [PersonSessionQuestion] = []
     var imageID: UUID!
-
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,8 +28,6 @@ final class ResponseDetailViewController: UIViewController {
         loadResponses()
     }
 
-    // MARK: - Navigation
-
     private func configureNavigation() {
 
         let faces = FaceStore.shared.loadFaces(for: imageID)
@@ -50,8 +41,6 @@ final class ResponseDetailViewController: UIViewController {
         }
     }
 
-    // MARK: - Layout
-    
     private func configureLayout() {
 
         let faces = FaceStore.shared.loadFaces(for: imageID)
@@ -68,8 +57,6 @@ final class ResponseDetailViewController: UIViewController {
         personImage.layer.cornerRadius = 54
         personImage.clipsToBounds = true
     }
-
-    // MARK: - Table
 
     private func configureTableView() {
         tableView.delegate = self
@@ -96,8 +83,6 @@ final class ResponseDetailViewController: UIViewController {
         tableView.reloadData()
     }
 
-    // MARK: - Actions
-
     @IBAction func closeTapped(_ sender: Any) {
         dismiss(animated: true)
     }
@@ -116,14 +101,15 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
 
         let response = responses[indexPath.row]
 
-        let cell = tableView.dequeueReusableCell(
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "TextDetailsCell",
             for: indexPath
-        ) as! TextDetailsTableViewCell
+        ) as? TextDetailsTableViewCell else {
+            return UITableViewCell()
+        }
 
-        //let questionText = QuestionStore.shared.prompt(for: response.questionID)
         let questionText = questionPrompt(for: response.qid)
-        
+
         let answerText =
             response.responseText ??
             response.selectedOption ??
@@ -137,7 +123,7 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
 
         return cell
     }
-    
+
     private func questionPrompt(for id: UUID) -> String {
 
         let allQuestions =
@@ -150,7 +136,6 @@ extension ResponseDetailViewController: UITableViewDataSource, UITableViewDelega
             ?? "Reflection"
     }
 }
-
 
 extension UITableView {
 

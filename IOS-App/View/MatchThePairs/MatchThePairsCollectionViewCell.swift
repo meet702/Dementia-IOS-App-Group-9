@@ -1,14 +1,14 @@
 import UIKit
 
 class MatchThePairsCollectionViewCell: UICollectionViewCell {
-    
+
     static let reuseId = "CardCell"
     private let backImageName = "card_back"
-    
+
     @IBOutlet weak var containerView: UIView!
-    
+
     @IBOutlet weak var imageView: UIImageView!
-    
+
     override func awakeFromNib() {
            super.awakeFromNib()
            setupAppearance()

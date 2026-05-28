@@ -1,24 +1,12 @@
-//
-//  HeaderView.swift
-//  Home-Test
-//
-//  Created by SDC-USER on 25/11/25.
-//
-
 import UIKit
 
 class HeaderView: UICollectionReusableView {
-    
+
     @IBOutlet weak var chevronImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
-    
+
     private var tapGesture: UITapGestureRecognizer?
     private var onTapAction: (() -> Void)?
-
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
     func configureHeaderCell(text: String, showChevron: Bool, isTappable: Bool, onTap: (() -> Void)? = nil) {
         titleLabel.text = text
         chevronImageView.isHidden = !showChevron
@@ -32,15 +20,14 @@ class HeaderView: UICollectionReusableView {
             }
             tapGesture?.isEnabled = true
             self.isUserInteractionEnabled = true
-        }
-        else {
+        } else {
             tapGesture?.isEnabled = false
             self.isUserInteractionEnabled = false
         }
     }
-    
+
     @objc private func headerTapped(_ sender: UITapGestureRecognizer) {
         onTapAction?()
     }
-    
+
 }

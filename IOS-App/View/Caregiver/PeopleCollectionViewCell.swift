@@ -1,10 +1,3 @@
-//
-//  PeopleCollectionViewCell.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 08/12/25.
-//
-
 import UIKit
 
 class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
@@ -44,7 +37,7 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
         )
         doubleTap.numberOfTapsRequired = 2
         peopleNameLabel.addGestureRecognizer(doubleTap)
-        
+
         imageView.isUserInteractionEnabled = true
 
         let tap = UITapGestureRecognizer(
@@ -54,7 +47,7 @@ class PeopleCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
 
         imageView.addGestureRecognizer(tap)
     }
-    
+
     @objc private func imageTapped() {
         onImageTapped?()
     }

@@ -1,34 +1,27 @@
-//
-//  AlbumViewController.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 02/02/26.
-//
-
 import UIKit
 import Supabase
 
 class AlbumViewController: UIViewController {
 
     @IBOutlet weak var albumCollectionView: UICollectionView!
-    
+
     @IBOutlet weak var emptyStateView: UIView!
-    
+
     private var images: [WholeImage] = []
 
     private let imagePicker = UIImagePickerController()
-    
+
     private var selectedWholeImage: WholeImage?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         albumCollectionView.dataSource = self
         albumCollectionView.delegate = self
         albumCollectionView.register(UINib(nibName: "AlbumCell", bundle: nil), forCellWithReuseIdentifier: "AlbumCell")
-        
+
         setupImagePicker()
         loadImages()
-        
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleRestoreComplete),
@@ -36,7 +29,7 @@ class AlbumViewController: UIViewController {
             object: nil
         )
     }
-    
+
     @objc private func handleRestoreComplete() {
         DispatchQueue.main.async {
             self.loadImages()
@@ -45,7 +38,7 @@ class AlbumViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     private func updateEmptyState() {
         let hasPhotos = !images.isEmpty
 
@@ -96,7 +89,6 @@ class AlbumViewController: UIViewController {
         imagePicker.allowsEditing = false
     }
 
-
     private func loadImages() {
         images = LocalImageStore.shared
             .fetchAllImages()
@@ -108,13 +100,10 @@ class AlbumViewController: UIViewController {
         }
     }
 
-    // MARK: - Face Detection
-
     private func detectAndSaveFaces(for wholeImage: WholeImage, image: UIImage) {
         let existingFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
 
         if !existingFaces.isEmpty {
-            print("⏭ Faces already local, re-syncing to Supabase...")
             Task {
                 await SupabaseSyncManager.shared.upsertFaces(existingFaces)
                 await SupabaseSyncManager.shared.uploadFaceImages(existingFaces)
@@ -123,7 +112,6 @@ class AlbumViewController: UIViewController {
         }
 
         let normalizedImage = image.normalizedOrientation()
-        print("🔍 Starting face detection for image: \(wholeImage.wid)")
 
         FaceDetectionService().detectFaces(
             in: normalizedImage,
@@ -134,10 +122,8 @@ class AlbumViewController: UIViewController {
                 await SupabaseSyncManager.shared.upsertFaces(detectedFaces)
                 await SupabaseSyncManager.shared.uploadFaceImages(detectedFaces)
             }
-            print("✅ \(detectedFaces.count) face(s) saved for image: \(wholeImage.wid)")
         }
     }
-
 
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
         let imagePicker = UIImagePickerController()
@@ -172,7 +158,6 @@ class AlbumViewController: UIViewController {
         alertController.popoverPresentationController?.barButtonItem = sender
         present(alertController, animated: true)
     }
-    
 
     private func openPhotoLibrary() {
         guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) else { return }
@@ -239,10 +224,12 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "AlbumCell",
             for: indexPath
-        ) as! AlbumCell
+        ) as? AlbumCell else {
+            return UICollectionViewCell()
+        }
 
         let image = images[indexPath.item]
         cell.configure(with: image)
@@ -263,14 +250,14 @@ extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationCont
 
     func imagePickerController(
         _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
         picker.dismiss(animated: true)
 
         guard let image = info[.originalImage] as? UIImage else { return }
 
         let savedWholeImage = LocalImageStore.shared.saveImage(image)
-        
+
         Task {
             await SupabaseSyncManager.shared.insertWholeImage(savedWholeImage)
 
@@ -282,7 +269,7 @@ extension AlbumViewController: UIImagePickerControllerDelegate, UINavigationCont
         loadImages()
 
         DispatchQueue.main.async {
-            if self.images.count > 0 {
+            if !self.images.isEmpty {
                 self.albumCollectionView.scrollToItem(
                     at: IndexPath(item: 0, section: 0),
                     at: .top,

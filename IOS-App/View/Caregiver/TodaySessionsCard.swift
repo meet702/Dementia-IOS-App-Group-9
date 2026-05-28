@@ -1,25 +1,18 @@
-//
-//  TodaySessionsCard.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 05/12/25.
-//
-
 import UIKit
 
 class TodaySessionsCard: UICollectionViewCell {
 
     @IBOutlet weak var cardView: UIView!
-    
+
     @IBOutlet weak var dateLabel: UILabel!
-    
+
     @IBOutlet weak var timeLabel: UILabel!
-    
+
     @IBOutlet weak var imageView: UIImageView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+
         backgroundColor = .clear
         contentView.backgroundColor = .clear
         cardView.layer.cornerRadius = 18
@@ -32,25 +25,22 @@ class TodaySessionsCard: UICollectionViewCell {
         layer.shadowRadius = 8
         layer.masksToBounds = false
     }
-    
+
     func configure(imageSession: ImageSession) {
 
-        // Date & time
         dateLabel.text = imageSession.startedAt.formattedDate()
         timeLabel.text = imageSession.startedAt.formattedTime()
 
-        // ✅ Load from permanent session store (survives album deletion)
         if let image = SessionImageStore.shared.fetchImage(by: imageSession.wid) {
             imageView.image = image
         } else if let image = LocalImageStore.shared.fetchImage(by: imageSession.wid) {
-            // Fallback for sessions played before SessionImageStore was added
+
             imageView.image = image
-            // Save it now so future loads work too
+
             SessionImageStore.shared.saveSessionImage(for: imageSession.wid)
         } else {
             imageView.image = UIImage(named: "photo_placeholder")
         }
     }
-    
-    
+
 }

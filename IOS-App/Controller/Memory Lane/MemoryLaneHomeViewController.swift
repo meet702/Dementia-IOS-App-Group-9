@@ -4,31 +4,26 @@ class MemoryLaneHomeViewController: UIViewController {
 
     @IBOutlet weak var collageImageView: UIImageView!
 
-    // MARK: - Decorative Collage Images (UI only)
-
     private var portraitImage: UIImage!
     private var leftImage: UIImage!
     private var rightImage: UIImage!
-    
+
     private var centerImageView: UIImageView!
     private var leftImageView: UIImageView!
     private var rightImageView: UIImageView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupCollage()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         configureCollageImages()
 
     }
-    
-
-    // MARK: - Start Session
 
     @IBAction func newSessionButtonTapped(_ sender: UIButton) {
 
@@ -36,21 +31,17 @@ class MemoryLaneHomeViewController: UIViewController {
             .sorted { $0.createdAt > $1.createdAt }
 
         guard !allImages.isEmpty else {
-            print("❌ No caregiver images available")
             return
         }
 
         let allSessions = ImageSessionStore.shared.allSessions()
 
-        // Count how many times each image has been played
         let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
             counts[image.wid] = allSessions.filter { $0.wid == image.wid }.count
         }
 
-        // Find the minimum play count across all images
         let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
 
-        // Next image = first image that has only been played `minPlayCount` times (not yet played in this round)
         guard let nextImage = allImages.first(where: {
             (playCountByImage[$0.wid] ?? 0) == minPlayCount
         }) else { return }
@@ -68,8 +59,6 @@ class MemoryLaneHomeViewController: UIViewController {
             portraitImage: uiImage
         )
     }
-
-    // MARK: - Question Builder
 
     private func buildQuestions(for faces: [Face]) -> [String: [Question]] {
         var questionsByPerson: [String: [Question]] = [:]
@@ -90,11 +79,8 @@ class MemoryLaneHomeViewController: UIViewController {
         return questionsByPerson
     }
 
-    // MARK: - Decorative Collage
-
     private func setupCollage() {
-        
-        // Remove existing image views if already created
+
         centerImageView?.removeFromSuperview()
         leftImageView?.removeFromSuperview()
         rightImageView?.removeFromSuperview()
@@ -111,7 +97,6 @@ class MemoryLaneHomeViewController: UIViewController {
 
         let horizontalOffset = screenWidth * 0.23
 
-        // Center
         centerImageView = UIImageView(image: portraitImage)
         centerImageView.frame = CGRect(x: 0, y: 0, width: centerWidth, height: centerHeight)
         centerImageView.center = CGPoint(x: centerX, y: centerY - 5)
@@ -121,7 +106,6 @@ class MemoryLaneHomeViewController: UIViewController {
         centerImageView.layer.borderWidth = 2
         centerImageView.layer.borderColor = UIColor.white.cgColor
 
-        // Left
         leftImageView = UIImageView(image: leftImage)
         leftImageView.frame = CGRect(x: 0, y: 0, width: sideWidth, height: sideHeight)
         leftImageView.center = CGPoint(x: centerX - horizontalOffset, y: centerY + 10)
@@ -130,7 +114,6 @@ class MemoryLaneHomeViewController: UIViewController {
         leftImageView.layer.cornerRadius = 5
         leftImageView.transform = CGAffineTransform(rotationAngle: -.pi / 12)
 
-        // Right
         rightImageView = UIImageView(image: rightImage)
         rightImageView.frame = CGRect(x: 0, y: 0, width: sideWidth, height: sideHeight)
         rightImageView.center = CGPoint(x: centerX + horizontalOffset, y: centerY + 10)
@@ -143,8 +126,7 @@ class MemoryLaneHomeViewController: UIViewController {
         view.addSubview(rightImageView)
         view.addSubview(centerImageView)
     }
-    
-    
+
     private func configureCollageImages() {
 
         let placeholder = UIImage(named: "photo_placeholder")
@@ -163,27 +145,22 @@ class MemoryLaneHomeViewController: UIViewController {
         let allSessions = ImageSessionStore.shared.allSessions()
             .sorted { $0.startedAt > $1.startedAt }
 
-        // Count play count per image
         let playCountByImage: [UUID: Int] = allImages.reduce(into: [:]) { counts, image in
             counts[image.wid] = allSessions.filter { $0.wid == image.wid }.count
         }
 
         let minPlayCount = allImages.map { playCountByImage[$0.wid, default: 0] }.min() ?? 0
 
-        // Images not yet played in the current round
         let currentRoundUnplayed = allImages.filter {
             (playCountByImage[$0.wid] ?? 0) == minPlayCount
         }
 
-        // Center = next to play
         let centerWI = currentRoundUnplayed.first
 
-        // Left = most recently played (by session date)
         let leftWI = allSessions.first.flatMap {
             LocalImageStore.shared.fetchImageModel(by: $0.wid)
         }
 
-        // Right = one after center, circular within allImages
         let rightWI: WholeImage?
         if let center = centerWI,
            let centerIndex = allImages.firstIndex(where: { $0.wid == center.wid }) {
@@ -194,13 +171,11 @@ class MemoryLaneHomeViewController: UIViewController {
         }
 
         portraitImage = centerWI.flatMap { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
-        leftImage     = leftWI.flatMap   { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
-        rightImage    = rightWI.flatMap  { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
+        leftImage     = leftWI.flatMap { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
+        rightImage    = rightWI.flatMap { LocalImageStore.shared.fetchImage(by: $0.wid) } ?? placeholder
 
         setupCollage()
     }
-
-    // MARK: - Navigation
 
     private func navigateToPictureIntro(
         wholeImage: WholeImage,
@@ -213,7 +188,6 @@ class MemoryLaneHomeViewController: UIViewController {
         guard let nextVC = storyboard.instantiateViewController(
             withIdentifier: "MemoryLaneIntroSilentViewController"
         ) as? MemoryLaneIntroSilentViewController else {
-            print("❌ Could not instantiate MemoryLaneIntroSilentViewController")
             return
         }
 

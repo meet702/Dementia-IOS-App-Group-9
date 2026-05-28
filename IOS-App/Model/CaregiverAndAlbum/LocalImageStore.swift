@@ -1,10 +1,3 @@
-//
-//  LocalImageStore.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 02/02/26.
-//
-
 import Foundation
 import UIKit
 final class LocalImageStore {
@@ -31,19 +24,16 @@ final class LocalImageStore {
         )
 
         persist(wholeImage)
-//        print("📁 Image saved at:", fileURL)
-//        print("📄 Metadata at:", metadataURL())
 
         return wholeImage
-        
-        
+
     }
 
     func fetchAllImages() -> [WholeImage] {
         loadPersistedImages()
             .sorted { $0.createdAt > $1.createdAt }
     }
-    
+
     func fetchImage(by id: UUID) -> UIImage? {
 
         guard let model = fetchImageModel(by: id) else { return nil }
@@ -52,12 +42,11 @@ final class LocalImageStore {
 
         return UIImage(contentsOfFile: url.path)
     }
-    
+
     func fetchImageModel(by id: UUID) -> WholeImage? {
         loadPersistedImages().first { $0.wid == id }
     }
 
-    
     func deleteImage(_ image: WholeImage) {
 
         let fileURL = imageURL(forFileName: image.fileName)
@@ -70,9 +59,6 @@ final class LocalImageStore {
             try? data.write(to: metadataURL())
         }
     }
-
-
-    // MARK: - Persistence
 
     private func persist(_ image: WholeImage) {
         var all = loadPersistedImages()
@@ -89,13 +75,9 @@ final class LocalImageStore {
         guard let data = try? Data(contentsOf: url),
               let images = try? JSONDecoder().decode([WholeImage].self, from: data)
         else { return [] }
-        print("📦 Loaded WholeImages:", images.count)
-
 
         return images
     }
-
-    // MARK: - Paths
 
     private func imageURL(forFileName fileName: String) -> URL {
         let folder = documentsDirectory().appendingPathComponent(folderName)
@@ -110,7 +92,7 @@ final class LocalImageStore {
     private func documentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
-    
+
     func update(_ updatedImage: WholeImage) {
 
         var all = loadPersistedImages()
@@ -125,7 +107,7 @@ final class LocalImageStore {
             try? data.write(to: metadataURL())
         }
     }
-    
+
     func fileURL(for image: WholeImage) -> URL {
         imageURL(forFileName: image.fileName)
     }
@@ -134,18 +116,15 @@ final class LocalImageStore {
         let url = imageURL(forFileName: image.fileName)
         return FileManager.default.fileExists(atPath: url.path)
     }
-    
+
     func clearAll() {
-        // ✅ Delete the JSON metadata file
+
         try? FileManager.default.removeItem(at: metadataURL())
 
-        // ✅ Delete all image files
         let albumFolder = documentsDirectory()
             .appendingPathComponent("AlbumImages")
         try? FileManager.default.removeItem(at: albumFolder)
 
-        print("🧹 LocalImageStore cleared")
     }
-    
 
 }

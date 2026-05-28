@@ -50,20 +50,13 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Good Morning" largeTitleDisplayMode="always" id="BGq-8e-mi1">
-                        <rightBarButtonItems>
-                            <barButtonItem title="Item" id="O3R-HU-IG7">
-                                <imageReference key="image" image="person.crop.circle.fill" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <segue destination="Usa-ne-cuV" kind="presentation" id="eRI-rD-tSg"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem title="Switch" image="point.bottomleft.forward.to.arrow.triangle.scurvepath.fill" catalog="system" id="nay-P7-mPb">
-                                <connections>
-                                    <segue destination="vvI-K5-vgz" kind="show" id="vWX-Nb-E69"/>
-                                </connections>
-                            </barButtonItem>
-                        </rightBarButtonItems>
+                        <barButtonItem key="rightBarButtonItem" title="Item" id="O3R-HU-IG7">
+                            <imageReference key="image" image="person.crop.circle.fill" catalog="system" symbolScale="large"/>
+                            <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <segue destination="Usa-ne-cuV" kind="presentation" id="eRI-rD-tSg"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="homeCollectionView" destination="0fL-m1-u87" id="6ee-GL-XLc"/>
@@ -78,16 +71,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1064.885496183206" y="130.98591549295776"/>
-        </scene>
-        <!--caregiver_screen-->
-        <scene sceneID="vxJ-sk-RhP">
-            <objects>
-                <viewControllerPlaceholder storyboardName="Caregiver" referencedIdentifier="caregiver_screen" id="vvI-K5-vgz" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="QtL-cI-Wd8"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="HwF-Og-LkI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1770" y="-49"/>
         </scene>
         <!--MemoryVC-->
         <scene sceneID="mPc-vh-mGI">
@@ -482,12 +465,11 @@
     </scenes>
     <resources>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
-        <image name="point.bottomleft.forward.to.arrow.triangle.scurvepath.fill" catalog="system" width="117" height="128"/>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.55294117647058827" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.2196078431372549" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

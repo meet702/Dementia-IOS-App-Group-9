@@ -1,15 +1,7 @@
-//
-//  DailyObjectsData.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 14/01/26.
-//
-
 import Foundation
 
 let dailyObjectsData: [CrosswordData] = [
-    
-    // 4-letter objects
+
     CrosswordData(name: "BOOK", clue: "Reading material"),
     CrosswordData(name: "LAMP", clue: "Light source"),
     CrosswordData(name: "DESK", clue: "Work surface"),
@@ -20,8 +12,7 @@ let dailyObjectsData: [CrosswordData] = [
     CrosswordData(name: "FORK", clue: "Eating utensil"),
     CrosswordData(name: "DOOR", clue: "Room entrance"),
     CrosswordData(name: "LOCK", clue: "Security device"),
-    
-    // 5-letter objects
+
     CrosswordData(name: "CHAIR", clue: "Sitting furniture"),
     CrosswordData(name: "TABLE", clue: "Dining furniture"),
     CrosswordData(name: "PHONE", clue: "Communication device"),
@@ -32,8 +23,7 @@ let dailyObjectsData: [CrosswordData] = [
     CrosswordData(name: "TOWEL", clue: "Drying cloth"),
     CrosswordData(name: "PLATE", clue: "Dinner dish"),
     CrosswordData(name: "GLASS", clue: "Drinking vessel"),
-    
-    // 6-letter objects
+
     CrosswordData(name: "MIRROR", clue: "Reflection surface"),
     CrosswordData(name: "PILLOW", clue: "Head rest"),
     CrosswordData(name: "BOTTLE", clue: "Liquid container"),
@@ -44,8 +34,7 @@ let dailyObjectsData: [CrosswordData] = [
     CrosswordData(name: "CAMERA", clue: "Photo device"),
     CrosswordData(name: "LAPTOP", clue: "Portable computer"),
     CrosswordData(name: "BASKET", clue: "Storage container"),
-    
-    // 7-letter objects
+
     CrosswordData(name: "BLANKET", clue: "Warm covering"),
     CrosswordData(name: "CURTAIN", clue: "Window cover"),
     CrosswordData(name: "DRESSER", clue: "Clothes storage"),
@@ -53,5 +42,5 @@ let dailyObjectsData: [CrosswordData] = [
     CrosswordData(name: "PRINTER", clue: "Paper output device"),
     CrosswordData(name: "SCANNER", clue: "Document copier"),
     CrosswordData(name: "TOASTER", clue: "Bread heater"),
-    CrosswordData(name: "CHARGER", clue: "Battery filler"),
+    CrosswordData(name: "CHARGER", clue: "Battery filler")
 ]

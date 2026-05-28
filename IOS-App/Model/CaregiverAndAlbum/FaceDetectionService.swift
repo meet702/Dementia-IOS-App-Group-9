@@ -1,40 +1,29 @@
-//
-//  FaceDetectionService.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 04/02/26.
-//
-
-
 import UIKit
 import Vision
 import CoreGraphics
 import ImageIO
 
 final class FaceDetectionService {
-    
-    // MARK: - Public API
-    
+
     func detectFaces(
         in image: UIImage,
         imageID: UUID,
         completion: @escaping ([Face]) -> Void
     ) {
-        
+
         guard let cgImage = image.cgImage else {
-            print("image.cgImage is nil")
             completion([])
             return
         }
-        
+
         let request = VNDetectFaceRectanglesRequest { [weak self] request, error in
-            
+
             if let error = error {
                 print("Vision error:", error)
                 DispatchQueue.main.async { completion([]) }
                 return
             }
-            
+
             guard
                 let self = self,
                 let observations = request.results as? [VNFaceObservation]
@@ -42,11 +31,9 @@ final class FaceDetectionService {
                 DispatchQueue.main.async { completion([]) }
                 return
             }
-            
-            print("Vision observations count:", observations.count)
-            
+
             let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
-            
+
             let rects = observations.map { obs -> CGRect in
                 var rect = CGRect(
                     x: obs.boundingBox.origin.x * imageSize.width,
@@ -54,21 +41,21 @@ final class FaceDetectionService {
                     width: obs.boundingBox.width * imageSize.width,
                     height: obs.boundingBox.height * imageSize.height
                 )
-                
+
                 rect = rect.insetBy(dx: -rect.width * 0.4, dy: -rect.height * 0.4)
                 rect = rect.intersection(CGRect(origin: .zero, size: imageSize))
                 return rect
             }
-            
+
             let sorted = rects.sorted { $0.minX < $1.minX }
-            
+
             let faces = sorted.enumerated().compactMap { (index, rect) -> Face? in
                 guard let cropped = cgImage.cropping(to: rect) else { return nil }
                 let uiImage = UIImage(cgImage: cropped)
                 let fileName = self.saveFaceImage(uiImage)
-                
+
                 let box = BoundingBox(rect: rect)
-                
+
                 return Face(
                     fid: UUID(),
                     fileName: fileName!,
@@ -78,44 +65,41 @@ final class FaceDetectionService {
                     personName: nil
                 )
             }
-            
+
             DispatchQueue.main.async {
                 completion(faces)
             }
         }
-        
+
         let handler = VNImageRequestHandler(
             cgImage: cgImage,
             orientation: CGImagePropertyOrientation(image.imageOrientation),
             options: [:]
         )
-        
+
         do {
             try handler.perform([request])
-            print("Vision perform finished")
         } catch {
             print("Vision perform error:", error)
             completion([])
         }
-        
+
     }
-    
-    
-    
+
     func convertBoundingBox(
         _ boundingBox: CGRect,
         imageSize: CGSize
     ) -> CGRect {
         let x = boundingBox.origin.x * imageSize.width
         let width = boundingBox.size.width * imageSize.width
-        
+
         let height = boundingBox.size.height * imageSize.height
         let y = (1 - boundingBox.origin.y - boundingBox.size.height)
         * imageSize.height
-        
+
         return CGRect(x: x, y: y, width: width, height: height)
     }
-    
+
     func crop(image: UIImage, rect: CGRect) -> UIImage? {
         guard
             let cgImage = image.cgImage,
@@ -123,10 +107,10 @@ final class FaceDetectionService {
         else {
             return nil
         }
-        
+
         return UIImage(cgImage: cropped)
     }
-    
+
     func saveFaceImage(_ image: UIImage) -> String? {
 
         let fileName = UUID().uuidString + ".jpg"
@@ -150,12 +134,11 @@ final class FaceDetectionService {
             try data.write(to: url)
             return fileName
         } catch {
-            print("❌ Failed saving face:", error)
+            print("Failed saving face:", error)
             return nil
         }
     }
 }
-
 
 extension CGImagePropertyOrientation {
     init(_ uiOrientation: UIImage.Orientation) {
@@ -183,5 +166,3 @@ extension UIImage {
         return context.createCGImage(ciImage, from: ciImage.extent)
     }
 }
-
-

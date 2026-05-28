@@ -1,10 +1,3 @@
-//
-//  sudokuSolver.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 28/11/25.
-//
-
 import Foundation
 
 struct SudokuSolver {
@@ -27,7 +20,7 @@ struct SudokuSolver {
         var count = 0
         var b = board
         func backtrack() -> Bool {
-            if count >= limit { return true } // stop early
+            if count >= limit { return true }
             guard let emptyIndex = b.firstIndex(where: { $0 == nil }) else {
                 count += 1
                 return count >= limit

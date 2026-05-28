@@ -1,10 +1,3 @@
-//
-//  ImageSessionStore.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 02/02/26.
-//
-
 import Foundation
 
 final class ImageSessionStore {
@@ -21,8 +14,6 @@ final class ImageSessionStore {
             .urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("image_sessions.json")
     }()
-
-    // MARK: - Public API
 
     func addSession(_ session: ImageSession) {
         guard !sessions.contains(where: { $0.isid == session.isid }) else { return }
@@ -48,14 +39,12 @@ final class ImageSessionStore {
         }
     }
 
-    // MARK: - Persistence
-
     private func save() {
         do {
             let data = try JSONEncoder().encode(sessions)
             try data.write(to: fileURL)
         } catch {
-            print("❌ Failed to save ImageSessions:", error)
+            print("Failed to save ImageSessions:", error)
         }
     }
 
@@ -66,23 +55,22 @@ final class ImageSessionStore {
 
         sessions = decoded
     }
-    
+
     func latestMemoryLaneSession() -> ImageSession? {
         sessions
             .filter { $0.sessionType == .memoryLane }
             .sorted { $0.startedAt > $1.startedAt }
             .first
     }
-    
+
     func oldestUnviewedSession() -> ImageSession? {
         sessions
             .filter { $0.sessionType == .memoryLane && $0.recapCount == 0 }
             .sorted { $0.startedAt < $1.startedAt }
             .first
     }
-    
+
     func clearAll() {
-        try? FileManager.default.removeItem(at: fileURL)  // use whatever your file URL property is named
-        print("🧹 ImageSessionStore cleared")
+        try? FileManager.default.removeItem(at: fileURL)
     }
 }

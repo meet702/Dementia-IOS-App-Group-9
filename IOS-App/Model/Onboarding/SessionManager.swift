@@ -1,33 +1,21 @@
-//
-//  SessionManager.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 16/03/26.
-//
-
 import Foundation
 import Supabase
 import UIKit
 
-
-// SessionManager.swift
 final class SessionManager {
     static let shared = SessionManager()
     private init() {}
 
     var currentUserProfile: UserProfile?
-    
+
     var caregiverGender: String?
     var patientName: String?
     var patientContact: String?
     var caregiverRelation: String = ""
     var patientDob: Date?
-    
+
     var caregiverName: String?
 
-    // ✅ The caregiverUid to scope all queries
-    // For caregiver: their own uid
-    // For patient: their caregiverUid from UserProfile
     var activeCaregiverUid: UUID? {
         guard let profile = currentUserProfile else { return nil }
         switch profile.role {
@@ -37,18 +25,14 @@ final class SessionManager {
             return profile.caregiverUid
         }
     }
-    
-    // MARK: - Logout
 
-    /// Signs out from Supabase, wipes all local state, and returns the app to onboarding.
-    /// Sets window.rootViewController so back-navigation into authenticated screens is impossible.
     func logout() {
         Task {
-            // Best-effort sign-out; don't block the UI if the network is unavailable
+
             try? await SupabaseManager.shared.client.auth.signOut()
 
             await MainActor.run {
-                // Clear in-memory session state
+
                 self.currentUserProfile = nil
                 self.caregiverName = nil
                 self.caregiverGender = nil
@@ -57,10 +41,8 @@ final class SessionManager {
                 self.patientDob = nil
                 self.caregiverRelation = ""
 
-                // Wipe all persisted local stores and UserDefaults keys
                 self.clearLocalDataForNewUser()
 
-                // Replace the root view controller so the user cannot swipe back
                 guard let windowScene = UIApplication.shared
                     .connectedScenes
                     .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
@@ -71,7 +53,6 @@ final class SessionManager {
                 window.rootViewController = onboardingVC
                 window.makeKeyAndVisible()
 
-                // Animate the transition for a polished feel
                 UIView.transition(
                     with: window,
                     duration: 0.35,
@@ -83,17 +64,16 @@ final class SessionManager {
     }
 
     func clearLocalDataForNewUser() {
-        clearDefaults() 
+        clearDefaults()
         LocalImageStore.shared.clearAll()
         RoutineStore.shared.clearAll()
-        FaceStore.shared.clearAll()        // add clearAll to FaceStore too
+        FaceStore.shared.clearAll()
         ImageSessionStore.shared.clearAll()
         PersonSessionStore.shared.clearAll()
         PersonSessionQuestionStore.shared.clearAll()
         ImageSessionQuestionStore.shared.clearAll()
-        print("🧹 All local stores cleared for new user")
     }
-    
+
     func populateFromProfile(_ profile: UserProfile) {
         switch profile.role {
         case .caregiver:
@@ -105,8 +85,6 @@ final class SessionManager {
             saveToDefaults()
         }
     }
-    
-    // MARK: - Persistence
 
     func saveToDefaults() {
         let defaults = UserDefaults.standard
@@ -131,5 +109,5 @@ final class SessionManager {
         defaults.removeObject(forKey: "patientName")
         defaults.removeObject(forKey: "patientContact")
     }
-    
+
 }

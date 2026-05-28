@@ -11,26 +11,20 @@ class MemoryLaneHintViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-       
         view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
 
-       
         containerView.layer.cornerRadius = 24
         containerView.layer.masksToBounds = true
-        
-        
+
         containerView.layer.shadowColor = UIColor.black.cgColor
         containerView.layer.shadowOpacity = 0.2
         containerView.layer.shadowRadius = 12
         containerView.layer.shadowOffset = CGSize(width: 0, height: 3)
 
-        
         messageLabel.text = hintText
 
-       
         containerView.transform = CGAffineTransform(translationX: 0, y: 600)
 
-        
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         containerView.addGestureRecognizer(panGesture)
     }
@@ -72,12 +66,10 @@ class MemoryLaneHintViewController: UIViewController {
         animateOut { self.dismiss(animated: false) }
     }
 
-
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self.view)
 
-        
         if !containerView.frame.contains(location) {
             animateOut { self.dismiss(animated: false) }
         }
@@ -91,18 +83,17 @@ class MemoryLaneHintViewController: UIViewController {
             initialY = containerView.frame.origin.y
 
         case .changed:
-            if translation.y > 0 { // drag only down
+            if translation.y > 0 {
                 containerView.transform = CGAffineTransform(translationX: 0, y: translation.y)
             }
 
         case .ended, .cancelled:
             let velocity = gesture.velocity(in: view).y
 
-            
             if translation.y > 120 || velocity > 600 {
                 animateOut { self.dismiss(animated: false) }
             } else {
-                
+
                 UIView.animate(withDuration: 0.25) {
                     self.containerView.transform = .identity
                 }
@@ -113,4 +104,3 @@ class MemoryLaneHintViewController: UIViewController {
         }
     }
 }
-

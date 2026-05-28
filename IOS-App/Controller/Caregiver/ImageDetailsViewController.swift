@@ -1,32 +1,22 @@
-//
-//  ImageDetailsViewController.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 03/02/26.
-//
-
 import UIKit
 import Supabase
-
 
 class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
     @IBOutlet weak var collectionView: UICollectionView!
-    
+
     enum MemorySection: Int, CaseIterable {
         case hero = 0
         case actions = 1
         case people = 2
     }
 
-    
     var wholeImage: WholeImage?
     private var heroUIImage: UIImage?
     private var faces: [Face] = []
     private var heroAspectRatio: CGFloat = 1.0
     private var activeFaceIndexPath: IndexPath?
     private var memoryActionContent: MemoryActionContent = .empty
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +26,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         collectionView.collectionViewLayout = createLayout()
         registerCells()
         loadHeroImageAndDetectFaces()
-        
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillShow(_:)),
@@ -51,35 +41,24 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             object: nil
         )
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
-    // MARK: - Action Section Reload
-    
-    /// ✅ Always use this instead of reloadSections directly for the actions section.
-    /// invalidateLayout() clears the compositional layout's cached cell sizes,
-    /// forcing a fresh measurement after content changes.
+
     private func reloadActionSection() {
         collectionView.collectionViewLayout.invalidateLayout()
         collectionView.reloadSections(IndexSet(integer: MemorySection.actions.rawValue))
     }
-    
-    
-    // MARK: - Image + Face Loading
-    
+
     private func loadHeroImageAndDetectFaces() {
-        
-        print("Loaded action:", memoryActionContent)
-        
+
         if let id = wholeImage?.wid,
            let stored = LocalImageStore.shared.fetchImageModel(by: id) {
 
             self.wholeImage = stored
             self.memoryActionContent = stored.action ?? .empty
 
-            print("📦 Loaded persisted action:", stored.action)
         }
 
         guard let wholeImage = wholeImage else {
@@ -106,14 +85,10 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         let savedFaces = FaceStore.shared.loadFaces(for: wholeImage.wid)
 
-        // ✅ Faces already detected in AlbumVC — just load and match them
         if !savedFaces.isEmpty {
             self.faces = savedFaces.sorted { $0.orderIndex < $1.orderIndex }
             for face in self.faces {
                 let url = FaceStore.shared.faceImageURL(for: face.fileName)
-                print("Face \(face.orderIndex) (\(face.personName ?? "unnamed")): \(face.fileName)")
-                print("   Local exists: \(FileManager.default.fileExists(atPath: url.path))")
-                print("   Local path: \(url.path)")
             }
 
             DispatchQueue.main.async {
@@ -124,8 +99,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             return
         }
 
-        // ✅ Fallback: detect here only if somehow not pre-detected
-        // (e.g. images uploaded before this update was applied)
         FaceDetectionService().detectFaces(
             in: image,
             imageID: wholeImage.wid
@@ -144,7 +117,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             }
         }
     }
-    
+
     private func mergeFaces(
         detected: [Face],
         existing: [Face]
@@ -173,10 +146,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         return merged
     }
-    
 
-    // MARK: - Cell Registration
-    
     private func registerCells() {
         collectionView.register(
             UINib(nibName: "HeroImageCell", bundle: nil),
@@ -192,16 +162,14 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             UINib(nibName: "PersonFaceCell", bundle: nil),
             forCellWithReuseIdentifier: "PersonFaceCell"
         )
-        
+
         collectionView.register(
             UINib(nibName: "PeopleSectionHeaderView", bundle: nil),
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: "PeopleSectionHeaderView"
         )
     }
-    
-    // MARK: - Layout
-    
+
     private func createLayout() -> UICollectionViewLayout {
 
         return UICollectionViewCompositionalLayout { sectionIndex, _ in
@@ -223,7 +191,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         }
     }
 
-    
     private func heroSection() -> NSCollectionLayoutSection {
 
         let itemSize = NSCollectionLayoutSize(
@@ -251,7 +218,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         return section
     }
 
-    
     private func actionSection() -> NSCollectionLayoutSection {
 
         let itemSize = NSCollectionLayoutSize(
@@ -260,7 +226,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         )
 
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
+
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .estimated(180)
@@ -278,7 +244,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         return section
     }
-    
+
     private func peopleSection() -> NSCollectionLayoutSection {
 
         let columns: CGFloat = 3
@@ -314,7 +280,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             bottom: 16,
             trailing: 16
         )
-        
+
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .absolute(44)
@@ -330,9 +296,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
 
         return section
     }
-    
-    // MARK: - Face Deletion
-    
+
     private func deleteFace(_ face: Face, at indexPath: IndexPath) {
 
         let url = FaceStore.shared.faceImageURL(for: face.fileName)
@@ -346,9 +310,7 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
             collectionView.deleteItems(at: [indexPath])
         }
     }
-    
-    // MARK: - Keyboard Handling
-    
+
     @objc private func keyboardWillShow(_ notification: Notification) {
 
         guard
@@ -376,8 +338,6 @@ class ImageDetailsViewController: UIViewController, UICollectionViewDelegate {
         activeFaceIndexPath = nil
     }
 }
-
-// MARK: - UICollectionViewDataSource
 
 extension ImageDetailsViewController: UICollectionViewDataSource {
 
@@ -431,7 +391,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
             return cell
 
-
         case .actions:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "MemoryActionCell",
@@ -460,7 +419,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 )
 
                 LocalImageStore.shared.update(updated)
-                
+
                 Task {
                     do {
                         try await SupabaseManager.shared.client
@@ -471,26 +430,22 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                             .eq("wid", value: image.wid)
                             .execute()
 
-                        print("☁️ WholeImage action synced to Supabase")
-
                     } catch {
-                        print("❌ Supabase WholeImage update failed:", error)
+                        print("Supabase WholeImage update failed:", error)
                     }
                 }
 
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
 
-                // ✅ Use reloadActionSection() to bust the layout size cache
                 self.reloadActionSection()
 
-                print("🗑 Text deleted & persisted")
             }
 
             cell.onAddVoice = { [weak self] in
                 self?.presentVoiceRecorderSheet()
             }
-            
+
             cell.onDeleteVoice = { [weak self] in
                 guard let self,
                       let image = self.wholeImage else { return }
@@ -498,9 +453,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 if case let .voice(url) = image.action {
                     do {
                         try FileManager.default.removeItem(at: url)
-                        print("🗑 Voice file removed from disk")
                     } catch {
-                        print("❌ Failed to delete audio file:", error)
+                        print("Failed to delete audio file:", error)
                     }
                 }
 
@@ -522,24 +476,19 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                             .eq("wid", value: image.wid)
                             .execute()
 
-                        print("☁️ WholeImage action synced to Supabase")
-
                     } catch {
-                        print("❌ Supabase WholeImage update failed:", error)
+                        print("Supabase WholeImage update failed:", error)
                     }
                 }
 
                 self.wholeImage = updated
                 self.memoryActionContent = updated.action ?? .empty
 
-                // ✅ Use reloadActionSection() to bust the layout size cache
                 self.reloadActionSection()
 
-                print("✅ Voice deleted & fully cleaned")
             }
 
             return cell
-
 
         case .people:
             let cell = collectionView.dequeueReusableCell(
@@ -557,7 +506,6 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
                 cell.faceImageView.image = UIImage(systemName: "person.crop.circle.fill")
             }
 
-            // ✅ Show "Add Name" for anonymous persons (nil name) or empty names
             if let name = face.personName,
                !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 cell.nameLabel.text = name
@@ -587,7 +535,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
                 self.collectionView.reloadItems(at: [indexPath])
             }
-            
+
             cell.nameTextField.addTarget(
                 self,
                 action: #selector(faceNameEditingBegan(_:)),
@@ -597,7 +545,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             return cell
         }
     }
-    
+
     @objc private func faceNameEditingBegan(_ textField: UITextField) {
         let point = textField.convert(CGPoint.zero, to: collectionView)
         activeFaceIndexPath = collectionView.indexPathForItem(at: point)
@@ -623,7 +571,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
 
         return header
     }
-    
+
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemAt indexPath: IndexPath,
@@ -653,9 +601,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             return UIMenu(title: "", children: [deleteAction])
         }
     }
-    
-    // MARK: - Sheets
-    
+
     private func presentAddTextSheet() {
 
         let vc = AddTextViewController(
@@ -685,7 +631,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             )
 
             LocalImageStore.shared.update(updated)
-            
+
             Task {
                 await SupabaseSyncManager.shared.updateWholeImageAction(
                     wid: image.wid,
@@ -696,15 +642,13 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            // ✅ Use reloadActionSection() to bust the layout size cache
             self.reloadActionSection()
 
-            print("📝 Text persisted to album_metadata.json")
         }
 
         present(vc, animated: true)
     }
-    
+
     private func presentEditTextSheet() {
 
         guard case .text(let existingText) = memoryActionContent else { return }
@@ -737,7 +681,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             )
 
             LocalImageStore.shared.update(updated)
-            
+
             Task {
                 await SupabaseSyncManager.shared.updateWholeImageAction(
                     wid: image.wid,
@@ -748,15 +692,13 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            // ✅ Use reloadActionSection() to bust the layout size cache
             self.reloadActionSection()
 
-            print("📝 Text persisted to album_metadata.json")
         }
 
         present(vc, animated: true)
     }
-    
+
     private func presentVoiceRecorderSheet() {
 
         let vc = VoiceRecorderViewController(
@@ -786,7 +728,7 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             )
 
             LocalImageStore.shared.update(updated)
-            
+
             Task {
                 await SupabaseSyncManager.shared.updateWholeImageAction(
                     wid: image.wid,
@@ -797,10 +739,8 @@ extension ImageDetailsViewController: UICollectionViewDataSource {
             self.wholeImage = updated
             self.memoryActionContent = updated.action ?? .empty
 
-            // ✅ Use reloadActionSection() to bust the layout size cache
             self.reloadActionSection()
 
-            print("🎤 Voice persisted to album_metadata.json")
         }
 
         present(vc, animated: true)

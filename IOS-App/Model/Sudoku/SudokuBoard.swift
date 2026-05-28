@@ -1,18 +1,9 @@
-//
-//  SudokuBoard.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 28/11/25.
-//
-
 import Foundation
 
 struct SudokuBoard {
     var cells: [SudokuCellModel] = Array(repeating: SudokuCellModel(), count: 81)
 
     static let size = 9
-
-    init() {}
 
     func index(row: Int, col: Int) -> Int { row * SudokuBoard.size + col }
 

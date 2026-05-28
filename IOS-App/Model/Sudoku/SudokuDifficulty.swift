@@ -1,10 +1,3 @@
-//
-//  SudokuDifficulty.swift
-//  Match the Pairs Test
-//
-//  Created by SDC-USER on 28/11/25.
-//
-
 enum SudokuDifficulty {
     case easy, medium, hard
 

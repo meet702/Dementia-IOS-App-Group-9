@@ -1,27 +1,19 @@
-//
-//  SudokuViewController.swift
-//  sudoku
-//
-//  Created by SDC-USER on 28/11/25.
-//
-
 import UIKit
 
 class SudokuInstructionsViewController: UIViewController {
 
     @IBOutlet weak var instructionsCard: UIView!
-    
+
     @IBOutlet weak var howToPlayChevronButton: UIButton!
     @IBOutlet weak var easyCard: UIView!
-   
+
     @IBOutlet weak var howToPlayView: UIView!
-    
+
     @IBOutlet weak var mediumCard: UIView!
-    
+
     @IBOutlet weak var hardCard: UIView!
     @IBOutlet weak var instructionsLabel: UILabel!
 
-    
     var isHowToPlayOpen = false
 
     enum Difficulty {
@@ -31,10 +23,10 @@ class SudokuInstructionsViewController: UIViewController {
         didSet {
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        instructionsCard.isHidden = true  // start closed
+        instructionsCard.isHidden = true
         howToPlayChevronButton.isUserInteractionEnabled = false
         setupInstructionsText()
         let cards = [easyCard, mediumCard, hardCard, howToPlayView, instructionsCard]
@@ -49,9 +41,9 @@ class SudokuInstructionsViewController: UIViewController {
                           duration: 0.35,
                           options: [.transitionCrossDissolve, .allowAnimatedContent],
                           animations: {
-            
+
             card.backgroundColor = toColor
-            
+
             if let borderColor = borderColor {
                 card.layer.borderColor = borderColor.cgColor
                 card.layer.borderWidth = 2
@@ -61,7 +53,6 @@ class SudokuInstructionsViewController: UIViewController {
         }, completion: nil)
     }
 
-    
     func selectDifficulty(card: UIView) {
         let cards = [easyCard, mediumCard, hardCard]
 
@@ -69,25 +60,25 @@ class SudokuInstructionsViewController: UIViewController {
         let selectedBorder = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0).cgColor
 
         for c in cards {
-            let isSelected = (c === card)
+            guard let cardToAnimate = c else { continue }
+            let isSelected = (cardToAnimate === card)
 
             if isSelected {
-                animateCardTransition(card: c!,
+                animateCardTransition(card: cardToAnimate,
                                       toColor: selectedBackground,
                                       borderColor: UIColor(red: 0.95, green: 0.6, blue: 0.2, alpha: 1))
             } else {
-                animateCardTransition(card: c!,
+                animateCardTransition(card: cardToAnimate,
                                       toColor: .white,
                                       borderColor: nil)
             }
 
-
-            c?.layer.borderWidth = isSelected ? 2 : 0
-            c?.layer.borderColor = isSelected ? selectedBorder : UIColor.clear.cgColor
-            c?.layer.cornerRadius = 20
+            cardToAnimate.layer.borderWidth = isSelected ? 2 : 0
+            cardToAnimate.layer.borderColor = isSelected ? selectedBorder : UIColor.clear.cgColor
+            cardToAnimate.layer.cornerRadius = 20
         }
     }
-    
+
     private func setupInstructionsText() {
         let text = """
         1. Select a cell and tap a number to fill it
@@ -98,56 +89,48 @@ class SudokuInstructionsViewController: UIViewController {
         """
 
         let paragraphStyle = NSMutableParagraphStyle()
-//        paragraphStyle.lineSpacing = 12
+
         paragraphStyle.paragraphSpacing = 8
 
         let attributedText = NSAttributedString(
             string: text,
             attributes: [
-                .paragraphStyle: paragraphStyle,
-                
+                .paragraphStyle: paragraphStyle
+
             ]
         )
 
         instructionsLabel.attributedText = attributedText
     }
 
-
     @IBAction func howToPlayTapped(_ sender: Any) {
-        isHowToPlayOpen.toggle()   // flip true/false
+        isHowToPlayOpen.toggle()
 
-            // Change chevron direction
             let imageName = isHowToPlayOpen ? "chevron.up" : "chevron.down"
             howToPlayChevronButton.setImage(UIImage(systemName: imageName), for: .normal)
 
-            // Animate the card appearing / disappearing
             UIView.animate(withDuration: 0.25) {
                 self.instructionsCard.isHidden = !self.isHowToPlayOpen
-                self.view.layoutIfNeeded()   // stack view smoothly moves everything
+                self.view.layoutIfNeeded()
             }
     }
-    
+
     @IBAction func easyCardTapped(_ sender: Any) {
-        print("easy tapped")
         selectedDifficulty = .easy
         selectDifficulty(card: easyCard)
     }
-    
+
     @IBAction func mediumCardTapped(_ sender: Any) {
-        print("medium tapped")
         selectedDifficulty = .medium
         selectDifficulty(card: mediumCard)
     }
-    
 
     @IBAction func hardCardTapped(_ sender: Any) {
-        print("hard tapped")
         selectedDifficulty = .hard
         selectDifficulty(card: hardCard)
     }
 
     @IBAction func playTapped(_ sender: UIButton) {
-        print("playTapped called")
         guard selectedDifficulty != nil else {
             let alert = UIAlertController(title: "Select Difficulty",
                                           message: "Please choose Easy, Medium, or Hard before playing.",
@@ -158,24 +141,16 @@ class SudokuInstructionsViewController: UIViewController {
         }
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showSudoku" {
-                let dest = segue.destination as! SudokuViewController
+        if segue.identifier == "showSudoku",
+           let dest = segue.destination as? SudokuViewController {
 
-                // easy
                 if selectedDifficulty == .easy {
                     dest.difficultyLevel = 1
-                }
-
-                // medium
-                else if selectedDifficulty == .medium {
+                } else if selectedDifficulty == .medium {
                     dest.difficultyLevel = 2
-                }
-
-                // hard
-                else if selectedDifficulty == .hard {
+                } else if selectedDifficulty == .hard {
                     dest.difficultyLevel = 3
                 }
             }
     }
 }
-

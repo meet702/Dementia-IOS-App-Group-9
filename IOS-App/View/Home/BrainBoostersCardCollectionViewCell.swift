@@ -1,18 +1,11 @@
-//
-//  BrainBoostersCardCollectionViewCell.swift
-//  Home-Test
-//
-//  Created by SDC-USER on 26/11/25.
-//
-
 import UIKit
 
 class BrainBoostersCardCollectionViewCell: UICollectionViewCell {
-    
+
     @IBOutlet weak var gameNameLabel: UILabel!
-    
+
     @IBOutlet weak var imageView: UIImageView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
 

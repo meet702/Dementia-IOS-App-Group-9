@@ -7,7 +7,6 @@ public struct CrosswordData {
 
 let allCountries: [CrosswordData] = [
 
-    // 5-letter
     CrosswordData(name: "CHINA", clue: "Country with the Great Wall"),
     CrosswordData(name: "INDIA", clue: "Country with the Taj Mahal"),
     CrosswordData(name: "JAPAN", clue: "Country with sushi and anime"),
@@ -31,7 +30,6 @@ let allCountries: [CrosswordData] = [
     CrosswordData(name: "TONGA", clue: "Island kingdom in the Pacific"),
     CrosswordData(name: "PALAU", clue: "Island country famous for clear water"),
 
-    // 4-letter
     CrosswordData(name: "IRAN", clue: "Country known for Persian culture"),
     CrosswordData(name: "IRAQ", clue: "Country with Baghdad city"),
     CrosswordData(name: "LAOS", clue: "Only landlocked country in SE Asia"),
@@ -43,7 +41,6 @@ let allCountries: [CrosswordData] = [
     CrosswordData(name: "OMAN", clue: "Country near the Arabian Sea"),
     CrosswordData(name: "PERU", clue: "Country with Machu Picchu"),
 
-    // 6-letter
     CrosswordData(name: "FRANCE", clue: "Country with the Eiffel Tower"),
     CrosswordData(name: "BRAZIL", clue: "Country famous for Carnival"),
     CrosswordData(name: "MEXICO", clue: "Country famous for tacos"),
@@ -61,7 +58,6 @@ let allCountries: [CrosswordData] = [
     CrosswordData(name: "GUYANA", clue: "Only English-speaking country in South America"),
     CrosswordData(name: "BELIZE", clue: "Country with the Blue Hole"),
 
-    // 7-letter
     CrosswordData(name: "GERMANY", clue: "Country with Berlin city"),
     CrosswordData(name: "ENGLAND", clue: "Country with Big Ben"),
     CrosswordData(name: "BELGIUM", clue: "Country famous for waffles"),
@@ -92,7 +88,6 @@ let allCountries: [CrosswordData] = [
     CrosswordData(name: "MYANMAR", clue: "Country formerly called Burma"),
     CrosswordData(name: "BAHRAIN", clue: "Tiny Gulf island nation"),
 
-    // 8-letter
     CrosswordData(name: "PORTUGAL", clue: "Country with Cristiano Ronaldo"),
     CrosswordData(name: "THAILAND", clue: "Country known for street food"),
     CrosswordData(name: "PAKISTAN", clue: "Country famous for biryani"),
@@ -105,7 +100,6 @@ let allCountries: [CrosswordData] = [
     CrosswordData(name: "HONDURAS", clue: "Central American country"),
     CrosswordData(name: "BARBADOS", clue: "Birthplace of Rihanna"),
 
-    // 9-letter
     CrosswordData(name: "AUSTRALIA", clue: "Country with kangaroos"),
     CrosswordData(name: "ARGENTINA", clue: "Country famous for tango"),
     CrosswordData(name: "SINGAPORE", clue: "Very clean city country"),

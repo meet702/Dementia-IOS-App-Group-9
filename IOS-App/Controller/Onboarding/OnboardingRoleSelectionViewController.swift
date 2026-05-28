@@ -15,8 +15,8 @@ class OnboardingRoleSelectionViewController: UIViewController {
         view.backgroundColor = UIColor(red: 0.99, green: 0.96, blue: 0.91, alpha: 1)
         setupCollectionView()
     }
-    
-    var verifiedEmail: String = ""  // ✅ passed from OTPVerificationVC
+
+    var verifiedEmail: String = ""
 
     private func setupCollectionView() {
 
@@ -60,13 +60,13 @@ class OnboardingRoleSelectionViewController: UIViewController {
         if segue.identifier == "showPatientDetails",
            let dest = segue.destination as? PatientInputDetailsViewController {
             dest.navigationItem.title = "Patient"
-            dest.verifiedEmail = verifiedEmail  // ✅
+            dest.verifiedEmail = verifiedEmail
         }
 
         if segue.identifier == "showCaregiverDetails",
            let dest = segue.destination as? CaregiverInputDetailsViewController {
             dest.navigationItem.title = "Caregiver"
-            dest.verifiedEmail = verifiedEmail  // ✅
+            dest.verifiedEmail = verifiedEmail
         }
     }
 }
@@ -81,10 +81,12 @@ extension OnboardingRoleSelectionViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "roleCardCollectionViewCell",
             for: indexPath
-        ) as! RoleCardCollectionViewCell
+        ) as? RoleCardCollectionViewCell else {
+            return UICollectionViewCell()
+        }
 
         cell.configure(with: roles[indexPath.item])
         return cell

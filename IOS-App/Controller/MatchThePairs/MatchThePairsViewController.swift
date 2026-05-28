@@ -7,7 +7,7 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
     private let cardTapHaptic = UIImpactFeedbackGenerator(style: .light)
     private let matchSuccessHaptic = UINotificationFeedbackGenerator()
-    
+
     var columns: Int = 3
     var rows: Int = 4
     var backImageName: String = "card_back"
@@ -17,7 +17,6 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
     private var layoutAppliedForSize: CGSize = .zero
     private var isProcessingSelection = false
 
-    
     private var pauseOverlayView: UIView?
     private var isPausedState: Bool = false
 
@@ -34,7 +33,7 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         isPausedState = false
         collectionView.isUserInteractionEnabled = true
         isProcessingSelection = false
-        
+
     }
 
     @IBAction func pauseTapped(_ sender: Any) {
@@ -63,14 +62,14 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
         present(alert, animated: true, completion: nil)
     }
-    
+
     private func restartGame() {
         resumeGameState()
         isProcessingSelection = false
         startGame()
         collectionView.setContentOffset(.zero, animated: false)
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.dataSource = self
@@ -107,9 +106,9 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
     private func difficultyName() -> String {
         switch (columns, rows) {
-        case (3,4): return "Easy"
-        case (3,6): return "Medium"
-        case (4,6): return "Hard"
+        case (3, 4): return "Easy"
+        case (3, 6): return "Medium"
+        case (4, 6): return "Hard"
         default: return "\(columns)x\(rows)"
         }
     }
@@ -136,22 +135,12 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         let groupHeight = NSCollectionLayoutDimension.absolute(cellSide)
         let hGroupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: groupHeight)
         let hGroup = NSCollectionLayoutGroup.horizontal(layoutSize: hGroupSize, subitem: item, count: columns)
-//        let hGroup = NSCollectionLayoutGroup.horizontal(
-//            layoutSize: hGroupSize,
-//            subitems: Array(repeating: item, count: columns)
-//        )
 
         hGroup.interItemSpacing = .fixed(interItemSpacing)
 
-        // vertical stack of rows
         let vGroupHeight = NSCollectionLayoutDimension.absolute(cellSide * CGFloat(rows) + interGroupSpacing * CGFloat(rows - 1))
         let vGroupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: vGroupHeight)
         let vGroup = NSCollectionLayoutGroup.vertical(layoutSize: vGroupSize, subitem: hGroup, count: rows)
-        //let vGroup = NSCollectionLayoutGroup.vertical(layoutSize: vGroupSize, subitems: [hGroup])
-//        let vGroup = NSCollectionLayoutGroup.vertical(
-//            layoutSize: vGroupSize,
-//            subitems: Array(repeating: hGroup, count: rows)
-//        )
 
         vGroup.interItemSpacing = .fixed(interGroupSpacing)
 
@@ -181,14 +170,14 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !isProcessingSelection, !isPausedState else { return }
-        
+
         cardTapHaptic.impactOccurred()
         cardTapHaptic.prepare()
-        
+
         let idx = indexPath.item
         let card = game.cards[idx]
         if card.isFaceUp || card.isMatched { return }
-        
+
         let result = game.chooseCard(at: idx)
         for changedIndex in result.changed {
             let ip = IndexPath(item: changedIndex, section: 0)
@@ -205,7 +194,7 @@ class MatchThePairsViewController: UIViewController, UICollectionViewDataSource,
         if result.matched {
             matchSuccessHaptic.notificationOccurred(.success)
             matchSuccessHaptic.prepare()
-            
+
             updateMatchedLabel()
             if game.isWin {
                 presentWinAlert()

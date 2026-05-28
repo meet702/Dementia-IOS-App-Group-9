@@ -32,11 +32,11 @@ public final class Bounds {
     public func center() -> (x: Int, y: Int) {
         ((left + right) / 2, (top + bottom) / 2)
     }
-    
+
     public func width() -> Int {
         return right - left + 1
     }
-    
+
     public func height() -> Int {
         return bottom - top + 1
     }
@@ -52,7 +52,7 @@ public final class WordObj {
 
     public var x = 0
     public var y = 0
-    public var dir = 0   // 0 = horizontal, 1 = vertical
+    public var dir = 0
 
     public init(_ value: String) {
         self.string = value
@@ -110,30 +110,29 @@ func chooseBestSpreadPlacement(
         return ((p.x, p.y, p.dir), dist - density + dirBonus)
     }
 
-    let bestScore = scored.map { $0.1 }.max()!
+    guard let bestScore = scored.map({ $0.1 }).max() else { return placements[0] }
     let bestCandidates = scored.filter { $0.1 >= bestScore - 3 }
-    return bestCandidates.randomElement()!.0
+    return bestCandidates.randomElement()?.0 ?? placements[0]
 }
 
 @MainActor
 func isCompactCrossword() -> Bool {
     let width = bounds.width()
     let height = bounds.height()
-    
-    // Crossword should fit in 9x9 grid
+
     if width > 9 || height > 9 {
         return false
     }
-    
+
     let wordCount = wordsActive.count
     if wordCount < 3 {
         return false
     }
-    
+
     let usedCells = board.flatMap { $0 }.compactMap { $0 }.count
     let gridArea = width * height
     let density = Double(usedCells) / Double(gridArea)
-    
+
     return density >= 0.20 && density <= 0.90
 }
 
@@ -180,7 +179,7 @@ func addWordToBoard() -> Bool {
 
     if wordsActive.isEmpty {
 
-        curIndex = wordBank.indices.min { wordBank[$0].totalMatches < wordBank[$1].totalMatches }!
+        curIndex = wordBank.indices.min { wordBank[$0].totalMatches < wordBank[$1].totalMatches } ?? 0
         wordBank[curIndex].successfulMatches = [(12, 12, 0)]
 
     } else {
@@ -268,7 +267,7 @@ func isValidPlacement(word: WordObj, x: Int, y: Int, dir: Int) -> Bool {
 public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
 
     wordArr = words.filter { $0.count >= 4 && $0.count <= 8 }
-    wordArr = Array(wordArr.prefix(6))  // Max 6 words
+    wordArr = Array(wordArr.prefix(6))
 
     guard wordArr.count >= 3 else {
         return ([], [])
@@ -277,15 +276,15 @@ public func generateCrossword(words: [String]) -> ([[Character?]], [WordObj]) {
     var success = false
     var attempts = 0
     let maxAttempts = 30
-    
+
     while !success && attempts < maxAttempts {
         cleanVars()
         success = populateBoard()
-        
+
         if success {
             success = isCompactCrossword()
         }
-        
+
         attempts += 1
     }
 
@@ -297,38 +296,38 @@ public func generateUniqueCrosswords(
     from items: [CrosswordData],
     count: Int
 ) -> [([String], [String: String])] {
-    
+
     var puzzles: [([String], [String: String])] = []
     var usedCombinations: Set<String> = []
-    
+
     for _ in 0..<count {
         var attempts = 0
         var foundUnique = false
-        
+
         while !foundUnique && attempts < 20 {
-            
+
             let shuffled = items.shuffled()
             let subset = Array(shuffled.prefix(min(6, shuffled.count)))
-            
+
             let words = subset.map { $0.name }
             let clues = Dictionary(uniqueKeysWithValues: subset.map { ($0.name, $0.clue) })
-            
+
             let signature = words.sorted().joined()
-            
+
             if !usedCombinations.contains(signature) {
-                
+
                 let (_, placedWords) = generateCrossword(words: words)
-                
+
                 if !placedWords.isEmpty && placedWords.count >= 3 {
                     puzzles.append((words, clues))
                     usedCombinations.insert(signature)
                     foundUnique = true
                 }
             }
-            
+
             attempts += 1
         }
     }
-    
+
     return puzzles
 }

@@ -1,10 +1,3 @@
-//
-//  keyboard.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 17/12/25.
-//
-
 import UIKit
 
 extension UIViewController {

@@ -22,13 +22,11 @@ class CaregiverConnectCodeViewController: UIViewController {
 
     private func setupUI() {
 
-
         finishButton.layer.cornerRadius = 27
         codeTextField.layer.cornerRadius = 24
         codeTextField.keyboardType = .emailAddress
         codeTextField.autocapitalizationType = .none
         codeTextField.autocorrectionType = .no
-        //codeTextField.setLeftPadding(12)
 
         codeTextField.attributedPlaceholder = NSAttributedString(
             string: "Enter patient's email address",
@@ -38,8 +36,6 @@ class CaregiverConnectCodeViewController: UIViewController {
             ]
         )
     }
-
-    // MARK: Actions
 
     @IBAction func finishTapped(_ sender: UIButton) {
 
@@ -55,7 +51,6 @@ class CaregiverConnectCodeViewController: UIViewController {
             return
         }
 
-        // ✅ Disable button to prevent double taps
         finishButton.isEnabled = false
 
         Task {
@@ -66,13 +61,12 @@ class CaregiverConnectCodeViewController: UIViewController {
                     caregiverRelation: caregiverRelation
                 )
 
-                // ✅ Now create the caregiver's own profile
                 let caregiverProfile = UserProfile(
                     uid: caregiverUid,
                     name: caregiverName,
                     email: verifiedEmail,
                     role: .caregiver,
-                    gender: caregiverGender,  // ✅ add this
+                    gender: caregiverGender,
                     caregiverUid: nil,
                     createdAt: Date(),
                     caregiverRelation: nil
@@ -81,7 +75,7 @@ class CaregiverConnectCodeViewController: UIViewController {
                 try await SupabaseSyncManager.shared.createUserProfile(caregiverProfile)
                 SessionManager.shared.currentUserProfile = caregiverProfile
                 SessionManager.shared.populateFromProfile(caregiverProfile)
-                
+
                 if let patientProfile = try? await SupabaseSyncManager.shared.fetchPatientProfile(caregiverUid: caregiverUid) {
                     SessionManager.shared.patientName = patientProfile.name
                     SessionManager.shared.patientContact = patientProfile.email
@@ -101,8 +95,6 @@ class CaregiverConnectCodeViewController: UIViewController {
         }
     }
 
-    // MARK: Alert
-
     private func showAlert(_ message: String) {
 
         let alert = UIAlertController(title: nil,
@@ -113,8 +105,6 @@ class CaregiverConnectCodeViewController: UIViewController {
         present(alert, animated: true)
     }
 }
-
-// MARK: Padding Helper
 
 private extension UITextField {
     func setLeftPadding(_ amount: CGFloat) {

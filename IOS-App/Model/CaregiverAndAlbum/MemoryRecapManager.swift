@@ -1,10 +1,3 @@
-//
-//  MemoryRecapManager.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 04/03/26.
-//
-
 import Foundation
 
 class MemoryRecapManager {
@@ -16,12 +9,10 @@ class MemoryRecapManager {
 
     func nextImageID(from images: [WholeImage]) -> UUID? {
 
-        // 🚫 No images available
         if images.isEmpty {
             return nil
         }
 
-        // If shuffle list empty OR completed cycle → reshuffle
         if shuffledImageIDs.isEmpty || currentIndex >= shuffledImageIDs.count {
 
             shuffledImageIDs = images.map { $0.wid }.shuffled()

@@ -1,23 +1,12 @@
-//
-//  ResponseViewController.swift
-//  MemoryLaneResponseFeature
-//
-//  Created by SDC-USER on 11/12/25.
-//
-
 import UIKit
 
 final class ResponseViewController: UIViewController {
 
-    // MARK: - Dependencies (NEW MODEL)
-
     var imageSession: ImageSession?
     private var personSessions: [PersonSession] = []
 
-    // MARK: - Outlets
-
     @IBOutlet weak var tableView: UITableView!
-    
+
     var patientName: String {
         let fullName = SessionManager.shared.patientName ?? "Patient"
         return fullName.components(separatedBy: " ").first ?? fullName
@@ -46,14 +35,16 @@ final class ResponseViewController: UIViewController {
         super.viewDidLayoutSubviews()
         updateTableHeaderSize()
     }
-    
+
     private func configureHeader(with session: ImageSession) {
 
-        let header = Bundle.main.loadNibNamed(
+        guard let header = Bundle.main.loadNibNamed(
             "MemoryHeaderView",
             owner: nil,
             options: nil
-        )!.first as! MemoryHeaderView
+        )?.first as? MemoryHeaderView else {
+            return
+        }
 
         header.titleLabel.text = "Here's what \(patientName) shared about this moment"
 
@@ -64,13 +55,12 @@ final class ResponseViewController: UIViewController {
             ? "This memory was revisited together."
             : reflection
 
-        
         if let image = SessionImageStore.shared.fetchImage(by: session.wid) {
             header.headerImageView.image = image
         } else if let image = LocalImageStore.shared.fetchImage(by: session.wid) {
-           
+
             header.headerImageView.image = image
-            
+
             SessionImageStore.shared.saveSessionImage(for: session.wid)
         } else {
             header.headerImageView.image = UIImage(systemName: "photo")
@@ -87,12 +77,17 @@ final class ResponseViewController: UIViewController {
     }
 
     private func openPersonDetail(_ person: PersonSession) {
-        let vc = storyboard!.instantiateViewController(
-            identifier: "ResponseDetailViewController"
-        ) as! ResponseDetailViewController
+        guard let storyboard = storyboard,
+              let vc = storyboard.instantiateViewController(
+                  identifier: "ResponseDetailViewController"
+              ) as? ResponseDetailViewController,
+              let wid = imageSession?.wid
+        else {
+            return
+        }
 
         vc.personSession = person
-        vc.imageID = imageSession!.wid
+        vc.imageID = wid
         vc.modalPresentationStyle = .pageSheet
 
         present(vc, animated: true)
@@ -134,16 +129,18 @@ extension ResponseViewController: UITableViewDataSource {
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
 
-        let cell = tableView.dequeueReusableCell(
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "person_cell",
             for: indexPath
-        ) as! PersonTableViewCell
+        ) as? PersonTableViewCell else {
+            return UITableViewCell()
+        }
 
         let personSession = personSessions[indexPath.row]
         guard let imageID = imageSession?.wid else {
-            fatalError("Missing imageID")
+            return UITableViewCell()
         }
-        
+
         cell.configure(personSession: personSession, imageID: imageID)
 
         cell.onChevronTapped = { [weak self] in
@@ -153,7 +150,6 @@ extension ResponseViewController: UITableViewDataSource {
         return cell
     }
 }
-
 
 extension ResponseViewController: UITableViewDelegate {
 

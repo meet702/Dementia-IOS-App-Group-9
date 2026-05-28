@@ -2,12 +2,8 @@ import UIKit
 
 final class CaregiverViewController: UIViewController, UICollectionViewDelegate {
 
-    // MARK: - Outlets
-
     @IBOutlet weak var albumButton: UIButton!
     @IBOutlet weak var caregiverCollectionView: UICollectionView!
-
-    // MARK: - Dependencies
 
     private let routineRepository = RoutineStore.shared
     private let sessionStore = ImageSessionStore.shared
@@ -18,13 +14,9 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         return fullName.components(separatedBy: " ").first ?? fullName
     }
 
-    // MARK: - Computed
-
     var todaysSessions: [ImageSession] {
         sessionStore.sessionsForToday()
     }
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,20 +36,19 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         )
         tapGesture.cancelsTouchesInView = false
         caregiverCollectionView.addGestureRecognizer(tapGesture)
-        
+
         if LocalImageStore.shared.fetchAllImages().isEmpty {
 
             Task { [weak self] in
                 await SupabaseSyncManager.shared.restoreCaregiverMemories()
 
                 await MainActor.run {
-                    print("🔄 Reloading Home UI after restore")
                     self?.caregiverCollectionView.reloadData()
                 }
             }
 
         }
-        SessionManager.shared.loadFromDefaults() 
+        SessionManager.shared.loadFromDefaults()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -65,7 +56,7 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         selectedDate = Date()
         let fullName = SessionManager.shared.caregiverName ?? "Caregiver"
         let caregiverFirstName = fullName.components(separatedBy: " ").first ?? fullName
-        
+
         navigationItem.title = "Hello \(caregiverFirstName)"
         caregiverCollectionView.reloadData()
     }
@@ -165,7 +156,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
                 return layoutSection
             }
 
-            // 🔹 Routine section (unchanged)
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .estimated(200)
@@ -194,8 +184,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         }
     }
 
-    // MARK: - UI Setup
-
     private func setupAlbumButton() {
         albumButton.setImage(UIImage(systemName: "photo.stack"), for: .normal)
         albumButton.layer.shadowColor = UIColor.black.cgColor
@@ -204,8 +192,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         albumButton.layer.shadowRadius = 8
         albumButton.layer.masksToBounds = false
     }
-
-    // MARK: - Collection Interaction
 
     @objc private func handleCollectionTap(_ gesture: UITapGestureRecognizer) {
 
@@ -219,8 +205,6 @@ final class CaregiverViewController: UIViewController, UICollectionViewDelegate 
         let selectedSession = todaysSessions[indexPath.item]
         performSegue(withIdentifier: "showMemoryResponse", sender: selectedSession)
     }
-
-    // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 
@@ -296,10 +280,9 @@ extension CaregiverViewController: UICollectionViewDataSource {
 
         return cell
     }
-    
-    
+
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
+
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: "header", withReuseIdentifier: "header_cell", for: indexPath) as! HeaderView
         if indexPath.section == 1 {
             headerView.configureHeaderCell(text: "\(firstName)'s Routine",
@@ -309,8 +292,7 @@ extension CaregiverViewController: UICollectionViewDataSource {
                                                self?.performSegue(withIdentifier: "showRoutine", sender: nil)
                                            }
             )
-        }
-        else {
+        } else {
             headerView.configureHeaderCell(text: "Session History", showChevron: false, isTappable: false)
         }
         return headerView

@@ -1,10 +1,3 @@
-//
-//  ImageSessionQuestionStore.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 02/02/26.
-//
-
 import Foundation
 
 final class ImageSessionQuestionStore {
@@ -51,7 +44,6 @@ final class ImageSessionQuestionStore {
         questions = decoded
     }
     func clearAll() {
-        try? FileManager.default.removeItem(at: fileURL)  // use whatever your file URL property is named
-        print("🧹 ImageSessionQuestionStore cleared")
+        try? FileManager.default.removeItem(at: fileURL)
     }
 }

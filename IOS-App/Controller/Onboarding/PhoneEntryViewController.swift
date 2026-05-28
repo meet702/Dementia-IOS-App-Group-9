@@ -1,23 +1,14 @@
-//
-//  PhoneEntryViewController.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 16/03/26.
-//
-
 import UIKit
 
 class PhoneEntryViewController: UIViewController {
-    
+
     @IBOutlet weak var phoneTextField: UITextField!
     @IBOutlet weak var continueButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         enableKeyboardDismissOnTap()
-        // Do any additional setup after loading the view.
-        
-        // Set keyboard type to email
+
         phoneTextField.keyboardType = .emailAddress
         phoneTextField.autocapitalizationType = .none
         phoneTextField.autocorrectionType = .no
@@ -38,9 +29,9 @@ class PhoneEntryViewController: UIViewController {
                 try await SupabaseSyncManager.shared.sendOTP(email: email)
 
                 await MainActor.run {
-                    
+
                     SessionManager.shared.patientContact = email
-                    
+
                     self.performSegue(
                         withIdentifier: "showOTPVerification",
                         sender: email

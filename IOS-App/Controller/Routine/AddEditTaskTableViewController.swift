@@ -35,7 +35,7 @@ class AddEditTaskTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         if repository == nil {
             repository = RoutineStore.shared
        }
@@ -65,19 +65,17 @@ class AddEditTaskTableViewController: UITableViewController {
 
             titleText = originalTitle
             hasChanges = false
-            
+
             titleText = task.title
             notesText = task.subtitle ?? ""
 
-            
             shouldRepeatDaily = task.isRepeatDaily
             selectedDate = task.scheduledDate ?? selectedDate
 
-            
             selectedTimeValue = task.time
-            
+
             dateCell.datePicker.isEnabled = true
-            
+
             navigationItem.rightBarButtonItem?.isEnabled = true
 
         }
@@ -96,14 +94,13 @@ class AddEditTaskTableViewController: UITableViewController {
             self.updateDoneButtonState()
         }
 
-
         notesCell.onTextChanged = { [weak self] text in
             guard let self = self else { return }
 
             self.notesText = text
             self.hasChanges = text != self.originalNotes
             self.updateDoneButtonState()
-            
+
         }
 
         dateCell.onDateChanged = { [weak self] date in
@@ -121,7 +118,7 @@ class AddEditTaskTableViewController: UITableViewController {
             self.hasChanges = time != self.originalTime
             self.updateDoneButtonState()
         }
-        
+
         repeatCell.onSwitchChanged = { [weak self] isOn in
             guard let self = self else { return }
 
@@ -130,14 +127,13 @@ class AddEditTaskTableViewController: UITableViewController {
             self.updateDoneButtonState()
         }
 
-
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
             action: #selector(saveTapped)
         )
         navigationItem.rightBarButtonItem?.tintColor = .systemOrange
-        
+
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .cancel,
             target: self,
@@ -147,7 +143,6 @@ class AddEditTaskTableViewController: UITableViewController {
         updateDoneButtonState()
     }
 
-    
     private func updateDoneButtonState() {
         let hasTitle = !titleText
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -157,18 +152,15 @@ class AddEditTaskTableViewController: UITableViewController {
         navigationItem.rightBarButtonItem?.isEnabled = isEnabled
     }
 
-    
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
 
     @objc private func saveTapped() {
-        let _ = combine(
+        _ = combine(
             date: selectedDateValue ?? Date(),
             time: selectedTimeValue
         )
-        print("SAVING TASK FOR DATE:", selectedDateValue)
-
 
         switch mode {
 
@@ -190,7 +182,7 @@ class AddEditTaskTableViewController: UITableViewController {
                 repeatDaily: shouldRepeatDaily,
                 scheduledDate: shouldRepeatDaily ? nil : selectedDate
             )
-            
+
         }
         onSave?()
         dismiss(animated: true)

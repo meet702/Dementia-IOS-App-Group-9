@@ -1,25 +1,18 @@
-//
-//  PersonFaceCell.swift
-//  IOS-App
-//
-//  Created by SDC-USER on 04/02/26.
-//
-
 import UIKit
 
 class PersonFaceCell: UICollectionViewCell, UITextFieldDelegate {
-    
+
     @IBOutlet weak var faceImageView: UIImageView!
-    
+
     @IBOutlet weak var nameLabel: UILabel!
-    
+
     @IBOutlet weak var nameTextField: UITextField!
-    
+
     var onNameChanged: ((String) -> Void)?
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+
         faceImageView.layer.cornerRadius = 55
         let doubleTap = UITapGestureRecognizer(
             target: self,
@@ -31,14 +24,14 @@ class PersonFaceCell: UICollectionViewCell, UITextFieldDelegate {
 
         nameTextField.delegate = self
     }
-    
+
     @objc private func didDoubleTapName() {
         nameTextField.text = nameLabel.text == "Add Name" ? "" : nameLabel.text
         nameLabel.isHidden = true
         nameTextField.isHidden = false
         nameTextField.becomeFirstResponder()
     }
-    
+
     private func finishEditing() {
         let text = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -54,7 +47,7 @@ class PersonFaceCell: UICollectionViewCell, UITextFieldDelegate {
             onNameChanged?(finalName)
         }
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         finishEditing()
         return true
@@ -65,5 +58,3 @@ class PersonFaceCell: UICollectionViewCell, UITextFieldDelegate {
     }
 
 }
-
-

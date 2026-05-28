@@ -27,7 +27,6 @@ class SudokuViewController: UIViewController {
     private let rigidHaptic = UIImpactFeedbackGenerator(style: .rigid)
     private let notificationHaptic = UINotificationFeedbackGenerator()
 
-    
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var difficultyLabel: UILabel!
     @IBOutlet weak var numberPadContainer: UIView!
@@ -81,7 +80,7 @@ class SudokuViewController: UIViewController {
     private var puzzle: [Int?] = Array(repeating: nil, count: 81)
     private var solution: [Int?] = Array(repeating: nil, count: 81)
     private var boardModel = SudokuBoard()
-    private var selectedIndex: Int? = nil
+    private var selectedIndex: Int?
     private var undoStack: [(index: Int, previous: Int?)] = []
 
     override func viewDidLoad() {
@@ -169,7 +168,7 @@ class SudokuViewController: UIViewController {
 
         if cell.isGiven { return }
         lightHaptic.impactOccurred()
-        
+
         undoStack.append((idx, cell.value))
 
         if cell.value == num {
@@ -186,7 +185,7 @@ class SudokuViewController: UIViewController {
     @IBAction func undoTapped(_ sender: UIButton) {
         guard let last = undoStack.popLast() else { return }
         softHaptic.impactOccurred()
-        
+
         let index = last.index
         let r = index / 9
         let c = index % 9
@@ -197,9 +196,7 @@ class SudokuViewController: UIViewController {
     }
 
     @IBAction func checkTapped(_ sender: UIButton) {
-        print("check tapped")
 
-        // Clear old global incorrect marks
         var reload: [IndexPath] = []
         for i in 0..<81 {
             if boardModel.cells[i].isConflict {
@@ -208,7 +205,6 @@ class SudokuViewController: UIViewController {
             }
         }
 
-        // Find incorrect user-entered cell
         if let wrongIndex = findIncorrectUserCell() {
             boardModel.cells[wrongIndex].isConflict = true
             reload.append(IndexPath(item: wrongIndex, section: 0))
@@ -218,13 +214,12 @@ class SudokuViewController: UIViewController {
             return
         }
 
-        // No mistakes
         if !reload.isEmpty {
             collectionView.reloadItems(at: reload)
         }
 
         notificationHaptic.notificationOccurred(.warning)
-        
+
         let alert = UIAlertController(
             title: "No Mistakes Found",
             message: "All placed numbers are correct so far.",
@@ -235,12 +230,10 @@ class SudokuViewController: UIViewController {
     }
 
     @IBAction func fixTapped(_ sender: UIButton) {
-        print("fix tapped")
 
-        // Find incorrect user-entered cell
         guard let wrongIndex = findIncorrectUserCell() else {
             notificationHaptic.notificationOccurred(.warning)
-            
+
             let alert = UIAlertController(
                 title: "Nothing to Fix",
                 message: "There are no incorrect numbers right now.",
@@ -254,10 +247,8 @@ class SudokuViewController: UIViewController {
         let row = wrongIndex / 9
         let col = wrongIndex % 9
 
-        // Save for undo
         undoStack.append((wrongIndex, boardModel.cells[wrongIndex].value))
 
-        // Replace with correct value
         boardModel.setValue(solution[wrongIndex], atRow: row, col: col)
 
         validateConflicts(aroundIndex: wrongIndex)
@@ -266,18 +257,16 @@ class SudokuViewController: UIViewController {
             at: [IndexPath(item: wrongIndex, section: 0)]
         )
         notificationHaptic.notificationOccurred(.success)
-        checkIfSudokuCompleted() 
+        checkIfSudokuCompleted()
     }
 
     private func findIncorrectUserCell() -> Int? {
         for i in 0..<81 {
             let cell = boardModel.cells[i]
 
-            // ignore empty or given cells
             if cell.isGiven { continue }
             guard let userValue = cell.value else { continue }
 
-            // compare with solution
             if let correct = solution[i], userValue != correct {
                 return i
             }
@@ -285,29 +274,22 @@ class SudokuViewController: UIViewController {
         return nil
     }
     @IBAction func eraseTapped(_ sender: UIButton) {
-        print("erase tapped")
 
-        // Ensure a cell is selected
         guard let idx = selectedIndex else { return }
 
         let cell = boardModel.cells[idx]
 
-        // Do not erase given cells
         if cell.isGiven { return }
 
         let row = idx / 9
         let col = idx % 9
 
-        // For undo
         undoStack.append((idx, cell.value))
 
-        // For clearing the value
         boardModel.setValue(nil, atRow: row, col: col)
 
-        // For revalidate conflicts
         validateConflictsAll()
 
-        // Reload only affected cell
         collectionView.reloadItems(
             at: [IndexPath(item: idx, section: 0)]
         )
@@ -316,14 +298,12 @@ class SudokuViewController: UIViewController {
     }
 
     private func checkIfSudokuCompleted() {
-        // Check all cells are filled and correct
+
         for i in 0..<81 {
             let cell = boardModel.cells[i]
 
-            // not filled
             guard let value = cell.value else { return }
 
-            // incorrect value
             if value != solution[i] {
                 return
             }
@@ -334,7 +314,7 @@ class SudokuViewController: UIViewController {
 
         showWellDoneAlert()
     }
-    
+
     private func showWellDoneAlert() {
         notificationHaptic.notificationOccurred(.success)
 
@@ -354,7 +334,6 @@ class SudokuViewController: UIViewController {
 
         present(alert, animated: true)
     }
-
 
     private func validateConflictsAll() {
         for i in 0..<81 { boardModel.cells[i].isConflict = false }
@@ -430,10 +409,12 @@ extension SudokuViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: SudokuCollectionViewCell.reuseId,
             for: indexPath
-        ) as! SudokuCollectionViewCell
+        ) as? SudokuCollectionViewCell else {
+            return UICollectionViewCell()
+        }
 
         let idx = indexPath.item
         let r = idx / 9

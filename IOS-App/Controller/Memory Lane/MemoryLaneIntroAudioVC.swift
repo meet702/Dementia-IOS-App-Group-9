@@ -3,8 +3,6 @@ import AVFoundation
 
 final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
-    // MARK: - IBOutlets
-
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var playPauseButton: UIButton!
     @IBOutlet private weak var progressSlider: UISlider!
@@ -12,32 +10,24 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
     @IBOutlet weak var commentLabel: UILabel!
     @IBOutlet weak var innerShadowView: UIView!
     @IBOutlet weak var caregiverTextLabel: UILabel!
-    
+
     @IBOutlet weak var backgroundImageView: UIImageView!
-    
+
     private var delayedPlaybackWorkItem: DispatchWorkItem?
-    // MARK: - Dependencies (Injected)
+
     var portraitImage: UIImage!
     var wholeImage: WholeImage!
     var faces: [Face] = []
     var questionsByPerson: [String: [Question]] = [:]
-    
-    private var isPlaying = false
 
-    // MARK: - Audio
+    private var isPlaying = false
 
     private var audioPlayer: AVAudioPlayer?
     private var progressTimer: Timer?
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("🔍 AudioVC viewDidLoad:")
-        print("   Faces: \(faces.count)")
-//        print("   WholeImage ID: \(wholeImage.wid)")
-        
+
         configureUI()
         styleSlider()
         loadImage()
@@ -45,7 +35,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         configureMemoryAction()
         setupTapGesture()
     }
-    
+
     private func animateControlsIn() {
         UIView.animate(
             withDuration: 0.6,
@@ -58,8 +48,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             }
         )
     }
-
-
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -88,7 +76,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         delayedPlaybackWorkItem?.cancel()
         stopAudio()
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         addInnerShadow()
@@ -145,17 +133,14 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
                     self.progressSlider.alpha = 1
                 }
 
-                // ⏳ Delay audio playback by 3 seconds
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
                 self.playAudio()
-//                }
 
             case .empty:
                 self.goToNextScreen()
             }
         }
     }
-    
+
     private func showAudio(from url: URL) {
 
         caregiverTextLabel.isHidden = true
@@ -165,26 +150,23 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
         setupAudio(from: url)
 
-        // ⏳ Delay audio playback by 3 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
             self?.playAudio()
         }
     }
 
-    
     private var pendingAction: MemoryActionContent?
 
     private func configureMemoryAction() {
         pendingAction = wholeImage.action
     }
 
-    
     private func hideAllActionViews() {
         playPauseButton.isHidden = true
         progressSlider.isHidden = true
         caregiverTextLabel.isHidden = true
     }
-    
+
     private func showText(_ text: String) {
         caregiverTextLabel.text = text
         caregiverTextLabel.numberOfLines = 0
@@ -196,7 +178,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         progressSlider.isHidden = true
     }
 
-    
     private func showEmpty(_ text: String) {
         caregiverTextLabel.text = text
         caregiverTextLabel.numberOfLines = 0
@@ -216,10 +197,8 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
         setupAudio(from: url)
     }
-    
+
     private func setupAudio(from url: URL) {
-        print("🎵 Attempting audio setup from URL: \(url)")
-        print("   File exists: \(FileManager.default.fileExists(atPath: url.path))")
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
@@ -231,9 +210,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             print("Audio setup failed:", error)
         }
     }
-    
 
-    
     private func prepareForFadeIn() {
         playPauseButton.alpha = 0
         progressSlider.alpha = 0
@@ -249,20 +226,16 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         caregiverTextLabel.isHidden = true
     }
 
-
-
-    // MARK: - UI Setup
-
     private func configureUI() {
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
-        
+
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.clipsToBounds = true
 
         progressSlider.minimumValue = 0
         progressSlider.value = 0
-        
+
         commentLabel.text = "Here's what was said about this memory"
 
         continueLabel.text = "Tap to continue"
@@ -274,10 +247,10 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             for: .normal
         )
     }
-    
+
     private func makeLowResolutionImage(from image: UIImage) -> UIImage {
 
-        let scale: CGFloat = 0.08   // 8% of original resolution
+        let scale: CGFloat = 0.08
 
         let targetSize = CGSize(
             width: image.size.width * scale,
@@ -297,14 +270,12 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
     private func loadImage() {
         guard let image = LocalImageStore.shared.fetchImage(by: wholeImage.wid) else {
-            print("❌ Failed to load image from LocalImageStore")
+            print("Failed to load image from LocalImageStore")
             return
         }
         imageView.image = image
         backgroundImageView.image = makeLowResolutionImage(from: image)
     }
-
-    // MARK: - Audio Setup
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         isPlaying = false
@@ -312,7 +283,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         progressSlider.value = progressSlider.minimumValue
         updatePlayPauseIcon()
     }
-    
 
     private func playAudio() {
         audioPlayer?.play()
@@ -327,7 +297,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         updatePlayPauseIcon()
         stopProgressTimer()
     }
-    
+
     private func updatePlayPauseIcon() {
         let iconName = isPlaying ? "pause.fill" : "play.fill"
         playPauseButton.setImage(UIImage(systemName: iconName), for: .normal)
@@ -338,14 +308,11 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         audioPlayer?.currentTime = 0
         audioPlayer?.delegate = nil
         audioPlayer = nil
-        
+
         stopProgressTimer()
-        
+
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
-
-
-    // MARK: - Timer
 
     private func startProgressTimer() {
         stopProgressTimer()
@@ -356,7 +323,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             self.progressSlider.value = Float(player.currentTime)
         }
     }
-    
+
     private func styleSlider() {
         progressSlider.minimumTrackTintColor = UIColor.white.withAlphaComponent(0.6)
         progressSlider.maximumTrackTintColor = UIColor.white.withAlphaComponent(0.25)
@@ -366,14 +333,14 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         progressSlider.setThumbImage(thumb, for: .normal)
         progressSlider.setThumbImage(thumb, for: .highlighted)
     }
-    
+
     private func makeCircleThumb(diameter: CGFloat, color: UIColor) -> UIImage {
         let size = CGSize(width: diameter, height: diameter)
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
-        let ctx = UIGraphicsGetCurrentContext()!
+        guard let ctx = UIGraphicsGetCurrentContext() else { return UIImage() }
         ctx.setFillColor(color.cgColor)
         ctx.fillEllipse(in: CGRect(origin: .zero, size: size))
-        let image = UIGraphicsGetImageFromCurrentImageContext()!
+        guard let image = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage() }
         UIGraphicsEndImageContext()
         return image
     }
@@ -382,8 +349,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         progressTimer?.invalidate()
         progressTimer = nil
     }
-
-    // MARK: - Actions
 
     @IBAction private func playPauseTapped(_ sender: UIButton) {
         isPlaying ? pauseAudio() : playAudio()
@@ -431,8 +396,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
 
         innerShadowView.layer.addSublayer(shadowLayer)
     }
-    
-    // MARK: - Tap Navigation
 
     private func setupTapGesture() {
         let tap = UITapGestureRecognizer(
@@ -450,8 +413,6 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
         }
     }
 
-    // MARK: - Hint Animation
-
     private func animateContinueHint() {
         UIView.animate(
             withDuration: 0,
@@ -462,9 +423,7 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             }
         )
     }
-    
-    // MARK: - Navigation
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showFirstFace",
            let faceVC = segue.destination as? FaceViewController {
@@ -472,10 +431,10 @@ final class MemoryLaneIntroAudioVC: UIViewController, AVAudioPlayerDelegate {
             faceVC.wholeImage = wholeImage
             faceVC.faces = faces
             faceVC.questionsByPerson = questionsByPerson
-            faceVC.portraitImage = portraitImage   // 🔥 HERE
+            faceVC.portraitImage = portraitImage
         }
     }
-    
+
     private func goToNextScreen() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             self.performSegue(withIdentifier: "showFirstFace", sender: nil)

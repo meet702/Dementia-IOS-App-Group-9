@@ -27,32 +27,24 @@ class OTPVerificationViewController: UIViewController {
 
         Task {
             do {
-                print("🔍 Task started")
                 try await SupabaseSyncManager.shared.verifyOTP(email: email, otp: otp)
-                print("🔍 OTP verified")
 
                 guard let uid = SupabaseManager.shared.client.auth.currentUser?.id else {
-                    print("❌ No uid found after OTP verify")
                     return
                 }
-                print("🔍 uid:", uid)
 
                 let existingProfile = try await SupabaseSyncManager.shared.fetchUserProfile(uid: uid)
-                print("🔍 existingProfile:", existingProfile?.name ?? "nil")
 
                 if let profile = existingProfile {
-                    print("🔍 Entering returning user block")
-                    // ✅ Populate session
+
                     SessionManager.shared.currentUserProfile = profile
                     SessionManager.shared.populateFromProfile(profile)
                     SessionManager.shared.clearLocalDataForNewUser()
 
-                    // ✅ Show loading screen
                     let loadingVC = RestoringMemoriesViewController()
                     loadingVC.modalPresentationStyle = .fullScreen
                     self.present(loadingVC, animated: true)
 
-                    // ✅ Start fake progress ticker
                     let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { timer in
                         let current = loadingVC.currentProgress
                         if current < 0.85 {
@@ -64,32 +56,19 @@ class OTPVerificationViewController: UIViewController {
                     }
                     RunLoop.main.add(progressTimer, forMode: .common)
 
-                    // ✅ Actual restore
-                    // ✅ Actual restore
                     await SupabaseSyncManager.shared.restoreAllData()
 
-                    print("🔍 profile role:", profile.role)
-                    print("🔍 profile uid:", profile.uid)
-
-                    // ✅ Fetch linked patient profile if caregiver
                     if profile.role == .caregiver {
-                        print("🔍 Fetching patient profile...")
                         if let patientProfile = try? await SupabaseSyncManager.shared.fetchPatientProfile(caregiverUid: profile.uid) {
-                            // Store the linked patient's data so Caregiver Home and Profile screens can display it
+
                             SessionManager.shared.patientName = patientProfile.name
                             SessionManager.shared.patientContact = patientProfile.email
                             SessionManager.shared.saveToDefaults()
-                            print("✅ Patient profile loaded:", patientProfile.name)
                         } else {
-                            print("❌ No patient found for caregiverUid:", profile.uid)
                         }
                     } else {
-                        print("🔍 Not a caregiver, skipping patient fetch")
                     }
 
-                    print("🔍 SessionManager patientName:", SessionManager.shared.patientName ?? "nil")
-
-                    // ✅ Complete progress and navigate
                     progressTimer.invalidate()
                     await MainActor.run {
                         loadingVC.setProgress(1.0)
@@ -100,7 +79,7 @@ class OTPVerificationViewController: UIViewController {
                     }
 
                 } else {
-                    // ✅ New user — go to role selection
+
                     await MainActor.run {
                         self.performSegue(withIdentifier: "showRoleSelection", sender: nil)
                     }
